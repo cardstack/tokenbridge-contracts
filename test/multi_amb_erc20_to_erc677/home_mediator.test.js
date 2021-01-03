@@ -5,6 +5,7 @@ const AMBMock = artifacts.require('AMBMock.sol')
 const ERC677BridgeToken = artifacts.require('ERC677BridgeToken.sol')
 const PermittableToken = artifacts.require('PermittableToken.sol')
 const Sacrifice = artifacts.require('Sacrifice.sol')
+const BridgeUtilsMock = artifacts.require('BridgeUtilsMock.sol')
 
 const { expect } = require('chai')
 const { getEvents, expectEventInLogs, ether, strip0x } = require('../helpers/helpers')
@@ -29,6 +30,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
   let contract
   let token
   let ambBridgeContract
+  let bridgeUtilsContract
   let otherSideAMBBridgeContract
   let otherSideMediator
   let currentDay
@@ -40,7 +42,9 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
   const value = oneEther
   beforeEach(async () => {
     contract = await HomeMultiAMBErc20ToErc677.new()
+
     ambBridgeContract = await AMBMock.new()
+    bridgeUtilsContract = await BridgeUtilsMock.new()
     otherSideAMBBridgeContract = await AMBMock.new()
     await ambBridgeContract.setMaxGasPerTx(maxGasPerTx)
     await otherSideAMBBridgeContract.setMaxGasPerTx(maxGasPerTx)
@@ -130,7 +134,14 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
             .mul(oneEther.sub(fee))
             .div(oneEther)
         : value
-    expect(await homeToken.balanceOf(user)).to.be.bignumber.equal(bridgedValue)
+
+    const bridgeEvents = await getEvents(contract, { event: 'TokensBridged' })
+
+    expect(bridgeEvents.length).to.equal(1)
+
+    const safeAddress = bridgeEvents[0].returnValues.recipient
+
+    expect(await homeToken.balanceOf(safeAddress)).to.be.bignumber.equal(bridgedValue)
     return homeToken
   }
 
@@ -160,7 +171,22 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         owner,
         tokenImage.address,
         [],
-        [ZERO, ZERO]
+        [ZERO, ZERO],
+        bridgeUtilsContract.address
+      ).should.be.rejected
+
+      // not valid bridge utils address
+      await contract.initialize(
+        ZERO_ADDRESS,
+        otherSideMediator.address,
+        [dailyLimit, maxPerTx, minPerTx],
+        [executionDailyLimit, executionMaxPerTx],
+        maxGasPerTx,
+        owner,
+        tokenImage.address,
+        [],
+        [ZERO, ZERO],
+        ZERO_ADDRESS
       ).should.be.rejected
 
       // dailyLimit > maxPerTx
@@ -173,7 +199,8 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         owner,
         tokenImage.address,
         [],
-        [ZERO, ZERO]
+        [ZERO, ZERO],
+        bridgeUtilsContract.address
       ).should.be.rejected
 
       // maxPerTx > minPerTx
@@ -186,7 +213,8 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         owner,
         tokenImage.address,
         [],
-        [ZERO, ZERO]
+        [ZERO, ZERO],
+        bridgeUtilsContract.address
       ).should.be.rejected
 
       // executionDailyLimit > executionMaxPerTx
@@ -199,7 +227,8 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         owner,
         tokenImage.address,
         [],
-        [ZERO, ZERO]
+        [ZERO, ZERO],
+        bridgeUtilsContract.address
       ).should.be.rejected
 
       // maxGasPerTx > bridge maxGasPerTx
@@ -212,7 +241,8 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         owner,
         tokenImage.address,
         [],
-        [ZERO, ZERO]
+        [ZERO, ZERO],
+        bridgeUtilsContract.address
       ).should.be.rejected
 
       // not valid owner
@@ -225,7 +255,8 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         ZERO_ADDRESS,
         tokenImage.address,
         [],
-        [ZERO, ZERO]
+        [ZERO, ZERO],
+        bridgeUtilsContract.address
       ).should.be.rejected
 
       // token image is not a contract
@@ -238,7 +269,8 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         owner,
         owner,
         [],
-        [ZERO, ZERO]
+        [ZERO, ZERO],
+        bridgeUtilsContract.address
       ).should.be.rejected
 
       const { logs } = await contract.initialize(
@@ -250,7 +282,8 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         owner,
         tokenImage.address,
         [],
-        [ZERO, ZERO]
+        [ZERO, ZERO],
+        bridgeUtilsContract.address
       ).should.be.fulfilled
 
       // already initialized
@@ -263,12 +296,15 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         owner,
         tokenImage.address,
         [],
-        [ZERO, ZERO]
+        [ZERO, ZERO],
+        bridgeUtilsContract.address
       ).should.be.rejected
 
       // Then
       expect(await contract.isInitialized()).to.be.equal(true)
       expect(await contract.bridgeContract()).to.be.equal(ambBridgeContract.address)
+      expect(await contract.bridgeUtils()).to.be.equal(bridgeUtilsContract.address)
+      expect(await contract.mediatorContractOnOtherSide()).to.be.equal(otherSideMediator.address)
       expect(await contract.mediatorContractOnOtherSide()).to.be.equal(otherSideMediator.address)
       expect(await contract.dailyLimit(ZERO_ADDRESS)).to.be.bignumber.equal(dailyLimit)
       expect(await contract.maxPerTx(ZERO_ADDRESS)).to.be.bignumber.equal(maxPerTx)
@@ -310,7 +346,8 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         owner,
         tokenImage.address,
         [user2],
-        [ether('0.1'), ZERO]
+        [ether('0.1'), ZERO],
+        bridgeUtilsContract.address
       ).should.be.fulfilled
     })
 
@@ -359,7 +396,8 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         owner,
         tokenImage.address,
         [],
-        [ZERO, ZERO]
+        [ZERO, ZERO],
+        bridgeUtilsContract.address
       ).should.be.fulfilled
 
       const initialEvents = await getEvents(ambBridgeContract, { event: 'MockedEvent' })
@@ -389,7 +427,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
       it('should register new token in deployAndHandleBridgedTokens', async () => {
         const homeToken = await bridgeToken(token)
 
-        expect(await homeToken.name()).to.be.equal('TEST on xDai')
+        expect(await homeToken.name()).to.be.equal('TEST CPXD')
         expect(await homeToken.symbol()).to.be.equal('TST')
         expect(await homeToken.decimals()).to.be.bignumber.equal('18')
         expect(await homeToken.version()).to.be.equal('1')
@@ -405,7 +443,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         token = await ERC677BridgeToken.new('', 'TST', 18)
         const homeToken = await bridgeToken(token)
 
-        expect(await homeToken.name()).to.be.equal('TST on xDai')
+        expect(await homeToken.name()).to.be.equal('TST CPXD')
         expect(await homeToken.symbol()).to.be.equal('TST')
         expect(await homeToken.decimals()).to.be.bignumber.equal('18')
       })
@@ -414,7 +452,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         token = await ERC677BridgeToken.new('TEST', '', 18)
         const homeToken = await bridgeToken(token)
 
-        expect(await homeToken.name()).to.be.equal('TEST on xDai')
+        expect(await homeToken.name()).to.be.equal('TEST CPXD')
         expect(await homeToken.symbol()).to.be.equal('TEST')
         expect(await homeToken.decimals()).to.be.bignumber.equal('18')
       })
@@ -659,6 +697,9 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         await homeToken.approve(contract.address, value, { from: user }).should.be.fulfilled
         expect(await homeToken.allowance(user, contract.address)).to.be.bignumber.equal(value)
 
+        const updateTokenEvents = await getEvents(bridgeUtilsContract, { event: 'UpdateToken' })
+        expect(updateTokenEvents.length).to.equal(1)
+
         // When
         await contract.methods['relayTokens(address,address,uint256)'](homeToken.address, user, value, { from: user })
           .should.be.fulfilled
@@ -666,7 +707,6 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         // Then
         const events = await getEvents(ambBridgeContract, { event: 'MockedEvent' })
         expect(events.length).to.be.equal(1)
-        expect(events[0].returnValues.encodedData.includes(strip0x(token.address).toLowerCase())).to.be.equal(true)
         expect(events[0].returnValues.encodedData.includes(strip0x(user).toLowerCase())).to.be.equal(true)
         expect(await contract.totalSpentPerDay(homeToken.address, currentDay)).to.be.bignumber.equal(value)
         expect(await homeToken.balanceOf(contract.address)).to.be.bignumber.equal(ZERO)
@@ -677,6 +717,53 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         expect(depositEvents[0].returnValues.sender).to.be.equal(user)
         expect(depositEvents[0].returnValues.value).to.be.equal(value.toString())
         expect(depositEvents[0].returnValues.messageId).to.include('0x11223344')
+
+        // should not call updateToken because token is already registered
+        const updateTokenEventsAfter = await getEvents(bridgeUtilsContract, { event: 'UpdateToken' })
+        expect(updateTokenEventsAfter.length).to.equal(1)
+      })
+
+      it.only('should send the tokens to a safe', async () => {
+        // Given
+        await homeToken.approve(contract.address, value, { from: user }).should.be.fulfilled
+        expect(await homeToken.allowance(user, contract.address)).to.be.bignumber.equal(value)
+
+        const updateTokenEvents = await getEvents(bridgeUtilsContract, { event: 'UpdateToken' })
+        expect(updateTokenEvents.length).to.equal(1)
+
+        console.log('HERE')
+        // When
+        await contract.methods['relayTokens(address,address,uint256)'](homeToken.address, user, value, { from: user })
+          .should.be.fulfilled
+
+        // Then
+
+        // First transfer - a supplier should be registered
+        const updateTokenEventsAfter1 = await getEvents(bridgeUtilsContract, { event: 'SupplierWallet' })
+        expect(updateTokenEventsAfter1.length).to.equal(1)
+        expect(updateTokenEventsAfter1[0].returnValues.owner).to.equal(user)
+
+        const safeAddress = updateTokenEventsAfter1[0].returnValues.wallet
+        console.log('safe', safeAddress)
+        // eslint-disable-next-line no-unused-expressions
+        expect(safeAddress).to.be.ok
+        console.log(accounts)
+        expect(safeAddress).not.to.equal(user)
+
+        const bridgeEvents = await getEvents(contract, { event: 'TokensBridged' })
+        expect(bridgeEvents.length).to.be.equal(1)
+        expect(bridgeEvents[0].returnValues.recipient).not.to.be.equal(user)
+        expect(bridgeEvents[0].returnValues.recipient).to.be.equal(safeAddress)
+
+        // // send using a safe address should equal the safe address
+        // await contract.methods['relayTokens(address,address,uint256)'](homeToken.address, safeAddress, value, {
+        //   from: user
+        // }).should.be.fulfilled
+
+        // const bridgeEvents2 = await getEvents(contract, { event: 'TokensBridged' })
+        // expect(bridgeEvents2.length).to.be.equal(2)
+        // expect(bridgeEvents2[0].returnValues.recipient).to.be.equal(safeAddress)
+        // expect(bridgeEvents2[1].returnValues.recipient).to.be.equal(safeAddress)
       })
 
       it('should allow to specify a different receiver without specifying sender', async () => {
@@ -779,6 +866,11 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         expect(event[1].returnValues.recipient).to.be.equal(user)
         expect(event[1].returnValues.value).to.be.equal(value.toString())
         expect(event[1].returnValues.messageId).to.be.equal(exampleMessageId)
+
+        // the token should be updated because it is a new token deploy
+        const updateTokenEvents = await getEvents(bridgeUtilsContract, { event: 'UpdateToken' })
+        expect(updateTokenEvents.length).to.equal(1)
+        expect(updateTokenEvents[0].returnValues.token).to.equal(homeToken.address)
       })
 
       it('should not allow to operate when global shutdown is enabled', async () => {
@@ -1092,7 +1184,8 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         owner,
         tokenImage.address,
         [owner],
-        [ether('0.02'), ether('0.01')]
+        [ether('0.02'), ether('0.01')],
+        bridgeUtilsContract.address
       ).should.be.fulfilled
 
       const initialEvents = await getEvents(ambBridgeContract, { event: 'MockedEvent' })

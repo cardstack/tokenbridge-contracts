@@ -40,7 +40,7 @@ start_ganache() {
   )
 
   if [ "$SOLIDITY_COVERAGE" != true ]; then
-    node_modules/.bin/ganache-cli --gasLimit 0xfffffffffff "${accounts[@]}" > /dev/null &
+    node_modules/.bin/ganache-cli --allowUnlimitedContractSize --gasLimit 0xfffffffffff "${accounts[@]}" > /dev/null &
   fi
 
   ganache_pid=$!

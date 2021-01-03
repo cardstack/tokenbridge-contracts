@@ -26,6 +26,7 @@ function getContracts() {
     HomeBridgeNativeToErc: require(`../../build/${buildPath}/HomeBridgeNativeToErc.json`),
     BlockReward: require(`../../build/${buildPath}/BlockReward.json`),
     BlockRewardMock: require(`../../build/${buildPath}/BlockRewardMock.json`),
+    BridgeUtilsMock: require(`../../build/${buildPath}/BridgeUtilsMock.json`),
     HomeAMB: require(`../../build/${buildPath}/HomeAMB.json`),
     ForeignAMB: require(`../../build/${buildPath}/ForeignAMB`),
     HomeAMBErc677ToErc677: require(`../../build/${buildPath}/HomeAMBErc677ToErc677.json`),
@@ -40,7 +41,7 @@ function getContracts() {
     ForeignAMBErc20ToNative: require(`../../build/${buildPath}/ForeignAMBErc20ToNative.json`),
     HomeAMBErc20ToNative: require(`../../build/${buildPath}/HomeAMBErc20ToNative.json`),
     ForeignMultiAMBErc20ToErc677: require(`../../build/${buildPath}/ForeignMultiAMBErc20ToErc677.json`),
-    HomeMultiAMBErc20ToErc677: require(`../../build/${buildPath}/HomeMultiAMBErc20ToErc677.json`),
+    HomeMultiAMBErc20ToErc677: require(`../../build/${buildPath}/HomeMultiAMBErc20ToErc677.json`)
   }
 }
 
