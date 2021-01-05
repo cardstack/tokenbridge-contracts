@@ -30,7 +30,9 @@ contract HomeBridgeNativeToErc is EternalStorage, BasicHomeBridge, RewardableHom
         emit UserRequestForSignature(_receiver, valueToTransfer);
     }
 
+    event Debug(string message);
     function relayTokens(address _receiver) external payable {
+      emit Debug("HomeBridgeNativeToErc relayTokens");
         nativeTransfer(_receiver);
     }
 

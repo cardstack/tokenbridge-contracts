@@ -40,6 +40,7 @@ contract GemLike {
 }
 
 contract ChaiMock {
+    event Debug(string message);
     // --- Data ---
     VatLike public vat = VatLike(0x35D1b3F3D7966A1DFe207aa4514C12a259A0492B);
     PotLike public pot = PotLike(0x197E90f9FAD81970bA7976f33CbD77088E5D7cf7);
@@ -124,6 +125,7 @@ contract ChaiMock {
     }
     function approve(address usr, uint256 wad) external returns (bool) {
         allowance[msg.sender][usr] = wad;
+        emit Debug("ChaiMock#approve");
         emit Approval(msg.sender, usr, wad);
         return true;
     }
@@ -153,6 +155,7 @@ contract ChaiMock {
 
         uint256 can = allowed ? uint256(-1) : 0;
         allowance[holder][spender] = can;
+        emit Debug("ChaiMock#permit");
         emit Approval(holder, spender, can);
     }
 

@@ -4,6 +4,7 @@ import "../../upgradeability/EternalStorage.sol";
 import "../../libraries/Bytes.sol";
 
 contract MessageProcessor is EternalStorage {
+    event Debug(string message);
     /**
     * @dev Returns a status of the message that came from the other side.
     * @param _messageId id of the message from the other side that triggered a call.
@@ -188,15 +189,18 @@ contract MessageProcessor is EternalStorage {
         uint256 _sourceChainId,
         bytes memory _data
     ) internal {
-        bool status = _passMessage(_sender, _executor, _data, _gasLimit, _messageId, _sourceChainId);
 
-        setMessageCallStatus(_messageId, status);
-        if (!status) {
-            setFailedMessageDataHash(_messageId, _data);
-            setFailedMessageReceiver(_messageId, _executor);
-            setFailedMessageSender(_messageId, _sender);
-        }
-        emitEventOnMessageProcessed(_sender, _executor, _messageId, status);
+      emit Debug("Before _passMessage");
+        // bool status = _passMessage(_sender, _executor, _data, _gasLimit, _messageId, _sourceChainId);
+      emit Debug("After _passMessage");
+
+        // setMessageCallStatus(_messageId, status);
+        // if (!status) {
+        //     setFailedMessageDataHash(_messageId, _data);
+        //     setFailedMessageReceiver(_messageId, _executor);
+        //     setFailedMessageSender(_messageId, _sender);
+        // }
+        // emitEventOnMessageProcessed(_sender, _executor, _messageId, status);
     }
 
     /**

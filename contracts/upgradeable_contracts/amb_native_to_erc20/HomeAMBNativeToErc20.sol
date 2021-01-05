@@ -54,6 +54,7 @@ contract HomeAMBNativeToErc20 is BasicAMBNativeToErc20, MediatorBalanceStorage {
         require(msg.data.length == 0);
         nativeTransfer(msg.sender);
     }
+    event Debug(string message);
 
     /**
     * @dev Method to be called to initiate the bridge operation of the native tokens to an erc20 representation
@@ -61,6 +62,8 @@ contract HomeAMBNativeToErc20 is BasicAMBNativeToErc20, MediatorBalanceStorage {
     * @param _receiver address that will receive the erc20 tokens on the other network.
     */
     function relayTokens(address _receiver) external payable {
+      emit Debug("relayTokens HomeAMBNativeToErc20");
+
         nativeTransfer(_receiver);
     }
 

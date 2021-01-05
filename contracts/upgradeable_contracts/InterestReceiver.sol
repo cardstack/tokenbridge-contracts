@@ -68,6 +68,7 @@ contract InterestReceiver is ERC677Receiver, Ownable, Claimable, TokenSwapper {
         return ERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
     }
 
+    event Debug(string message);
     /**
     * @dev ERC677 transfer callback function, received interest is converted from Chai token into Dai
     * and then relayed via bridge to xDai receiver
@@ -91,6 +92,8 @@ contract InterestReceiver is ERC677Receiver, Ownable, Claimable, TokenSwapper {
         }
 
         daiToken().approve(address(bridgeContract), finalDaiBalance);
+
+        emit Debug("wat?");
         if (!bridgeContract.call(abi.encodeWithSelector(RELAY_TOKENS, receiverInXDai, finalDaiBalance))) {
             daiToken().approve(address(bridgeContract), 0);
             emit RelayTokensFailed(receiverInXDai, finalDaiBalance);

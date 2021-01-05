@@ -24,6 +24,7 @@ const {
 const verifier = require('./utils/verifier')
 
 async function deployContract(contractJson, args, { from, network, nonce }) {
+  console.log('deployContract here')
   let web3
   let url
   let gasPrice

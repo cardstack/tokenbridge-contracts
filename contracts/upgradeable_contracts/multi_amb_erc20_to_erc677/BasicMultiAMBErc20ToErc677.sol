@@ -21,6 +21,7 @@ contract BasicMultiAMBErc20ToErc677 is
     VersionableBridge,
     MultiTokenBridgeMediator
 {
+  event Debug(string message);
     /**
     * @dev Tells the address of the mediator contract on the other side, used by chooseReceiver method
     * to avoid sending the native tokens to that address.
@@ -38,6 +39,7 @@ contract BasicMultiAMBErc20ToErc677 is
     * @param _value amount of tokens to be transferred to the other network.
     */
     function relayTokens(ERC677 token, address _receiver, uint256 _value) external {
+      emit Debug("relayTokens 1");
         _relayTokens(token, _receiver, _value);
     }
 
@@ -48,6 +50,7 @@ contract BasicMultiAMBErc20ToErc677 is
     * @param _value amount of tokens to be transferred to the other network.
     */
     function relayTokens(ERC677 token, uint256 _value) external {
+      emit Debug("relayTokens 2");
         _relayTokens(token, msg.sender, _value);
     }
 

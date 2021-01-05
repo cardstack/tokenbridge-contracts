@@ -59,6 +59,7 @@ contract ForeignAMBErc20ToNative is BasicAMBErc20ToNative, ReentrancyGuard, Base
     function erc20token() external view returns (ERC677) {
         return _erc677token();
     }
+    event Debug(string message);
 
     /**
     * @dev It will initiate the bridge operation that will lock the amount of tokens transferred and mint the native tokens on
@@ -66,7 +67,9 @@ contract ForeignAMBErc20ToNative is BasicAMBErc20ToNative, ReentrancyGuard, Base
     * @param _receiver address that will receive the native tokens on the other network.
     * @param _value amount of tokens to be transferred to the other network.
     */
+
     function relayTokens(address _receiver, uint256 _value) external {
+      emit Debug("relayTokens foreign");
         // This lock is to prevent calling passMessage twice.
         // When transferFrom is called, after the transfer, the ERC677 token will call onTokenTransfer from this contract
         // which will call passMessage.

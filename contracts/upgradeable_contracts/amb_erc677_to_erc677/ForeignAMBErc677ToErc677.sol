@@ -27,6 +27,7 @@ contract ForeignAMBErc677ToErc677 is BasicAMBErc677ToErc677, MediatorBalanceStor
         emit TokensBridged(_recipient, value, _messageId);
     }
 
+    event Debug(string message);
     /**
     * @dev Initiates the bridge operation that will lock the amount of tokens transferred and mint the tokens on
     * the other network. The user should first call Approve method of the ERC677 token.
@@ -34,6 +35,7 @@ contract ForeignAMBErc677ToErc677 is BasicAMBErc677ToErc677, MediatorBalanceStor
     * @param _value amount of tokens to be transferred to the other network.
     */
     function relayTokens(address _receiver, uint256 _value) external {
+      emit Debug("ForeignAMBErc677ToErc677 relayTokens");
         // This lock is to prevent calling passMessage twice if a ERC677 token is used.
         // When transferFrom is called, after the transfer, the ERC677 token will call onTokenTransfer from this contract
         // which will call passMessage.

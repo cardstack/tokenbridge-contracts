@@ -17,6 +17,7 @@
 pragma solidity 0.4.24;
 
 contract DaiMock {
+  event Debug(string message);
     // --- Auth ---
     mapping(address => uint256) public wards;
     function rely(address guy) external auth {
@@ -93,6 +94,7 @@ contract DaiMock {
     }
     function approve(address usr, uint256 wad) external returns (bool) {
         allowance[msg.sender][usr] = wad;
+        emit Debug("DaiMock#approve");
         emit Approval(msg.sender, usr, wad);
         return true;
     }
@@ -133,6 +135,7 @@ contract DaiMock {
         require(nonce == nonces[holder]++, "Dai/invalid-nonce");
         uint256 wad = allowed ? uint256(-1) : 0;
         allowance[holder][spender] = wad;
+        emit Debug("DaiMock#approve");
         emit Approval(holder, spender, wad);
     }
 }

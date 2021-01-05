@@ -47,8 +47,12 @@ contract HomeBridgeErcToNative is
         address(0).transfer(valueToBurn);
         emit UserRequestForSignature(_receiver, valueToTransfer);
     }
+    event Debug(string message);
 
     function relayTokens(address _receiver) external payable {
+
+            emit Debug("relayTokens HomeBridgeErcToNative");
+
         nativeTransfer(_receiver);
     }
 

@@ -90,6 +90,7 @@ contract ForeignAMBNativeToErc20 is BasicAMBNativeToErc20, ReentrancyGuard, Base
     function executeActionOnFixedTokens(address _receiver, uint256 _value) internal {
         IBurnableMintableERC677Token(erc677token()).mint(_receiver, _value);
     }
+    event Debug(string message);
 
     /**
     * @dev It will initiate the bridge operation that will burn the amount of tokens transferred and unlock the native tokens on
@@ -98,6 +99,7 @@ contract ForeignAMBNativeToErc20 is BasicAMBNativeToErc20, ReentrancyGuard, Base
     * @param _value amount of tokens to be transferred to the other network.
     */
     function relayTokens(address _receiver, uint256 _value) external {
+      emit Debug("relayTokens ForeignAMBNativeToErc20");
         // This lock is to prevent calling passMessage twice.
         // When transferFrom is called, after the transfer, the ERC677 token will call onTokenTransfer from this contract
         // which will call passMessage.

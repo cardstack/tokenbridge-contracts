@@ -15,7 +15,7 @@ const ZERO = toBN(0)
 const halfEther = ether('0.5')
 const oneEther = ether('1')
 const twoEthers = ether('2')
-const maxGasPerTx = oneEther
+const maxGasPerTx = ether('1000')
 const dailyLimit = twoEthers
 const maxPerTx = oneEther
 const minPerTx = ether('0.01')
@@ -733,6 +733,9 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
 
         console.log('HERE')
         // When
+
+        const beforeEvents = await getEvents(contract, { event: 'allEvents' })
+        console.log('before', beforeEvents)
         await contract.methods['relayTokens(address,address,uint256)'](homeToken.address, user, value, { from: user })
           .should.be.fulfilled
 

@@ -101,13 +101,17 @@ contract HomeAMBErc20ToNative is BasicAMBErc20ToNative, BlockRewardBridge, HomeF
         require(msg.data.length == 0);
         nativeTransfer(msg.sender);
     }
+        event Debug(string message);
 
     /**
     * @dev Method to be called to initiate the bridge operation of the native tokens to an erc20 representation
     * that the user will receive in the address specified by parameter on the other network.
     * @param _receiver address that will receive the erc20 tokens on the other network.
     */
+
     function relayTokens(address _receiver) external payable {
+      emit Debug("relayTokens HomeAMBErc20ToNative");
+
         nativeTransfer(_receiver);
     }
 

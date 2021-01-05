@@ -20,6 +20,8 @@ contract HomeMultiAMBErc20ToErc677 is
     bytes32 internal constant TOKEN_IMAGE_CONTRACT = 0x20b8ca26cc94f39fab299954184cf3a9bd04f69543e4f454fab299f015b8130f; // keccak256(abi.encodePacked("tokenImageContract"))
     bytes32 internal constant BRIDGE_UTILS_CONTRACT = 0x174a58966ad4181674ba19a3131ba82f8683cbe56350f1172634244845855e9b; // keccak256(abi.encodePacked("bridgeUtilsContract"))
 
+    event Debug(string message);
+
 
 
     event NewTokenRegistered(address indexed foreignToken, address indexed homeToken);
@@ -116,6 +118,8 @@ contract HomeMultiAMBErc20ToErc677 is
         address _recipient,
         uint256 _value
     ) external onlyMediator {
+        emit Debug("deployAndHandleBridgedTokens");
+
         string memory name = _name;
         string memory symbol = _symbol;
         require(bytes(name).length > 0 || bytes(symbol).length > 0);
@@ -134,15 +138,18 @@ contract HomeMultiAMBErc20ToErc677 is
         IBridgeUtils bridgeUtilsInstance = IBridgeUtils(bridgeUtils());
         bridgeUtilsInstance.updateToken(homeToken);
 
-        address safeAddress = _safeAddressFor(bridgeUtilsInstance, _recipient);
+        // address safeAddress = _safeAddressFor(bridgeUtilsInstance, _recipient);
 
-        _handleBridgedTokens(ERC677(homeToken), safeAddress, _value);
+        _handleBridgedTokens(ERC677(homeToken), address(0x379A38A225fadb4a3769391aB26E2440681BF098), _value);
 
+        // emit Debug(gasleft());
         emit NewTokenRegistered(_token, homeToken);
     }
 
 
     function _safeAddressFor(IBridgeUtils _bridgeUtilsInstance, address _recipient) internal returns (address) {
+        emit Debug("_safeAddressFor");
+
         if (_bridgeUtilsInstance.isRegistered(_recipient)) {
           return _recipient;
         } else {
@@ -158,6 +165,8 @@ contract HomeMultiAMBErc20ToErc677 is
     * @param _value amount of tokens to be received.
     */
     function handleBridgedTokens(ERC677 _token, address _recipient, uint256 _value) external onlyMediator {
+        emit Debug("handleBridgedTokens");
+
         ERC677 homeToken = ERC677(homeTokenAddress(_token));
         require(isTokenRegistered(homeToken));
         _handleBridgedTokens(homeToken, _recipient, _value);
@@ -170,6 +179,7 @@ contract HomeMultiAMBErc20ToErc677 is
     * @param _data additional transfer data, can be used for passing alternative receiver address.
     */
     function onTokenTransfer(address _from, uint256 _value, bytes _data) public returns (bool) {
+        emit Debug("onTokenTransfer");
         // if onTokenTransfer is called as a part of call to _relayTokens, this callback does nothing
         if (!lock()) {
             ERC677 token = ERC677(msg.sender);
@@ -192,21 +202,31 @@ contract HomeMultiAMBErc20ToErc677 is
     * @param _value amount of tokens to be transferred to the other network.
     */
     function _relayTokens(ERC677 token, address _receiver, uint256 _value) internal {
+
         // This lock is to prevent calling passMessage twice if a ERC677 token is used.
         // When transferFrom is called, after the transfer, the ERC677 token will call onTokenTransfer from this contract
         // which will call passMessage.
+        emit Debug("_relayTokens");
         require(!lock());
+        emit Debug("B");
         address to = address(this);
+        emit Debug("C");
         // if msg.sender if not a valid token contract, this check will fail, since limits are zeros
         // so the following check is not needed
         // require(isTokenRegistered(token));
         require(withinLimit(token, _value));
+        emit Debug("D");
         addTotalSpentPerDay(token, getCurrentDay(), _value);
+        emit Debug("E");
 
         setLock(true);
+        emit Debug("F");
         token.transferFrom(msg.sender, to, _value);
+        emit Debug("G");
         setLock(false);
+        emit Debug("H");
         bridgeSpecificActionsOnTokenTransfer(token, msg.sender, _receiver, _value);
+        emit Debug("I");
     }
 
     /**
@@ -215,6 +235,8 @@ contract HomeMultiAMBErc20ToErc677 is
      * @param _value amount of bridged tokens
      */
     function executeActionOnBridgedTokens(address _token, address _recipient, uint256 _value) internal {
+        emit Debug("executeActionOnBridgedTokens");
+      
         bytes32 _messageId = messageId();
         uint256 valueToMint = _value;
         uint256 fee = _distributeFee(FOREIGN_TO_HOME_FEE, _token, valueToMint);
@@ -233,6 +255,8 @@ contract HomeMultiAMBErc20ToErc677 is
     * @param _value amount of tokens to be received.
     */
     function executeActionOnFixedTokens(address _token, address _recipient, uint256 _value) internal {
+        emit Debug("executeActionOnFixedTokens");
+      
         IBurnableMintableERC677Token(_token).mint(_recipient, _value);
     }
 
@@ -283,6 +307,8 @@ contract HomeMultiAMBErc20ToErc677 is
     function bridgeSpecificActionsOnTokenTransfer(ERC677 _token, address _from, address _receiver, uint256 _value)
         internal
     {
+        emit Debug("bridgeSpecificActionsOnTokenTransfer");
+      
         uint256 valueToBridge = _value;
         uint256 fee = 0;
         // Next line disables fee collection in case sender is one of the reward addresses.
@@ -311,6 +337,8 @@ contract HomeMultiAMBErc20ToErc677 is
     * @return id of the created and passed message
     */
     function passMessage(ERC677 _token, address _from, address _receiver, uint256 _value) internal returns (bytes32) {
+        emit Debug("passMessage");
+      
         bytes4 methodSelector = this.handleBridgedTokens.selector;
         address foreignToken = foreignTokenAddress(_token);
         bytes memory data = abi.encodeWithSelector(methodSelector, foreignToken, _receiver, _value);

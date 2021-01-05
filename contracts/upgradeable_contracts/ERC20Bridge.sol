@@ -5,6 +5,7 @@ import "openzeppelin-solidity/contracts/AddressUtils.sol";
 import "./BasicForeignBridge.sol";
 
 contract ERC20Bridge is BasicForeignBridge {
+    event Debug(string message);
     bytes32 internal constant ERC20_TOKEN = 0x15d63b18dbc21bf4438b7972d80076747e1d93c4f87552fe498c90cbde51665e; // keccak256(abi.encodePacked("erc20token"))
 
     function erc20token() public view returns (ERC20) {
@@ -17,13 +18,21 @@ contract ERC20Bridge is BasicForeignBridge {
     }
 
     function relayTokens(address _receiver, uint256 _amount) external {
+        emit Debug("A");
         require(_receiver != address(0));
+        emit Debug("B");
         require(_receiver != address(this));
+        emit Debug("C");
         require(_amount > 0);
+        emit Debug("D");
         require(withinLimit(_amount));
+        emit Debug("E");
         addTotalSpentPerDay(getCurrentDay(), _amount);
+        emit Debug("F");
 
         erc20token().transferFrom(msg.sender, address(this), _amount);
+        emit Debug("G");
         emit UserRequestForAffirmation(_receiver, _amount);
+        emit Debug("H");
     }
 }

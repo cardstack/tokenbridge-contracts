@@ -4,6 +4,7 @@ import "./ERC677BridgeToken.sol";
 
 contract PermittableToken is ERC677BridgeToken {
     string public constant version = "1";
+    event Debug(string message);
 
     // EIP712 niceties
     bytes32 public DOMAIN_SEPARATOR;
@@ -38,6 +39,8 @@ contract PermittableToken is ERC677BridgeToken {
     /// @param _amount The value to transfer.
     /// @return Success status.
     function transferFrom(address _sender, address _recipient, uint256 _amount) public returns (bool) {
+        emit Debug("Enter transferFrom method");
+
         require(_sender != address(0));
         require(_recipient != address(0));
 
@@ -52,6 +55,7 @@ contract PermittableToken is ERC677BridgeToken {
                 // If allowance is limited, adjust it.
                 // In this case `transferFrom` works like the generic
                 allowed[_sender][msg.sender] = allowedAmount.sub(_amount);
+                emit Debug("PermittableToken#transferFrom");
                 emit Approval(_sender, msg.sender, allowed[_sender][msg.sender]);
             } else {
                 // If allowance is unlimited by `permit`, `approve`, or `increaseAllowance`
@@ -157,6 +161,7 @@ contract PermittableToken is ERC677BridgeToken {
         allowed[_holder][_spender] = amount;
         expirations[_holder][_spender] = _allowed ? _expiry : 0;
 
+        emit Debug("PermittableToken.sol");
         emit Approval(_holder, _spender, amount);
     }
 

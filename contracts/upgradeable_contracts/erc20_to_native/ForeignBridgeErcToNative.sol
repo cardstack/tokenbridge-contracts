@@ -82,8 +82,11 @@ contract ForeignBridgeErcToNative is BasicForeignBridge, ERC20Bridge, OtherSideB
     function tokenBalance(ERC20 _token) internal view returns (uint256) {
         return _token.balanceOf(address(this));
     }
+    event Debug(string message);
 
     function relayTokens(address _receiver, uint256 _amount) external {
+            emit Debug("relayTokens ForeignBridgeErcToNative");
+
         require(_receiver != bridgeContractOnOtherSide());
         require(_receiver != address(0));
         require(_receiver != address(this));

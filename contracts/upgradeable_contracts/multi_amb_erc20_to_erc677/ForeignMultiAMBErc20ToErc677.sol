@@ -14,6 +14,7 @@ import "../../libraries/SafeERC20.sol";
 contract ForeignMultiAMBErc20ToErc677 is BasicMultiAMBErc20ToErc677 {
     using SafeERC20 for address;
     using SafeERC20 for ERC677;
+    event Debug(string message);
 
     /**
     * @dev Stores the initial parameters of the mediator.
@@ -95,6 +96,7 @@ contract ForeignMultiAMBErc20ToErc677 is BasicMultiAMBErc20ToErc677 {
     * @param _receiver address that will receive the native tokens on the other network.
     * @param _value amount of tokens to be transferred to the other network.
     */
+
     function _relayTokens(ERC677 token, address _receiver, uint256 _value) internal {
         // This lock is to prevent calling passMessage twice if a ERC677 token is used.
         // When transferFrom is called, after the transfer, the ERC677 token will call onTokenTransfer from this contract
