@@ -1,0 +1,90 @@
+Bridge mode: MULTI_AMB_ERC_TO_ERC
+
+[Home] Deploying Bridge Mediator storage
+
+pending txHash 0x099e63ded2f65d8cd52d55b2b1a7e4339b3be20e7bc41ed8e108fca15cced776
+[Home] Bridge Mediator Storage:  0xD0e71b62B1D5579ab229cd1C3BC9091C49284cC7
+
+[Home] Deploying Bridge Mediator implementation
+
+pending txHash 0xfa31fc7cf7bc51f9460bd3f1884f2d9d903c0083c1738e0591b79eac1050fcf8
+[Home] Bridge Mediator Implementation:  0x2AbB9C52011C618B9D49D9B7C6Ad7C71F347D2BD
+
+[Home] Hooking up Mediator storage to Mediator implementation
+pending txHash 0x3aabc915497d80455966c7d7594dbe23ab431b08bf6bcb2b346864b4bf1fbd58
+
+[Home] Deploying new ERC677 token image
+pending txHash 0xedafe595c1f1c363c29fff59bfbc3d9188e41528ecd1804b47678bd870576354
+
+[Home] New ERC677 token image has been deployed:  0xAfbA2216Aae9Afe23FD09Cf5dfe420F6ecdDD04B
+
+Home part of MULTI_AMB_ERC20_TO_ERC677 bridge deployed
+
+
+[Foreign] Deploying Bridge Mediator storage
+
+pending txHash 0x099e63ded2f65d8cd52d55b2b1a7e4339b3be20e7bc41ed8e108fca15cced776
+[Foreign] Bridge Mediator Storage:  0xD0e71b62B1D5579ab229cd1C3BC9091C49284cC7
+
+[Foreign] Deploying Bridge Mediator implementation
+
+pending txHash 0xf039264487ce6cdb0256ebb94654e5fdf07b18dab20e0b228afeafc9c76cf89d
+[Foreign] Bridge Mediator Implementation:  0x2AbB9C52011C618B9D49D9B7C6Ad7C71F347D2BD
+
+[Foreign] Hooking up Mediator storage to Mediator implementation
+pending txHash 0x3aabc915497d80455966c7d7594dbe23ab431b08bf6bcb2b346864b4bf1fbd58
+
+Foreign part of MULTI_AMB_ERC20_TO_ERC677 bridge deployed
+
+
+[Home] Initializing Bridge Mediator with following parameters:
+
+    AMB contract: 0xc38D4991c951fE8BCE1a12bEef2046eF36b0FA4A,
+    Mediator contract: 0xD0e71b62B1D5579ab229cd1C3BC9091C49284cC7,
+    DAILY_LIMIT : 30000000000000000000000000 which is 30000000 in eth,
+    MAX_AMOUNT_PER_TX: 1500000000000000000000000 which is 1500000 in eth,
+    MIN_AMOUNT_PER_TX: 500000000000000000 which is 0.5 in eth,
+    EXECUTION_DAILY_LIMIT : 15000000000000000000000000 which is 15000000 in eth,
+    EXECUTION_MAX_AMOUNT_PER_TX: 750000000000000000000000 which is 750000 in eth,
+    MEDIATOR_REQUEST_GAS_LIMIT : 3000000,
+    OWNER: 0x797E1f626cB58f909F3c6a1e0783578BD4D0f32f,
+    TOKEN_IMAGE: 0xAfbA2216Aae9Afe23FD09Cf5dfe420F6ecdDD04B,
+    REWARD_ADDRESS_LIST: [0x]
+
+Error: { Error: invalid address (argument="address", value="0x", code=INVALID_ARGUMENT, version=address/5.0.0-beta.135) (argument=null, value="0x", code=INVALID_ARGUMENT, version=abi/5.0.0-beta.153)
+    at Logger.makeError (/Users/alex/cardstack/tokenbridge-contracts/deploy/node_modules/@ethersproject/logger/lib/index.js:178:21)
+    at Logger.throwError (/Users/alex/cardstack/tokenbridge-contracts/deploy/node_modules/@ethersproject/logger/lib/index.js:187:20)
+    at Logger.throwArgumentError (/Users/alex/cardstack/tokenbridge-contracts/deploy/node_modules/@ethersproject/logger/lib/index.js:190:21)
+    at AddressCoder.Coder._throwError (/Users/alex/cardstack/tokenbridge-contracts/deploy/node_modules/@ethersproject/abi/lib/coders/abstract-coder.js:40:16)
+    at AddressCoder.encode (/Users/alex/cardstack/tokenbridge-contracts/deploy/node_modules/@ethersproject/abi/lib/coders/address.js:29:18)
+    at /Users/alex/cardstack/tokenbridge-contracts/deploy/node_modules/@ethersproject/abi/lib/coders/array.js:55:19
+    at Array.forEach (<anonymous>)
+    at pack (/Users/alex/cardstack/tokenbridge-contracts/deploy/node_modules/@ethersproject/abi/lib/coders/array.js:41:12)
+    at ArrayCoder.encode (/Users/alex/cardstack/tokenbridge-contracts/deploy/node_modules/@ethersproject/abi/lib/coders/array.js:174:16)
+    at /Users/alex/cardstack/tokenbridge-contracts/deploy/node_modules/@ethersproject/abi/lib/coders/array.js:47:19
+    at Array.forEach (<anonymous>)
+    at Object.pack (/Users/alex/cardstack/tokenbridge-contracts/deploy/node_modules/@ethersproject/abi/lib/coders/array.js:41:12)
+    at TupleCoder.encode (/Users/alex/cardstack/tokenbridge-contracts/deploy/node_modules/@ethersproject/abi/lib/coders/tuple.js:36:24)
+    at AbiCoder.encode (/Users/alex/cardstack/tokenbridge-contracts/deploy/node_modules/@ethersproject/abi/lib/abi-coder.js:86:15)
+    at ABICoder.encodeParameters (/Users/alex/cardstack/tokenbridge-contracts/deploy/node_modules/web3-eth-abi/src/index.js:145:27)
+    at /Users/alex/cardstack/tokenbridge-contracts/deploy/node_modules/web3-eth-contract/src/index.js:531:24
+  reason:
+   'invalid address (argument="address", value="0x", code=INVALID_ARGUMENT, version=address/5.0.0-beta.135)',
+  code: 'INVALID_ARGUMENT',
+  argument: null,
+  value: '0x' }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  

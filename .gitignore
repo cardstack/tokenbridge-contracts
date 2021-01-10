@@ -11,3 +11,6 @@ deploy/*.env*
 !deploy/.env.example
 upgrade/*.env*
 !upgrade/.env.example
+
+cache
+artifacts

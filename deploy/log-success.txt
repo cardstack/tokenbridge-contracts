@@ -1,0 +1,81 @@
+node deploy.js
+Bridge mode: MULTI_AMB_ERC_TO_ERC
+
+[Home] Deploying Bridge Mediator storage
+
+pending txHash 0xe604027470cbd8e53a56da13cdb9bc596b2a54e70f46ce0bec5e395223ca6147
+[Home] Bridge Mediator Storage:  0x63AaCB22753d0DF234C32Ff62F5860da233cB360
+
+[Home] Deploying Bridge Mediator implementation
+
+pending txHash 0xa7dee7bc2de828b2aa719aabf8884722e1997b6febd4f95be22a4e0bad6ab6fa
+[Home] Bridge Mediator Implementation:  0xC0e588beCa4136D585036D7EA44d76dF963638e7
+
+[Home] Hooking up Mediator storage to Mediator implementation
+pending txHash 0xeb3f2a4f3cc7f6943a0203183c0db746047bf5d81e402bec1bf36b25da6cdfa2
+
+[Home] Deploying new ERC677 token image
+pending txHash 0x017b9611fe432bdd3cf8fbb546c5af8586e425d3204d4e9bb683847a5c9cf70e
+
+[Home] New ERC677 token image has been deployed:  0x93493b34Bc7E0eE3963399b24170cE572692CeeC
+
+Home part of MULTI_AMB_ERC20_TO_ERC677 bridge deployed
+
+
+[Foreign] Deploying Bridge Mediator storage
+
+pending txHash 0xcaa51b1cbf9a60a09e9c099f0d65711d790f2873b55243cc0715e639c6aed476
+[Foreign] Bridge Mediator Storage:  0xAfbA2216Aae9Afe23FD09Cf5dfe420F6ecdDD04B
+
+[Foreign] Deploying Bridge Mediator implementation
+
+pending txHash 0x7082c13ae41880d180ac41c2e4672828f1ab452e9744325e7908f9f7d7b49fae
+[Foreign] Bridge Mediator Implementation:  0x63AaCB22753d0DF234C32Ff62F5860da233cB360
+
+[Foreign] Hooking up Mediator storage to Mediator implementation
+pending txHash 0x1c859939802e7a1c035350b4a0d9bd8ac8206c2c96312b03bf2e20036f05e8e5
+
+Foreign part of MULTI_AMB_ERC20_TO_ERC677 bridge deployed
+
+
+[Home] Initializing Bridge Mediator with following parameters:
+
+    AMB contract: 0xc38D4991c951fE8BCE1a12bEef2046eF36b0FA4A,
+    Mediator contract: 0xAfbA2216Aae9Afe23FD09Cf5dfe420F6ecdDD04B,
+    DAILY_LIMIT : 30000000000000000000000000 which is 30000000 in eth,
+    MAX_AMOUNT_PER_TX: 1500000000000000000000000 which is 1500000 in eth,
+    MIN_AMOUNT_PER_TX: 500000000000000000 which is 0.5 in eth,
+    EXECUTION_DAILY_LIMIT : 15000000000000000000000000 which is 15000000 in eth,
+    EXECUTION_MAX_AMOUNT_PER_TX: 750000000000000000000000 which is 750000 in eth,
+    MEDIATOR_REQUEST_GAS_LIMIT : 3000000,
+    OWNER: 0x797E1f626cB58f909F3c6a1e0783578BD4D0f32f,
+    TOKEN_IMAGE: 0x93493b34Bc7E0eE3963399b24170cE572692CeeC,
+    REWARD_ADDRESS_LIST: [0x797E1f626cB58f909F3c6a1e0783578BD4D0f32f]
+
+pending txHash 0x62055d710c93d770ae681692dacfda2584275954616fa991a3233e70d3b6014e
+
+[Home] Transferring bridge mediator proxy ownership to upgradeability admin
+pending txHash 0xd5feb9859d4169c3267656676b7f86df96ac9599103a1af0f5a8df17e915788f
+
+[Foreign] Initializing Bridge Mediator with following parameters:
+
+    AMB contract: 0xD4075FB57fCf038bFc702c915Ef9592534bED5c1,
+    Mediator contract: 0x63AaCB22753d0DF234C32Ff62F5860da233cB360,
+    DAILY_LIMIT : 15000000000000000000000000 which is 15000000 in eth,
+    MAX_AMOUNT_PER_TX: 750000000000000000000000 which is 750000 in eth,
+    MIN_AMOUNT_PER_TX: 500000000000000000 which is 0.5 in eth,
+    EXECUTION_DAILY_LIMIT : 30000000000000000000000000 which is 30000000 in eth,
+    EXECUTION_MAX_AMOUNT_PER_TX: 1500000000000000000000000 which is 1500000 in eth,
+    MEDIATOR_REQUEST_GAS_LIMIT : 3000000,
+    OWNER: 0x797E1f626cB58f909F3c6a1e0783578BD4D0f32f
+pending txHash 0xda8cecb8c4fb3bdba1b9313664b20748d3c5325066553af131489b99886907d8
+
+[Foreign] Transferring bridge mediator proxy ownership to upgradeability admin
+pending txHash 0x9a6b1ff1323c82f9bbd4808a01a8e5b96d5610fd650dbab7920bb6250a54ce8e
+
+Deployment has been completed.
+
+
+[   Home  ] Bridge Mediator: 0x63AaCB22753d0DF234C32Ff62F5860da233cB360
+[ Foreign ] Bridge Mediator: 0xAfbA2216Aae9Afe23FD09Cf5dfe420F6ecdDD04B
+Contracts Deployment have been saved to `bridgeDeploymentResults.json`

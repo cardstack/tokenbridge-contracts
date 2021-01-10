@@ -1,0 +1,100 @@
+╰─➤ node deploy.js
+Bridge mode: MULTI_AMB_ERC_TO_ERC
+
+[Home] Deploying Bridge Mediator storage
+
+pending txHash 0x6f2a65e54c048b696b751abdb9d6956c8f5563c616e78f172ad6ef2df98420ac
+[Home] Bridge Mediator Storage:  0x16a80598DD2f143CFBf091638CE3fB02c9135528
+
+[Home] Deploying Bridge Mediator implementation
+
+pending txHash 0xe7912bd002c25a6e110270e563d794eda430848e0444fb7932a00b0ede378d69
+[Home] Bridge Mediator Implementation:  0x74F4434a9df7B256451C861D7ADea42880D80D8c
+
+[Home] Hooking up Mediator storage to Mediator implementation
+pending txHash 0xf164ef7286684cfc9601e406fdff4dcb9c378cf71e953671067fdb629c463307
+
+[Home] Deploying new ERC677 token image
+pending txHash 0x3491ae6cc43d73d9372845b6bb5b134f1552a407f49b31dd18776658d04041e1
+
+[Home] New ERC677 token image has been deployed:  0xb910DCCdf9dD9Ed32837e76f7694cf8Fa0f0F089
+
+Home part of MULTI_AMB_ERC20_TO_ERC677 bridge deployed
+
+
+[Foreign] Deploying Bridge Mediator storage
+
+pending txHash 0x3fa370763a24df0c85fa1e166298f3ce0ab356ce4c8adcda5c9d9e21d9e3a75d
+[Foreign] Bridge Mediator Storage:  0x366b4cc64D30849568af65522De3a68ea6CC78cE
+
+[Foreign] Deploying Bridge Mediator implementation
+
+pending txHash 0x053c268aad174cce9169b558281c7759f2e9770033992f021c3f24c67c8c901e
+[Foreign] Bridge Mediator Implementation:  0x98D255d42982346B5D0C1E221AB29e3F42cEbAE6
+
+[Foreign] Hooking up Mediator storage to Mediator implementation
+pending txHash 0x7ed7c2ef067b7b3627b683f173ecb4798f7cff3fa9b62e3fb52b7778b836bd04
+
+Foreign part of MULTI_AMB_ERC20_TO_ERC677 bridge deployed
+
+
+[Home] Initializing Bridge Mediator with following parameters:
+
+    AMB contract: 0xc38D4991c951fE8BCE1a12bEef2046eF36b0FA4A,
+    Mediator contract: 0x366b4cc64D30849568af65522De3a68ea6CC78cE,
+    DAILY_LIMIT : 30000000000000000000000000 which is 30000000 in eth,
+    MAX_AMOUNT_PER_TX: 1500000000000000000000000 which is 1500000 in eth,
+    MIN_AMOUNT_PER_TX: 500000000000000000 which is 0.5 in eth,
+    EXECUTION_DAILY_LIMIT : 15000000000000000000000000 which is 15000000 in eth,
+    EXECUTION_MAX_AMOUNT_PER_TX: 750000000000000000000000 which is 750000 in eth,
+    MEDIATOR_REQUEST_GAS_LIMIT : 3000000,
+    OWNER: 0x797E1f626cB58f909F3c6a1e0783578BD4D0f32f,
+    TOKEN_IMAGE: 0xb910DCCdf9dD9Ed32837e76f7694cf8Fa0f0F089,
+    REWARD_ADDRESS_LIST: [0x797E1f626cB58f909F3c6a1e0783578BD4D0f32f]
+
+pending txHash 0x6380e2c1a140ffbdec9122f4bfd6860dfbef0d63107850dc77d048f62360b228
+
+[Home] Transferring bridge mediator proxy ownership to upgradeability admin
+pending txHash 0xf55beba3c6b819eedc2386192b21a71ae2295fc60b437e848a0d65743e055572
+
+[Foreign] Initializing Bridge Mediator with following parameters:
+
+    AMB contract: 0xD4075FB57fCf038bFc702c915Ef9592534bED5c1,
+    Mediator contract: 0x16a80598DD2f143CFBf091638CE3fB02c9135528,
+    DAILY_LIMIT : 15000000000000000000000000 which is 15000000 in eth,
+    MAX_AMOUNT_PER_TX: 750000000000000000000000 which is 750000 in eth,
+    MIN_AMOUNT_PER_TX: 500000000000000000 which is 0.5 in eth,
+    EXECUTION_DAILY_LIMIT : 30000000000000000000000000 which is 30000000 in eth,
+    EXECUTION_MAX_AMOUNT_PER_TX: 1500000000000000000000000 which is 1500000 in eth,
+    MEDIATOR_REQUEST_GAS_LIMIT : 3000000,
+    OWNER: 0x797E1f626cB58f909F3c6a1e0783578BD4D0f32f
+pending txHash 0x68f82b6d540dc6bc2a04584cc7a2b07874e29b021ccef49a8909e5e983f5a221
+
+[Foreign] Transferring bridge mediator proxy ownership to upgradeability admin
+pending txHash 0x61f99a59376b822bd7cad46611143e33df776f0ccc446f5d5d088549dfaf57ce
+
+Deployment has been completed.
+
+
+[   Home  ] Bridge Mediator: 0x16a80598DD2f143CFBf091638CE3fB02c9135528
+[ Foreign ] Bridge Mediator: 0x366b4cc64D30849568af65522De3a68ea6CC78cE
+Contracts Deployment have been saved to `bridgeDeploymentResults.json`
+
+deployed = await FAKEToken.deployed()
+fakeTokenAddress = deployed.address
+// 0xC9e83077788E2e782fF97A2eB78964B2a406D94B
+foreignMediatorAddress = "0x366b4cc64D30849568af65522De3a68ea6CC78cE"
+homeMediatorAddress = "0x16a80598DD2f143CFBf091638CE3fB02c9135528"
+walletAddress = "0x797E1f626cB58f909F3c6a1e0783578BD4D0f32f"
+amt10 = "10000000000000000000"
+
+foreignInterfacePath = "/Users/alex/cardstack/tokenbridge-contracts/build/contracts/ForeignMultiAMBErc20ToErc677.json"
+foreignInterface = JSON.parse(fs.readFileSync(foreignInterfacePath))
+
+foreignMediator = new web3.eth.Contract(foreignInterface.abi, foreignMediatorAddress, { from: walletAddress, gasPrice: '20000000000' });
+
+deployed.approve(foreignMediatorAddress, amt10)
+
+result = await foreignMediator.methods.relayTokens(fakeTokenAddress, amt10).send({from: walletAddress})
+
+statusUrl =  `https://alm-rinkeby.herokuapp.com/4/${result.transactionHash}`
