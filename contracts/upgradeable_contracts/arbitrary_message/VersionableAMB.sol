@@ -10,7 +10,7 @@ contract VersionableAMB is VersionableBridge {
     // - new field appears
     // - some field removed
     // - fields order is changed
-    bytes32 internal constant MESSAGE_PACKING_VERSION = 0x00050000 << 224;
+    bytes32 internal constant MESSAGE_PACKING_VERSION = bytes32(uint256(0x00050000 << 224));
 
     /**
      * Returns currently used bridge version

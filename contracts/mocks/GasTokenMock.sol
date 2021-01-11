@@ -68,7 +68,7 @@ contract Rlp {
         assembly {
             let mem_start := mload(0x40)        // get a pointer to free memory
             mstore(mem_start, word)             // store the rlp encoding
-            hash := sha3(mem_start,
+            hash := keccak256(mem_start,
                          add(tot_bytes, 1))     // hash the rlp encoding
         }
 
@@ -100,7 +100,7 @@ contract GasTokenMock is Rlp {
         if (value <= s_balances[from]) {
             s_balances[from] -= value;
             s_balances[to] += value;
-            Transfer(from, to, value);
+            emit Transfer(from, to, value);
             return true;
         } else {
             return false;
@@ -133,7 +133,7 @@ contract GasTokenMock is Rlp {
             return false;
         }
         s_allowances[owner][spender] = value;
-        Approval(owner, spender, value);
+        emit Approval(owner, spender, value);
         return true;
     }
 
@@ -235,7 +235,7 @@ contract GasTokenMock is Rlp {
         uint256 tail = s_tail;
         // tail points to slot behind the last contract in the queue
         for (uint256 i = tail + 1; i <= tail + value; i++) {
-            mk_contract_address(this, i).call();
+            mk_contract_address(address(this), i).call("");
         }
 
         s_tail = tail + value;

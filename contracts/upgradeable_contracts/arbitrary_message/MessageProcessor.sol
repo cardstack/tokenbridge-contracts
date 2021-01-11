@@ -232,7 +232,7 @@ contract MessageProcessor is EternalStorage {
         // Avoiding it may lead to the unwanted message failure in some extreme cases.
         require((gasleft() * 63) / 64 > _gas);
 
-        bool status = _contract.call.gas(_gas)(_data);
+        (bool status,) = _contract.call.gas(_gas)(_data);
         setMessageSender(address(0));
         setMessageId(bytes32(0));
         setMessageSourceChainId(0);

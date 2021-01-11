@@ -42,7 +42,7 @@ contract BlockReward is EternalStorage {
     * @dev Return the allowed bridge addresses.
     * @return List of bridge contracts addresses.
     */
-    function bridgesAllowed() public view returns (address[bridgesAllowedLength] memory) {
+    function bridgesAllowed() public view returns (address payable[bridgesAllowedLength] memory) {
         // These values must be changed before deploy
         return [address(0x0000000000000000000000000000000000000000)];
     }
@@ -254,7 +254,7 @@ contract BlockReward is EternalStorage {
     * @return true, if given address is associated with one of the registered bridges.
     */
     function _isBridgeContract(address _addr) private view returns (bool) {
-        address[bridgesAllowedLength] memory bridges = bridgesAllowed();
+        address payable[bridgesAllowedLength] memory bridges = bridgesAllowed();
 
         for (uint256 i = 0; i < bridges.length; i++) {
             if (_addr == bridges[i]) {

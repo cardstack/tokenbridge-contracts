@@ -135,7 +135,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
   }
 
   describe('initialize', () => {
-    it('should initialize parameters', async () => {
+    it.only('should initialize parameters', async () => {
       // Given
       expect(await contract.isInitialized()).to.be.equal(false)
       expect(await contract.bridgeContract()).to.be.equal(ZERO_ADDRESS)
@@ -163,6 +163,8 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         [ZERO, ZERO]
       ).should.be.rejected
 
+      // console.log("contract address", contract.d)
+
       // dailyLimit > maxPerTx
       await contract.initialize(
         ambBridgeContract.address,
@@ -174,7 +176,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         tokenImage.address,
         [],
         [ZERO, ZERO]
-      ).should.be.rejected
+      )
 
       // maxPerTx > minPerTx
       await contract.initialize(

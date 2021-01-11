@@ -222,7 +222,7 @@ contract('ForeignBridge_ERC20_to_ERC20', async accounts => {
       )
       await token.mint(foreignBridge.address, value)
     })
-    it('should allow to executeSignatures', async () => {
+    it.only('should allow to executeSignatures', async () => {
       const recipientAccount = accounts[3]
       const balanceBefore = await token.balanceOf(recipientAccount)
 
@@ -232,7 +232,8 @@ contract('ForeignBridge_ERC20_to_ERC20', async accounts => {
       const vrs = signatureToVRS(signature)
       const oneSignature = packSignatures([vrs])
       false.should.be.equal(await foreignBridge.relayedMessages(transactionHash))
-      const { logs } = await foreignBridge.executeSignatures(message, oneSignature).should.be.fulfilled
+      console.log('foreign bridge address', foreignBridge.address)
+      const { logs } = await foreignBridge.executeSignatures(message, oneSignature)
       logs[0].event.should.be.equal('RelayedMessage')
       logs[0].args.recipient.should.be.equal(recipientAccount)
       logs[0].args.value.should.be.bignumber.equal(value)

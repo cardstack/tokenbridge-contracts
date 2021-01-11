@@ -158,7 +158,7 @@ contract ChaiConnector is Ownable, ERC20Bridge, TokenSwapper {
         if (
             // solhint-disable-next-line not-rely-on-time
             lastInterestPayment() + interestCollectionPeriod() < now ||
-            IUpgradeabilityOwnerStorage(this).upgradeabilityOwner() == msg.sender
+            IUpgradeabilityOwnerStorage(address(this)).upgradeabilityOwner() == msg.sender
         ) {
             _payInterest();
         }
@@ -269,7 +269,7 @@ contract ChaiConnector is Ownable, ERC20Bridge, TokenSwapper {
 
         uint256 newInvestedAmountInDai = investedAmountInDai() + amount;
         setInvestedAmountInDai(newInvestedAmountInDai);
-        erc20token().approve(chaiToken(), amount);
+        erc20token().approve(address(chaiToken()), amount);
         chaiToken().join(address(this), amount);
 
         // When evaluating the amount of DAI kept in Chai using dsrBalance(), there are some fixed point truncations.
@@ -282,7 +282,7 @@ contract ChaiConnector is Ownable, ERC20Bridge, TokenSwapper {
         // it is not recommended to use it for smaller values of decimals, since it won't be negligible anymore
         require(dsrBalance() + 10000 >= newInvestedAmountInDai);
 
-        emit TokensSwapped(erc20token(), chaiToken(), amount);
+        emit TokensSwapped(address(erc20token()), address(chaiToken()), amount);
     }
 
     /**
@@ -311,6 +311,6 @@ contract ChaiConnector is Ownable, ERC20Bridge, TokenSwapper {
         // see comment in convertDaiToChai() for similar statement
         require(dsrBalance() + 10000 >= newInvested);
 
-        emit TokensSwapped(chaiToken(), erc20token(), redeemed);
+        emit TokensSwapped(address(chaiToken()), address(erc20token()), redeemed);
     }
 }

@@ -87,7 +87,7 @@ contract Token7 {
 
 contract TokenReaderTest {
     function test1() external {
-        address token = new Token1();
+        address token = address(new Token1());
 
         require(keccak256(TokenReader.readName(token)) == keccak256("Token"));
         require(keccak256(TokenReader.readSymbol(token)) == keccak256("TKN"));
@@ -95,7 +95,7 @@ contract TokenReaderTest {
     }
 
     function test2() external {
-        address token = new Token2();
+        address token = address(new Token2());
 
         require(keccak256(TokenReader.readName(token)) == keccak256("Token"));
         require(keccak256(TokenReader.readSymbol(token)) == keccak256("TKN"));
@@ -103,7 +103,7 @@ contract TokenReaderTest {
     }
 
     function test3() external {
-        address token = new Token3();
+        address token = address(new Token3());
 
         require(keccak256(TokenReader.readName(token)) == keccak256("Token"));
         require(keccak256(TokenReader.readSymbol(token)) == keccak256("TKN"));
@@ -111,7 +111,7 @@ contract TokenReaderTest {
     }
 
     function test4() external {
-        address token = new Token4();
+        address token = address(new Token4());
 
         require(keccak256(TokenReader.readName(token)) == keccak256("Token"));
         require(keccak256(TokenReader.readSymbol(token)) == keccak256("TKN"));
@@ -119,7 +119,7 @@ contract TokenReaderTest {
     }
 
     function test5() external {
-        address token = new Token5();
+        address token = address(new Token5());
 
         require(keccak256(TokenReader.readName(token)) == keccak256("0123456789abcdef0123456789abcdef"));
         require(keccak256(TokenReader.readSymbol(token)) == keccak256("0123456789abcdef0123456789abcdef"));
@@ -127,7 +127,7 @@ contract TokenReaderTest {
     }
 
     function test6() external {
-        address token = new Token6();
+        address token = address(new Token6());
 
         require(keccak256(TokenReader.readName(token)) == keccak256("0123456789abcdef0123456789abcdefX"));
         require(keccak256(TokenReader.readSymbol(token)) == keccak256("0123456789abcdef0123456789abcdefY"));
@@ -135,7 +135,7 @@ contract TokenReaderTest {
     }
 
     function test7() external {
-        address token = new Token7();
+        address token = address(new Token7());
 
         require(keccak256(TokenReader.readName(token)) == keccak256(""));
         require(keccak256(TokenReader.readSymbol(token)) == keccak256(""));

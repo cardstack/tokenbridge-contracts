@@ -25,7 +25,8 @@ contract RewardableForeignBridgeNativeToErc is RewardableBridge {
      * @param _txHash reference transaction hash where the original bridge request happened.
      */
     function distributeFeeFromSignatures(uint256 _fee, address _feeManager, bytes32 _txHash) internal {
-        require(_feeManager.delegatecall(abi.encodeWithSelector(DISTRIBUTE_FEE_FROM_SIGNATURES, _fee)));
+        (bool result,) = _feeManager.delegatecall(abi.encodeWithSelector(DISTRIBUTE_FEE_FROM_SIGNATURES, _fee));
+        require(result);
         emit FeeDistributedFromSignatures(_fee, _txHash);
     }
 }
