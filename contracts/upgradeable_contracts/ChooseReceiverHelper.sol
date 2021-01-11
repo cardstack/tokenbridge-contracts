@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 import "../libraries/Bytes.sol";
 
@@ -9,7 +9,7 @@ contract ChooseReceiverHelper {
     * @param _data passed data in the transfer message.
     * @return address of the receiver on the other side.
     */
-    function chooseReceiver(address _from, bytes _data) internal view returns (address recipient) {
+    function chooseReceiver(address _from, bytes memory _data) internal view returns (address recipient) {
         recipient = _from;
         if (_data.length > 0) {
             require(_data.length == 20);

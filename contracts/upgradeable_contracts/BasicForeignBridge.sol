@@ -1,7 +1,7 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 import "../upgradeability/EternalStorage.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./Validatable.sol";
 import "../libraries/Message.sol";
 import "./MessageRelay.sol";
@@ -19,7 +19,7 @@ contract BasicForeignBridge is EternalStorage, Validatable, BasicBridge, BasicTo
     * @param message bytes to be relayed
     * @param signatures bytes blob with signatures to be validated
     */
-    function executeSignatures(bytes message, bytes signatures) external {
+    function executeSignatures(bytes calldata message, bytes calldata signatures) external {
         Message.hasEnoughValidSignatures(message, signatures, validatorContract(), false);
 
         address recipient;

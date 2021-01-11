@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 /**
  * @title Proxy
@@ -16,7 +16,7 @@ contract Proxy {
     * @dev Fallback function allowing to perform a delegatecall to the given implementation.
     * This function will return whatever the implementation call returns
     */
-    function() public payable {
+    function() external payable {
         // solhint-disable-previous-line no-complex-fallback
         address _impl = implementation();
         require(_impl != address(0));

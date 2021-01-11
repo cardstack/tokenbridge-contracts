@@ -1,8 +1,8 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
-import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
-import "openzeppelin-solidity/contracts/AddressUtils.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/ownership/Ownable.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
 import "../interfaces/IChai.sol";
 import "../interfaces/ERC677Receiver.sol";
 import "./Claimable.sol";
@@ -28,7 +28,7 @@ contract InterestReceiver is ERC677Receiver, Ownable, Claimable, TokenSwapper {
     * @param _receiverInXDai address of the receiver account, in the xDai chain
     */
     constructor(address _owner, address _bridgeContract, address _receiverInXDai) public {
-        require(AddressUtils.isContract(_bridgeContract));
+        require(Address.isContract(_bridgeContract));
         require(_receiverInXDai != address(0));
         _transferOwnership(_owner);
         bridgeContract = _bridgeContract;
@@ -41,7 +41,7 @@ contract InterestReceiver is ERC677Receiver, Ownable, Claimable, TokenSwapper {
     * @param _bridgeContract address of new contract in the foreign chain
     */
     function setBridgeContract(address _bridgeContract) external onlyOwner {
-        require(AddressUtils.isContract(_bridgeContract));
+        require(Address.isContract(_bridgeContract));
         bridgeContract = _bridgeContract;
     }
 
@@ -72,7 +72,7 @@ contract InterestReceiver is ERC677Receiver, Ownable, Claimable, TokenSwapper {
     * @dev ERC677 transfer callback function, received interest is converted from Chai token into Dai
     * and then relayed via bridge to xDai receiver
     */
-    function onTokenTransfer(address, uint256, bytes) external returns (bool) {
+    function onTokenTransfer(address, uint256, bytes calldata) external returns (bool) {
         uint256 chaiBalance = chaiToken().balanceOf(address(this));
         uint256 initialDaiBalance = daiToken().balanceOf(address(this));
         uint256 finalDaiBalance = initialDaiBalance;

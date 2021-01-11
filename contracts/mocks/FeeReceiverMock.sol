@@ -1,6 +1,6 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20Basic.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract FeeReceiverMock {
     address public mediator;
@@ -11,8 +11,8 @@ contract FeeReceiverMock {
         token = _token;
     }
 
-    function onTokenTransfer(address, uint256 _value, bytes) external returns (bool) {
-        ERC20Basic(token).transfer(mediator, _value);
+    function onTokenTransfer(address, uint256 _value, bytes calldata) external returns (bool) {
+        ERC20(token).transfer(mediator, _value);
         return true;
     }
 }

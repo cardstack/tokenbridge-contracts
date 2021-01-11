@@ -1,14 +1,14 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 import "../interfaces/IBlockReward.sol";
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
 
 contract BlockRewardMock {
     using SafeMath for uint256;
 
     event BridgeTokenRewardAdded(uint256 amount, uint256 cumulativeAmount, address indexed bridge);
 
-    address[] public validatorList;
+    address payable[] public validatorList;
     uint256[] public validatorRewardList;
     uint256 public mintedCoins = 0;
     uint256 public feeAmount = 0;
@@ -22,7 +22,7 @@ contract BlockRewardMock {
         // solhint-disable-previous-line no-empty-blocks
     }
 
-    function addExtraReceiver(uint256 _amount, address _receiver) external {
+    function addExtraReceiver(uint256 _amount, address payable _receiver) external {
         require(_amount > 0);
         require(_receiver != address(0));
         mintedCoins = mintedCoins.add(_amount);
@@ -43,7 +43,7 @@ contract BlockRewardMock {
         uintStorage[hash] = uintStorage[hash].add(_amount);
     }
 
-    function setValidatorsRewards(address[] _initialValidators) external {
+    function setValidatorsRewards(address payable[] calldata _initialValidators) external {
         validatorList = _initialValidators;
     }
 
@@ -92,7 +92,8 @@ contract BlockRewardMock {
 
         bridgeTokenReward = bridgeTokenReward.add(_amount);
         emit BridgeTokenRewardAdded(_amount, bridgeTokenReward, msg.sender);
-        require(token.call(abi.encodeWithSelector(MINT_REWARD, _amount)));
+        (bool success,) = token.call(abi.encodeWithSelector(MINT_REWARD, _amount));
+        require(success);
     }
 
     function random(uint256 _count) public view returns (uint256) {

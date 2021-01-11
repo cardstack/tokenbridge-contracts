@@ -1,6 +1,6 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
-import "../../libraries/Address.sol";
+import "../../libraries/SafeSend.sol";
 import "../ValidatorsFeeManager.sol";
 
 contract FeeManagerNativeToErcBothDirections is ValidatorsFeeManager {
@@ -17,6 +17,6 @@ contract FeeManagerNativeToErcBothDirections is ValidatorsFeeManager {
     }
 
     function _sendReward(address _rewardAddress, uint256 _fee) internal {
-        Address.safeSendValue(_rewardAddress, _fee);
+        SafeSend.safeSendValue(_rewardAddress, _fee);
     }
 }

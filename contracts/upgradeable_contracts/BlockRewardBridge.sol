@@ -1,8 +1,8 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 import "../interfaces/IBlockReward.sol";
 import "../upgradeability/EternalStorage.sol";
-import "openzeppelin-solidity/contracts/AddressUtils.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
 
 contract BlockRewardBridge is EternalStorage {
     bytes32 internal constant BLOCK_REWARD_CONTRACT = 0x20ae0b8a761b32f3124efb075f427dd6ca669e88ae7747fec9fd1ad688699f32; // keccak256(abi.encodePacked("blockRewardContract"))
@@ -14,7 +14,7 @@ contract BlockRewardBridge is EternalStorage {
     }
 
     function _setBlockRewardContract(address _blockReward) internal {
-        require(AddressUtils.isContract(_blockReward));
+        require(Address.isContract(_blockReward));
 
         // Before store the contract we need to make sure that it is the block reward contract in actual fact,
         // call a specific method from the contract that should return a specific value

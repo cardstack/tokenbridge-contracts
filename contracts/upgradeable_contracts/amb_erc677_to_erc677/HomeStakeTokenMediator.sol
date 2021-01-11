@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 import "../../interfaces/IMintHandler.sol";
 import "./BasicStakeTokenMediator.sol";
@@ -28,8 +28,8 @@ contract HomeStakeTokenMediator is BasicStakeTokenMediator, HomeStakeTokenFeeMan
         address _bridgeContract,
         address _mediatorContract,
         address _erc677token,
-        uint256[3] _dailyLimitMaxPerTxMinPerTxArray, // [ 0 = _dailyLimit, 1 = _maxPerTx, 2 = _minPerTx ]
-        uint256[2] _executionDailyLimitExecutionMaxPerTxArray, // [ 0 = _executionDailyLimit, 1 = _executionMaxPerTx ]
+        uint256[3] memory _dailyLimitMaxPerTxMinPerTxArray, // [ 0 = _dailyLimit, 1 = _maxPerTx, 2 = _minPerTx ]
+        uint256[2] memory _executionDailyLimitExecutionMaxPerTxArray, // [ 0 = _executionDailyLimit, 1 = _executionMaxPerTx ]
         uint256 _requestGasLimit,
         int256 _decimalShift,
         address _owner
@@ -65,8 +65,8 @@ contract HomeStakeTokenMediator is BasicStakeTokenMediator, HomeStakeTokenFeeMan
         address _bridgeContract,
         address _mediatorContract,
         address _erc677token,
-        uint256[3] _dailyLimitMaxPerTxMinPerTxArray, // [ 0 = _dailyLimit, 1 = _maxPerTx, 2 = _minPerTx ]
-        uint256[2] _executionDailyLimitExecutionMaxPerTxArray, // [ 0 = _executionDailyLimit, 1 = _executionMaxPerTx ]
+        uint256[3] calldata _dailyLimitMaxPerTxMinPerTxArray, // [ 0 = _dailyLimit, 1 = _maxPerTx, 2 = _minPerTx ]
+        uint256[2] calldata _executionDailyLimitExecutionMaxPerTxArray, // [ 0 = _executionDailyLimit, 1 = _executionMaxPerTx ]
         uint256 _requestGasLimit,
         int256 _decimalShift,
         address _owner,
@@ -104,7 +104,7 @@ contract HomeStakeTokenMediator is BasicStakeTokenMediator, HomeStakeTokenFeeMan
      * @param _mintHandler address of new contract
      */
     function setMintHandler(address _mintHandler) external onlyOwner {
-        require(AddressUtils.isContract(_mintHandler));
+        require(Address.isContract(_mintHandler));
         addressStorage[MINT_HANDLER] = _mintHandler;
     }
 
@@ -135,7 +135,7 @@ contract HomeStakeTokenMediator is BasicStakeTokenMediator, HomeStakeTokenFeeMan
      * @param _value requsted amount of bridged tokens
      * @param _data alternative receiver, if specified
      */
-    function bridgeSpecificActionsOnTokenTransfer(ERC677 _token, address _from, uint256 _value, bytes _data) internal {
+    function bridgeSpecificActionsOnTokenTransfer(ERC677 _token, address _from, uint256 _value, bytes memory _data) internal {
         if (!lock()) {
             // burn all incoming tokens
             IBurnableMintableERC677Token(_token).burn(_value);

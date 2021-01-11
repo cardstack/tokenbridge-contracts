@@ -1,8 +1,8 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 import "./Upgradeable.sol";
 import "./InitializableBridge.sol";
-import "openzeppelin-solidity/contracts/AddressUtils.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
 import "./Validatable.sol";
 import "./Ownable.sol";
 import "./Claimable.sol";

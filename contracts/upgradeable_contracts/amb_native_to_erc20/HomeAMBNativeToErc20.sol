@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 import "../MediatorBalanceStorage.sol";
 import "./BasicAMBNativeToErc20.sol";
@@ -25,8 +25,8 @@ contract HomeAMBNativeToErc20 is BasicAMBNativeToErc20, MediatorBalanceStorage {
     function initialize(
         address _bridgeContract,
         address _mediatorContract,
-        uint256[3] _dailyLimitMaxPerTxMinPerTxArray, // [ 0 = dailyLimit, 1 = maxPerTx, 2 = minPerTx ]
-        uint256[2] _executionDailyLimitExecutionMaxPerTxArray, // [ 0 = executionDailyLimit, 1 = executionMaxPerTx ]
+        uint256[3] calldata _dailyLimitMaxPerTxMinPerTxArray, // [ 0 = dailyLimit, 1 = maxPerTx, 2 = minPerTx ]
+        uint256[2] calldata _executionDailyLimitExecutionMaxPerTxArray, // [ 0 = executionDailyLimit, 1 = executionMaxPerTx ]
         uint256 _requestGasLimit,
         int256 _decimalShift,
         address _owner,
@@ -50,7 +50,7 @@ contract HomeAMBNativeToErc20 is BasicAMBNativeToErc20, MediatorBalanceStorage {
     * @dev Fallback method to be called to initiate the bridge operation of the native tokens to an erc20 representation
     * that the user will receive in the same address on the other network.
     */
-    function() public payable {
+    function() external payable {
         require(msg.data.length == 0);
         nativeTransfer(msg.sender);
     }
@@ -96,7 +96,7 @@ contract HomeAMBNativeToErc20 is BasicAMBNativeToErc20, MediatorBalanceStorage {
             }
         }
 
-        Address.safeSendValue(_receiver, valueToTransfer);
+        SafeSend.safeSendValue(_receiver, valueToTransfer);
         emit TokensBridged(_receiver, valueToTransfer, _messageId);
     }
 
@@ -107,7 +107,7 @@ contract HomeAMBNativeToErc20 is BasicAMBNativeToErc20, MediatorBalanceStorage {
     */
     function executeActionOnFixedTokens(address _receiver, uint256 _value) internal {
         _setMediatorBalance(mediatorBalance().sub(_value));
-        Address.safeSendValue(_receiver, _value);
+        SafeSend.safeSendValue(_receiver, _value);
     }
 
     /**
@@ -116,7 +116,7 @@ contract HomeAMBNativeToErc20 is BasicAMBNativeToErc20, MediatorBalanceStorage {
     * @param _fee amount of native tokens to be distribute.
     */
     function onFeeDistribution(address _feeManager, uint256 _fee) internal {
-        Address.safeSendValue(_feeManager, _fee);
+        SafeSend.safeSendValue(_feeManager, _fee);
     }
 
     /**

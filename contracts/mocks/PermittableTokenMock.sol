@@ -1,11 +1,11 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 import "../PermittableToken.sol";
 
 contract PermittableTokenMock is PermittableToken {
     uint256 private _blockTimestamp;
 
-    constructor(string _name, string _symbol, uint8 _decimals, uint256 _chainId)
+    constructor(string memory _name, string memory _symbol, uint8 _decimals, uint256 _chainId)
         public
         PermittableToken(_name, _symbol, _decimals, _chainId)
     {

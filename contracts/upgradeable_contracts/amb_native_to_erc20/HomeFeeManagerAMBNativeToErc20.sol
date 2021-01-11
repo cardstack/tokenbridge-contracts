@@ -1,6 +1,6 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
-import "../../libraries/Address.sol";
+import "../../libraries/SafeSend.sol";
 import "../BaseMediatorFeeManager.sol";
 
 /**
@@ -15,7 +15,7 @@ contract HomeFeeManagerAMBNativeToErc20 is BaseMediatorFeeManager {
     * @param _fee the fee percentage amount.
     * @param _rewardAccountList list of addresses that will receive the fee rewards.
     */
-    constructor(address _owner, uint256 _fee, address[] _rewardAccountList, address _mediatorContract)
+    constructor(address _owner, uint256 _fee, address[] memory _rewardAccountList, address _mediatorContract)
         public
         BaseMediatorFeeManager(_owner, _fee, _rewardAccountList, _mediatorContract)
     {
@@ -25,7 +25,7 @@ contract HomeFeeManagerAMBNativeToErc20 is BaseMediatorFeeManager {
     /**
     * @dev Fallback method to receive the fees.
     */
-    function() public payable {
+    function() external payable {
         // solhint-disable-previous-line no-empty-blocks
     }
 
@@ -35,6 +35,6 @@ contract HomeFeeManagerAMBNativeToErc20 is BaseMediatorFeeManager {
     * @param _fee amount of native tokens to be distribute.
     */
     function onFeeDistribution(address _rewardAddress, uint256 _fee) internal {
-        Address.safeSendValue(_rewardAddress, _fee);
+        SafeSend.safeSendValue(_rewardAddress, _fee);
     }
 }

@@ -1,8 +1,8 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 import "../interfaces/IMintHandler.sol";
 import "../interfaces/IBurnableMintableERC677Token.sol";
-import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import "@openzeppelin/contracts/ownership/Ownable.sol";
 
 contract MintHandlerMock is IMintHandler, Ownable {
     IBurnableMintableERC677Token public token;

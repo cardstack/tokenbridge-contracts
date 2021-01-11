@@ -1,6 +1,6 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
-import "openzeppelin-solidity/contracts/AddressUtils.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
 import "./Proxy.sol";
 import "./UpgradeabilityStorage.sol";
 
@@ -25,7 +25,7 @@ contract UpgradeabilityProxy is Proxy, UpgradeabilityStorage {
         require(_implementation != implementation);
 
         // This additional check verifies that provided implementation is at least a contract
-        require(AddressUtils.isContract(implementation));
+        require(Address.isContract(implementation));
 
         // This additional check guarantees that new version will be at least greater than the privios one,
         // so it is impossible to reuse old versions, or use the last version twice

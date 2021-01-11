@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 import "./BasicAMBErc677ToErc677.sol";
 import "../../libraries/SafeERC20.sol";
@@ -78,7 +78,7 @@ contract ForeignAMBErc677ToErc677 is BasicAMBErc677ToErc677, MediatorBalanceStor
         ERC677, /* _token */
         address _from,
         uint256 _value,
-        bytes _data
+        bytes memory _data
     ) internal {
         if (!lock()) {
             _setMediatorBalance(mediatorBalance().add(_value));

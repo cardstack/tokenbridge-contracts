@@ -1,7 +1,7 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 import "./Ownable.sol";
-import "openzeppelin-solidity/contracts/AddressUtils.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
 import "../interfaces/IMediatorFeeManager.sol";
 
 /**
@@ -27,7 +27,7 @@ contract RewardableMediator is Ownable {
     * @param _feeManager the address of the fee manager contract.
     */
     function _setFeeManagerContract(address _feeManager) internal {
-        require(_feeManager == address(0) || AddressUtils.isContract(_feeManager));
+        require(_feeManager == address(0) || Address.isContract(_feeManager));
         addressStorage[FEE_MANAGER_CONTRACT] = _feeManager;
     }
 

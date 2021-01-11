@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 import "../../libraries/Message.sol";
 import "../../libraries/ArbitraryMessage.sol";
@@ -12,7 +12,7 @@ contract BasicForeignAMB is BasicAMB, MessageRelay, MessageDelivery {
     * @param _data bytes to be relayed
     * @param _signatures bytes blob with signatures to be validated
     */
-    function executeSignatures(bytes _data, bytes _signatures) external {
+    function executeSignatures(bytes calldata _data, bytes calldata _signatures) external {
         Message.hasEnoughValidSignatures(_data, _signatures, validatorContract(), true);
 
         bytes32 messageId;

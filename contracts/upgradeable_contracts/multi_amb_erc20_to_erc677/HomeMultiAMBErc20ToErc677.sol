@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 import "./BasicMultiAMBErc20ToErc677.sol";
 import "./TokenProxy.sol";
@@ -38,13 +38,13 @@ contract HomeMultiAMBErc20ToErc677 is
     function initialize(
         address _bridgeContract,
         address _mediatorContract,
-        uint256[3] _dailyLimitMaxPerTxMinPerTxArray, // [ 0 = _dailyLimit, 1 = _maxPerTx, 2 = _minPerTx ]
-        uint256[2] _executionDailyLimitExecutionMaxPerTxArray, // [ 0 = _executionDailyLimit, 1 = _executionMaxPerTx ]
+        uint256[3] calldata _dailyLimitMaxPerTxMinPerTxArray, // [ 0 = _dailyLimit, 1 = _maxPerTx, 2 = _minPerTx ]
+        uint256[2] calldata _executionDailyLimitExecutionMaxPerTxArray, // [ 0 = _executionDailyLimit, 1 = _executionMaxPerTx ]
         uint256 _requestGasLimit,
         address _owner,
         address _tokenImage,
-        address[] _rewardAddresses,
-        uint256[2] _fees // [ 0 = homeToForeignFee, 1 = foreignToHomeFee ]
+        address[] calldata _rewardAddresses,
+        uint256[2] calldata _fees // [ 0 = homeToForeignFee, 1 = foreignToHomeFee ]
     ) external onlyRelevantSender returns (bool) {
         require(!isInitialized());
 
@@ -95,8 +95,8 @@ contract HomeMultiAMBErc20ToErc677 is
     */
     function deployAndHandleBridgedTokens(
         address _token,
-        string _name,
-        string _symbol,
+        string calldata _name,
+        string calldata _symbol,
         uint8 _decimals,
         address _recipient,
         uint256 _value
@@ -139,7 +139,7 @@ contract HomeMultiAMBErc20ToErc677 is
     * @param _value amount of transferred tokens.
     * @param _data additional transfer data, can be used for passing alternative receiver address.
     */
-    function onTokenTransfer(address _from, uint256 _value, bytes _data) public returns (bool) {
+    function onTokenTransfer(address _from, uint256 _value, bytes memory _data) public returns (bool) {
         // if onTokenTransfer is called as a part of call to _relayTokens, this callback does nothing
         if (!lock()) {
             ERC677 token = ERC677(msg.sender);
@@ -239,7 +239,7 @@ contract HomeMultiAMBErc20ToErc677 is
     * @param _tokenImage address of deployed PermittableToken contract.
     */
     function _setTokenImage(address _tokenImage) internal {
-        require(AddressUtils.isContract(_tokenImage));
+        require(Address.isContract(_tokenImage));
         addressStorage[TOKEN_IMAGE_CONTRACT] = _tokenImage;
     }
 

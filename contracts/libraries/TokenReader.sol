@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 /**
  * @title TokenReader
@@ -12,7 +12,7 @@ library TokenReader {
     * @param _token address of the token contract.
     * @return token name as a string or an empty string if none of the methods succeeded.
     */
-    function readName(address _token) internal view returns (string) {
+    function readName(address _token) internal view returns (string memory) {
         uint256 ptr;
         uint256 size;
         assembly {
@@ -20,8 +20,8 @@ library TokenReader {
             mstore(ptr, 0x06fdde0300000000000000000000000000000000000000000000000000000000) // name()
             if iszero(staticcall(gas, _token, ptr, 4, ptr, 32)) {
                 mstore(ptr, 0xa3f4df7e00000000000000000000000000000000000000000000000000000000) // NAME()
-                staticcall(gas, _token, ptr, 4, ptr, 32)
-                pop
+                pop(staticcall(gas, _token, ptr, 4, ptr, 32))
+                
             }
 
             mstore(0x40, add(ptr, returndatasize))
@@ -66,7 +66,7 @@ library TokenReader {
     * @param _token address of the token contract.
     * @return token symbol as a string or an empty string if none of the methods succeeded.
     */
-    function readSymbol(address _token) internal view returns (string) {
+    function readSymbol(address _token) internal view returns (string memory) {
         uint256 ptr;
         uint256 size;
         assembly {
@@ -74,8 +74,7 @@ library TokenReader {
             mstore(ptr, 0x95d89b4100000000000000000000000000000000000000000000000000000000) // symbol()
             if iszero(staticcall(gas, _token, ptr, 4, ptr, 32)) {
                 mstore(ptr, 0xf76f8d7800000000000000000000000000000000000000000000000000000000) // SYMBOL()
-                staticcall(gas, _token, ptr, 4, ptr, 32)
-                pop
+                pop(staticcall(gas, _token, ptr, 4, ptr, 32))
             }
 
             mstore(0x40, add(ptr, returndatasize))

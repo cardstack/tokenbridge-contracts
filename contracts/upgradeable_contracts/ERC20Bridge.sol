@@ -1,7 +1,7 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
-import "openzeppelin-solidity/contracts/AddressUtils.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
 import "./BasicForeignBridge.sol";
 
 contract ERC20Bridge is BasicForeignBridge {
@@ -12,7 +12,7 @@ contract ERC20Bridge is BasicForeignBridge {
     }
 
     function setErc20token(address _token) internal {
-        require(AddressUtils.isContract(_token));
+        require(Address.isContract(_token));
         addressStorage[ERC20_TOKEN] = _token;
     }
 

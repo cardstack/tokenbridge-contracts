@@ -1,7 +1,7 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 import "../../interfaces/IBurnableMintableERC677Token.sol";
-import "../../libraries/Address.sol";
+import "../../libraries/SafeSend.sol";
 import "../ValidatorsFeeManager.sol";
 import "../ERC677Storage.sol";
 
@@ -15,7 +15,7 @@ contract FeeManagerNativeToErc is ValidatorsFeeManager, ERC677Storage {
     }
 
     function onAffirmationFeeDistribution(address _rewardAddress, uint256 _fee) internal {
-        Address.safeSendValue(_rewardAddress, _fee);
+        SafeSend.safeSendValue(_rewardAddress, _fee);
     }
 
     function onSignatureFeeDistribution(address _rewardAddress, uint256 _fee) internal {

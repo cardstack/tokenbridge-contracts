@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 import "../../libraries/Message.sol";
 import "../../libraries/ArbitraryMessage.sol";
@@ -17,7 +17,7 @@ contract BasicHomeAMB is BasicAMB, MessageDelivery {
 
     uint256 internal constant SEND_TO_MANUAL_LANE = 0x80;
 
-    function executeAffirmation(bytes message) external onlyValidator {
+    function executeAffirmation(bytes calldata message) external onlyValidator {
         bytes32 hashMsg = keccak256(abi.encodePacked(message));
         bytes32 hashSender = keccak256(abi.encodePacked(msg.sender, hashMsg));
         // Duplicated affirmations
@@ -45,7 +45,7 @@ contract BasicHomeAMB is BasicAMB, MessageDelivery {
     * @param _data calldata passed to the executor on the other side.
     * @param _gas gas limit used on the other network for executing a message.
     */
-    function requireToConfirmMessage(address _contract, bytes _data, uint256 _gas) external returns (bytes32) {
+    function requireToConfirmMessage(address _contract, bytes calldata _data, uint256 _gas) external returns (bytes32) {
         return _sendMessage(_contract, _data, _gas, SEND_TO_MANUAL_LANE);
     }
 
@@ -53,7 +53,7 @@ contract BasicHomeAMB is BasicAMB, MessageDelivery {
      * Parses given message, processes a call inside it
      * @param _message relayed message
      */
-    function handleMessage(bytes _message) internal {
+    function handleMessage(bytes memory _message) internal {
         bytes32 messageId;
         address sender;
         address executor;
@@ -69,7 +69,7 @@ contract BasicHomeAMB is BasicAMB, MessageDelivery {
         processMessage(sender, executor, messageId, gasLimit, dataType, chainIds[0], data);
     }
 
-    function submitSignature(bytes signature, bytes message) external onlyValidator {
+    function submitSignature(bytes calldata signature, bytes calldata message) external onlyValidator {
         // ensure that `signature` is really `message` signed by `msg.sender`
         require(msg.sender == Message.recoverAddressFromSignedMessage(signature, message, true));
         bytes32 hashMsg = keccak256(abi.encodePacked(message));
@@ -110,7 +110,7 @@ contract BasicHomeAMB is BasicAMB, MessageDelivery {
         return uintStorage[keccak256(abi.encodePacked("numMessagesSigned", _message))];
     }
 
-    function signature(bytes32 _hash, uint256 _index) public view returns (bytes) {
+    function signature(bytes32 _hash, uint256 _index) public view returns (bytes memory) {
         bytes32 signIdx = keccak256(abi.encodePacked(_hash, _index));
         return bytesStorage[keccak256(abi.encodePacked("signatures", signIdx))];
     }
@@ -119,7 +119,7 @@ contract BasicHomeAMB is BasicAMB, MessageDelivery {
         return boolStorage[keccak256(abi.encodePacked("messagesSigned", _message))];
     }
 
-    function message(bytes32 _hash) public view returns (bytes) {
+    function message(bytes32 _hash) public view returns (bytes memory) {
         return messages(_hash);
     }
 
@@ -135,15 +135,15 @@ contract BasicHomeAMB is BasicAMB, MessageDelivery {
         boolStorage[keccak256(abi.encodePacked("messagesSigned", _hash))] = _status;
     }
 
-    function messages(bytes32 _hash) internal view returns (bytes) {
+    function messages(bytes32 _hash) internal view returns (bytes memory) {
         return bytesStorage[keccak256(abi.encodePacked("messages", _hash))];
     }
 
-    function setSignatures(bytes32 _hash, bytes _signature) internal {
+    function setSignatures(bytes32 _hash, bytes memory _signature) internal {
         bytesStorage[keccak256(abi.encodePacked("signatures", _hash))] = _signature;
     }
 
-    function setMessages(bytes32 _hash, bytes _message) internal {
+    function setMessages(bytes32 _hash, bytes memory _message) internal {
         bytesStorage[keccak256(abi.encodePacked("messages", _hash))] = _message;
     }
 

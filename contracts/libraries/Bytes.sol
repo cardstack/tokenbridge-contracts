@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 /**
  * @title Bytes
@@ -15,7 +15,7 @@ library Bytes {
     * @param _bytes to be converted to bytes32 type
     * @return bytes32 type of the firsts 32 bytes array in parameter.
     */
-    function bytesToBytes32(bytes _bytes) internal pure returns (bytes32 result) {
+    function bytesToBytes32(bytes memory _bytes) internal pure returns (bytes32 result) {
         assembly {
             result := mload(add(_bytes, 32))
         }
@@ -27,7 +27,7 @@ library Bytes {
     * @param _bytes to be converted to address type
     * @return address included in the firsts 20 bytes of the bytes array in parameter.
     */
-    function bytesToAddress(bytes _bytes) internal pure returns (address addr) {
+    function bytesToAddress(bytes memory _bytes) internal pure returns (address addr) {
         assembly {
             addr := mload(add(_bytes, 20))
         }

@@ -1,9 +1,9 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
-import "../libraries/Address.sol";
+import "../libraries/SafeSend.sol";
 
 contract RevertFallback {
-    function() public payable {
+    function() external payable {
         revert();
     }
 
@@ -17,6 +17,6 @@ contract RevertFallback {
     }
 
     function safeSendEth(address _receiver, uint256 _value) public {
-        Address.safeSendValue(_receiver, _value);
+        SafeSend.safeSendValue(_receiver, _value);
     }
 }

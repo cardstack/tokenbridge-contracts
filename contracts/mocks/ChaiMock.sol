@@ -15,7 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 /* solhint-disable */
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 contract VatLike {
     function hope(address) external;

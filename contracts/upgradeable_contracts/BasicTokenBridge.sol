@@ -1,6 +1,6 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
 import "../upgradeability/EternalStorage.sol";
 import "./DecimalShiftBridge.sol";
 import "./Ownable.sol";
@@ -107,7 +107,7 @@ contract BasicTokenBridge is EternalStorage, Ownable, DecimalShiftBridge {
         return _maxPerTx < _remainingOutOfDaily ? _maxPerTx : _remainingOutOfDaily;
     }
 
-    function _setLimits(uint256[3] _limits) internal {
+    function _setLimits(uint256[3] memory _limits) internal {
         require(
             _limits[2] > 0 && // minPerTx > 0
                 _limits[1] > _limits[2] && // maxPerTx > minPerTx
@@ -121,7 +121,7 @@ contract BasicTokenBridge is EternalStorage, Ownable, DecimalShiftBridge {
         emit DailyLimitChanged(_limits[0]);
     }
 
-    function _setExecutionLimits(uint256[2] _limits) internal {
+    function _setExecutionLimits(uint256[2] memory _limits) internal {
         require(_limits[1] < _limits[0]); // foreignMaxPerTx < foreignDailyLimit
 
         uintStorage[EXECUTION_DAILY_LIMIT] = _limits[0];

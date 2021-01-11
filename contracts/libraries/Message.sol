@@ -1,8 +1,8 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 import "../interfaces/IBridgeValidators.sol";
 
 library Message {
-    function addressArrayContains(address[] array, address value) internal pure returns (bool) {
+    function addressArrayContains(address[] memory array, address value) internal pure returns (bool) {
         for (uint256 i = 0; i < array.length; i++) {
             if (array[i] == value) {
                 return true;
@@ -26,7 +26,7 @@ library Message {
     // which is padding address to 32 bytes and reading recipient at offset 32.
     // for more details see discussion in:
     // https://github.com/paritytech/parity-bridge/issues/61
-    function parseMessage(bytes message)
+    function parseMessage(bytes memory message)
         internal
         pure
         returns (address recipient, uint256 amount, bytes32 txHash, address contractAddress)
@@ -40,7 +40,7 @@ library Message {
         }
     }
 
-    function isMessageValid(bytes _msg) internal pure returns (bool) {
+    function isMessageValid(bytes memory _msg) internal pure returns (bool) {
         return _msg.length == requiredMessageLength();
     }
 
@@ -48,7 +48,7 @@ library Message {
         return 104;
     }
 
-    function recoverAddressFromSignedMessage(bytes signature, bytes message, bool isAMBMessage)
+    function recoverAddressFromSignedMessage(bytes memory signature, bytes memory message, bool isAMBMessage)
         internal
         pure
         returns (address)
@@ -69,7 +69,7 @@ library Message {
         return ecrecover(hashMessage(message, isAMBMessage), uint8(v), r, s);
     }
 
-    function hashMessage(bytes message, bool isAMBMessage) internal pure returns (bytes32) {
+    function hashMessage(bytes memory message, bool isAMBMessage) internal pure returns (bytes32) {
         bytes memory prefix = "\x19Ethereum Signed Message:\n";
         if (isAMBMessage) {
             return keccak256(abi.encodePacked(prefix, uintToString(message.length), message));
@@ -93,8 +93,8 @@ library Message {
     * @param isAMBMessage true if _message is an AMB message with arbitrary length.
     */
     function hasEnoughValidSignatures(
-        bytes _message,
-        bytes _signatures,
+        bytes memory _message,
+        bytes memory _signatures,
         IBridgeValidators _validatorContract,
         bool isAMBMessage
     ) internal view {
@@ -127,7 +127,7 @@ library Message {
         }
     }
 
-    function uintToString(uint256 i) internal pure returns (string) {
+    function uintToString(uint256 i) internal pure returns (string memory) {
         if (i == 0) return "0";
         uint256 j = i;
         uint256 length;
@@ -138,7 +138,7 @@ library Message {
         bytes memory bstr = new bytes(length);
         uint256 k = length - 1;
         while (i != 0) {
-            bstr[k--] = bytes1(48 + (i % 10));
+          bstr[k--] = byte(uint8(48 + i % 10)); 
             i /= 10;
         }
         return string(bstr);

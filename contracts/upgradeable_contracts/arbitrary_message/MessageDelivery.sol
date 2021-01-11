@@ -1,6 +1,6 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./BasicAMB.sol";
 import "./MessageProcessor.sol";
 import "../../libraries/ArbitraryMessage.sol";
@@ -17,7 +17,7 @@ contract MessageDelivery is BasicAMB, MessageProcessor {
     * @param _data calldata passed to the executor on the other side
     * @param _gas gas limit used on the other network for executing a message
     */
-    function requireToPassMessage(address _contract, bytes _data, uint256 _gas) public returns (bytes32) {
+    function requireToPassMessage(address _contract, bytes memory _data, uint256 _gas) public returns (bytes32) {
         return _sendMessage(_contract, _data, _gas, SEND_TO_ORACLE_DRIVEN_LANE);
     }
 
@@ -28,7 +28,7 @@ contract MessageDelivery is BasicAMB, MessageProcessor {
     * @param _gas gas limit used on the other network for executing a message
     * @param _dataType AMB message dataType to be included as a part of the header
     */
-    function _sendMessage(address _contract, bytes _data, uint256 _gas, uint256 _dataType) public returns (bytes32) {
+    function _sendMessage(address _contract, bytes memory _data, uint256 _gas, uint256 _dataType) public returns (bytes32) {
         // it is not allowed to pass messages while other messages are processed
         require(messageId() == bytes32(0));
 
@@ -52,7 +52,7 @@ contract MessageDelivery is BasicAMB, MessageProcessor {
     * @dev Returns a lower limit on gas limit for the particular message data
     * @param _data calldata passed to the executor on the other side
     */
-    function getMinimumGasUsage(bytes _data) public pure returns (uint256 gas) {
+    function getMinimumGasUsage(bytes memory _data) public pure returns (uint256 gas) {
         // From Ethereum Yellow Paper
         // 68 gas is paid for every non-zero byte of data or code for a transaction
         // Starting from Istanbul hardfork, 16 gas is paid (EIP-2028)
@@ -103,5 +103,5 @@ contract MessageDelivery is BasicAMB, MessageProcessor {
     }
 
     /* solcov ignore next */
-    function emitEventOnMessageRequest(bytes32 messageId, bytes encodedData) internal;
+    function emitEventOnMessageRequest(bytes32 messageId, bytes memory encodedData) internal;
 }

@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 import "./BasicStakeTokenMediator.sol";
 import "../../interfaces/IBurnableMintableERC677Token.sol";
@@ -31,7 +31,7 @@ contract ForeignStakeTokenMediator is BasicStakeTokenMediator {
         ERC677, /* _token */
         address _from,
         uint256 _value,
-        bytes _data
+        bytes memory _data
     ) internal {
         if (!lock()) {
             passMessage(_from, chooseReceiver(_from, _data), _value);

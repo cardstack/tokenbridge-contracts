@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 import "../BasicBridge.sol";
 import "./VersionableAMB.sol";
@@ -31,7 +31,7 @@ contract BasicAMB is BasicBridge, VersionableAMB {
         address _owner
     ) external onlyRelevantSender returns (bool) {
         require(!isInitialized());
-        require(AddressUtils.isContract(_validatorContract));
+        require(Address.isContract(_validatorContract));
 
         _setChainIds(_sourceChainId, _destinationChainId);
         addressStorage[VALIDATOR_CONTRACT] = _validatorContract;

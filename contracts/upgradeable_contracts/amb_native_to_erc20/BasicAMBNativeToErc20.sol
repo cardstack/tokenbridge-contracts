@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 import "../Initializable.sol";
 import "../Upgradeable.sol";
@@ -35,8 +35,8 @@ contract BasicAMBNativeToErc20 is
     function _initialize(
         address _bridgeContract,
         address _mediatorContract,
-        uint256[3] _dailyLimitMaxPerTxMinPerTxArray,
-        uint256[2] _executionDailyLimitExecutionMaxPerTxArray,
+        uint256[3] memory _dailyLimitMaxPerTxMinPerTxArray,
+        uint256[2] memory _executionDailyLimitExecutionMaxPerTxArray,
         uint256 _requestGasLimit,
         int256 _decimalShift,
         address _owner,

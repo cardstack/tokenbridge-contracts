@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 import "./PermittableToken.sol";
 
@@ -15,7 +15,7 @@ contract ERC677MultiBridgeToken is PermittableToken {
     event BridgeAdded(address indexed bridge);
     event BridgeRemoved(address indexed bridge);
 
-    constructor(string _name, string _symbol, uint8 _decimals, uint256 _chainId)
+    constructor(string memory _name, string memory _symbol, uint8 _decimals, uint256 _chainId)
         public
         PermittableToken(_name, _symbol, _decimals, _chainId)
     {
@@ -42,7 +42,7 @@ contract ERC677MultiBridgeToken is PermittableToken {
     */
     function addBridge(address _bridge) external onlyOwner {
         require(bridgeCount < MAX_BRIDGES);
-        require(AddressUtils.isContract(_bridge));
+        require(Address.isContract(_bridge));
         require(!isBridge(_bridge));
 
         address firstBridge = bridgePointers[F_ADDR];
@@ -84,7 +84,7 @@ contract ERC677MultiBridgeToken is PermittableToken {
     * @dev Returns all recorded bridge contract addresses
     * @return address[] bridge contract addresses
     */
-    function bridgeList() external view returns (address[]) {
+    function bridgeList() external view returns (address[] memory) {
         address[] memory list = new address[](bridgeCount);
         uint256 counter = 0;
         address nextBridge = bridgePointers[F_ADDR];

@@ -1,6 +1,6 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
-import "openzeppelin-solidity/contracts/token/ERC20/DetailedERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
 import "./BasicMultiAMBErc20ToErc677.sol";
 import "./HomeMultiAMBErc20ToErc677.sol";
 import "../../libraries/TokenReader.sol";
@@ -29,8 +29,8 @@ contract ForeignMultiAMBErc20ToErc677 is BasicMultiAMBErc20ToErc677 {
     function initialize(
         address _bridgeContract,
         address _mediatorContract,
-        uint256[3] _dailyLimitMaxPerTxMinPerTxArray, // [ 0 = _dailyLimit, 1 = _maxPerTx, 2 = _minPerTx ]
-        uint256[2] _executionDailyLimitExecutionMaxPerTxArray, // [ 0 = _executionDailyLimit, 1 = _executionMaxPerTx ]
+        uint256[3] calldata _dailyLimitMaxPerTxMinPerTxArray, // [ 0 = _dailyLimit, 1 = _maxPerTx, 2 = _minPerTx ]
+        uint256[2] calldata _executionDailyLimitExecutionMaxPerTxArray, // [ 0 = _executionDailyLimit, 1 = _executionMaxPerTx ]
         uint256 _requestGasLimit,
         address _owner
     ) external onlyRelevantSender returns (bool) {
@@ -67,7 +67,7 @@ contract ForeignMultiAMBErc20ToErc677 is BasicMultiAMBErc20ToErc677 {
     * @param _value amount of transferred tokens.
     * @param _data additional transfer data, can be used for passing alternative receiver address.
     */
-    function onTokenTransfer(address _from, uint256 _value, bytes _data) public returns (bool) {
+    function onTokenTransfer(address _from, uint256 _value, bytes memory _data) public returns (bool) {
         if (!lock()) {
             ERC677 token = ERC677(msg.sender);
             bridgeSpecificActionsOnTokenTransfer(token, _from, chooseReceiver(_from, _data), _value);
@@ -118,10 +118,14 @@ contract ForeignMultiAMBErc20ToErc677 is BasicMultiAMBErc20ToErc677 {
         internal
     {
         bool isKnownToken = isTokenRegistered(_token);
+        string memory name;
+        string memory symbol;
+        uint8 decimals;
+
         if (!isKnownToken) {
-            string memory name = TokenReader.readName(_token);
-            string memory symbol = TokenReader.readSymbol(_token);
-            uint8 decimals = uint8(TokenReader.readDecimals(_token));
+            name = TokenReader.readName(_token);
+            symbol = TokenReader.readSymbol(_token);
+            decimals = uint8(TokenReader.readDecimals(_token));
 
             require(bytes(name).length > 0 || bytes(symbol).length > 0);
 

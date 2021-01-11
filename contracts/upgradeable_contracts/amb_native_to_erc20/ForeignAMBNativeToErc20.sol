@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 import "./BasicAMBNativeToErc20.sol";
 import "../BaseERC677Bridge.sol";
@@ -28,8 +28,8 @@ contract ForeignAMBNativeToErc20 is BasicAMBNativeToErc20, ReentrancyGuard, Base
     function initialize(
         address _bridgeContract,
         address _mediatorContract,
-        uint256[3] _dailyLimitMaxPerTxMinPerTxArray, // [ 0 = dailyLimit, 1 = maxPerTx, 2 = minPerTx ]
-        uint256[2] _executionDailyLimitExecutionMaxPerTxArray, // [ 0 = executionDailyLimit, 1 = executionMaxPerTx ]
+        uint256[3] calldata _dailyLimitMaxPerTxMinPerTxArray, // [ 0 = dailyLimit, 1 = maxPerTx, 2 = minPerTx ]
+        uint256[2] calldata _executionDailyLimitExecutionMaxPerTxArray, // [ 0 = executionDailyLimit, 1 = executionMaxPerTx ]
         uint256 _requestGasLimit,
         int256 _decimalShift,
         address _owner,
@@ -122,7 +122,7 @@ contract ForeignAMBNativeToErc20 is BasicAMBNativeToErc20, ReentrancyGuard, Base
     * @param _data this parameter could contain the address of an alternative receiver of the tokens on the other network,
     * otherwise it will be empty.
     */
-    function onTokenTransfer(address _from, uint256 _value, bytes _data) external returns (bool) {
+    function onTokenTransfer(address _from, uint256 _value, bytes calldata _data) external returns (bool) {
         ERC677 token = erc677token();
         require(msg.sender == address(token));
         if (!lock()) {
@@ -141,7 +141,7 @@ contract ForeignAMBNativeToErc20 is BasicAMBNativeToErc20, ReentrancyGuard, Base
     * @param _data this parameter could contain the address of an alternative receiver of the native tokens on the other
     * network, otherwise it will be empty.
     */
-    function bridgeSpecificActionsOnTokenTransfer(ERC677 _token, address _from, uint256 _value, bytes _data) internal {
+    function bridgeSpecificActionsOnTokenTransfer(ERC677 _token, address _from, uint256 _value, bytes memory _data) internal {
         if (!lock()) {
             IBurnableMintableERC677Token(_token).burn(_value);
             passMessage(_from, chooseReceiver(_from, _data), _value);

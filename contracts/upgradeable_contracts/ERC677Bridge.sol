@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 import "./BaseERC677Bridge.sol";
 import "./OtherSideBridgeStorage.sol";
@@ -12,7 +12,7 @@ contract ERC677Bridge is BaseERC677Bridge, OtherSideBridgeStorage {
         ERC677, /*_token*/
         address _from,
         uint256 _value,
-        bytes _data
+        bytes memory _data
     ) internal {
         fireEventOnTokenTransfer(chooseReceiver(_from, _data), _value);
     }

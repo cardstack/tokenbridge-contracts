@@ -1,8 +1,8 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
-import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
-import "openzeppelin-solidity/contracts/AddressUtils.sol";
+import "@openzeppelin/contracts/ownership/Ownable.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
 
 /**
 * @title BaseMediatorFeeManager
@@ -35,8 +35,8 @@ contract BaseMediatorFeeManager is Ownable {
     * @param _rewardAccountList list of unique addresses that will receive the fee rewards.
     * @param _mediatorContract address of the mediator contract used together with this fee manager.
     */
-    constructor(address _owner, uint256 _fee, address[] _rewardAccountList, address _mediatorContract) public {
-        require(AddressUtils.isContract(_mediatorContract));
+    constructor(address _owner, uint256 _fee, address[] memory _rewardAccountList, address _mediatorContract) public {
+        require(Address.isContract(_mediatorContract));
         require(_rewardAccountList.length > 0 && _rewardAccountList.length <= MAX_REWARD_ACCOUNTS);
         _transferOwnership(_owner);
         _setFee(_fee);
@@ -136,7 +136,7 @@ contract BaseMediatorFeeManager is Ownable {
     * @dev Tells the list of accounts that receives rewards for the operations.
     * @return the list of reward accounts
     */
-    function rewardAccountsList() public view returns (address[]) {
+    function rewardAccountsList() public view returns (address[] memory) {
         return rewardAccounts;
     }
 
@@ -144,7 +144,7 @@ contract BaseMediatorFeeManager is Ownable {
     * @dev ERC677 transfer callback function, received fee is distributed.
     * @param _value amount of transferred tokens
     */
-    function onTokenTransfer(address, uint256 _value, bytes) external returns (bool) {
+    function onTokenTransfer(address, uint256 _value, bytes calldata) external returns (bool) {
         distributeFee(_value);
         return true;
     }

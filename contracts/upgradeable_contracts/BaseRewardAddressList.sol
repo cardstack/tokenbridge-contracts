@@ -1,6 +1,6 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
 import "../upgradeability/EternalStorage.sol";
 
 /**
@@ -21,7 +21,7 @@ contract BaseRewardAddressList is EternalStorage {
     * @dev Retrieves all registered reward accounts.
     * @return address list of the registered reward receivers.
     */
-    function rewardAddressList() external view returns (address[]) {
+    function rewardAddressList() external view returns (address[] memory) {
         address[] memory list = new address[](rewardAddressCount());
         uint256 counter = 0;
         address nextAddr = getNextRewardAddress(F_ADDR);
@@ -106,7 +106,7 @@ contract BaseRewardAddressList is EternalStorage {
     * @dev Internal function for initializing linked list with the array of the initial reward addresses.
     * @param _rewardAddresses initial reward addresses list, should be non-empty.
     */
-    function _setRewardAddressList(address[] _rewardAddresses) internal {
+    function _setRewardAddressList(address[] memory _rewardAddresses) internal {
         require(_rewardAddresses.length > 0);
 
         _setNextRewardAddress(F_ADDR, _rewardAddresses[0]);

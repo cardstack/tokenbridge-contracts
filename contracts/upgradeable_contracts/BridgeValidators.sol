@@ -1,9 +1,9 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 import "./BaseBridgeValidators.sol";
 
 contract BridgeValidators is BaseBridgeValidators {
-    function initialize(uint256 _requiredSignatures, address[] _initialValidators, address _owner)
+    function initialize(uint256 _requiredSignatures, address[] calldata _initialValidators, address _owner)
         external
         onlyRelevantSender
         returns (bool)

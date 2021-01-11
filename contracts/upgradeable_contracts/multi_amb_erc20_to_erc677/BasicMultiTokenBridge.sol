@@ -1,6 +1,6 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
 import "../../upgradeability/EternalStorage.sol";
 import "../Ownable.sol";
 
@@ -228,7 +228,7 @@ contract BasicMultiTokenBridge is EternalStorage, Ownable {
     * @param _token address of the token contract.
     * @param _limits [ 0 = dailyLimit, 1 = maxPerTx, 2 = minPerTx ].
     */
-    function _setLimits(address _token, uint256[3] _limits) internal {
+    function _setLimits(address _token, uint256[3] memory _limits) internal {
         require(
             _limits[2] > 0 && // minPerTx > 0
                 _limits[1] > _limits[2] && // maxPerTx > minPerTx
@@ -247,7 +247,7 @@ contract BasicMultiTokenBridge is EternalStorage, Ownable {
     * @param _token address of the token contract.
     * @param _limits [ 0 = executionDailyLimit, 1 = executionMaxPerTx ].
     */
-    function _setExecutionLimits(address _token, uint256[2] _limits) internal {
+    function _setExecutionLimits(address _token, uint256[2] memory _limits) internal {
         require(_limits[1] < _limits[0]); // foreignMaxPerTx < foreignDailyLimit
 
         uintStorage[keccak256(abi.encodePacked("executionDailyLimit", _token))] = _limits[0];

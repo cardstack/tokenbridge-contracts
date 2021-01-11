@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 import "../libraries/Bytes.sol";
 
@@ -20,14 +20,14 @@ contract AMBMock {
         maxGasPerTx = _value;
     }
 
-    function executeMessageCall(address _contract, address _sender, bytes _data, bytes32 _messageId, uint256 _gas)
+    function executeMessageCall(address _contract, address _sender, bytes memory _data, bytes32 _messageId, uint256 _gas)
         public
     {
         messageSender = _sender;
         messageId = _messageId;
         transactionHash = _messageId;
         messageSourceChainId = 1337;
-        bool status = _contract.call.gas(_gas)(_data);
+        (bool status, bytes memory data) = _contract.call.gas(_gas)(_data);
         messageSender = address(0);
         messageId = bytes32(0);
         transactionHash = bytes32(0);
@@ -41,20 +41,20 @@ contract AMBMock {
         }
     }
 
-    function requireToPassMessage(address _contract, bytes _data, uint256 _gas) external returns (bytes32) {
+    function requireToPassMessage(address _contract, bytes calldata _data, uint256 _gas) external returns (bytes32) {
         return _sendMessage(_contract, _data, _gas, 0x00);
     }
 
-    function requireToConfirmMessage(address _contract, bytes _data, uint256 _gas) external returns (bytes32) {
+    function requireToConfirmMessage(address _contract, bytes calldata _data, uint256 _gas) external returns (bytes32) {
         return _sendMessage(_contract, _data, _gas, 0x80);
     }
 
-    function _sendMessage(address _contract, bytes _data, uint256 _gas, uint256 _dataType) internal returns (bytes32) {
+    function _sendMessage(address _contract, bytes memory _data, uint256 _gas, uint256 _dataType) internal returns (bytes32) {
         require(messageId == bytes32(0));
         bytes32 bridgeId = keccak256(abi.encodePacked(uint16(1337), address(this))) &
             0x00000000ffffffffffffffffffffffffffffffffffffffff0000000000000000;
 
-        bytes32 _messageId = bytes32(0x11223344 << 224) | bridgeId | bytes32(nonce);
+        bytes32 _messageId = bytes32(uint256(0x11223344 << 224)) | bridgeId | bytes32(uint256(nonce));
         nonce += 1;
         bytes memory eventData = abi.encodePacked(
             _messageId,

@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 import "../upgradeable_contracts/native_to_erc20/ForeignBridgeNativeToErc.sol";
 

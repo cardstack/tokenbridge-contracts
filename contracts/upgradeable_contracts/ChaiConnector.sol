@@ -1,11 +1,11 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 import "../interfaces/IChai.sol";
 import "../interfaces/ERC677Receiver.sol";
 import "./Ownable.sol";
 import "./ERC20Bridge.sol";
 import "./TokenSwapper.sol";
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
 
 /**
 * @title ChaiConnector

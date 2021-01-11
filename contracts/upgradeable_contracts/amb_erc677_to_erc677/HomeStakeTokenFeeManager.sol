@@ -1,8 +1,8 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 import "../BlockRewardBridge.sol";
 import "../Ownable.sol";
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
 
 contract HomeStakeTokenFeeManager is BlockRewardBridge, Ownable {
     using SafeMath for uint256;

@@ -1,6 +1,6 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
-import "../libraries/Address.sol";
+import "../libraries/SafeSend.sol";
 import "../libraries/SafeERC20.sol";
 
 /**
@@ -25,7 +25,7 @@ contract Claimable {
      * @param _token address of the claimed token or address(0) for native coins.
      * @param _to address of the tokens/coins receiver.
      */
-    function claimValues(address _token, address _to) internal validAddress(_to) {
+    function claimValues(address _token, address payable _to) internal validAddress(_to) {
         if (_token == address(0)) {
             claimNativeCoins(_to);
         } else {
@@ -37,9 +37,9 @@ contract Claimable {
      * @dev Internal function for withdrawing all native coins from the contract.
      * @param _to address of the coins receiver.
      */
-    function claimNativeCoins(address _to) internal {
+    function claimNativeCoins(address payable _to) internal {
         uint256 value = address(this).balance;
-        Address.safeSendValue(_to, value);
+        SafeSend.safeSendValue(_to, value);
     }
 
     /**
@@ -48,8 +48,8 @@ contract Claimable {
      * @param _to address of the tokens receiver.
      */
     function claimErc20Tokens(address _token, address _to) internal {
-        ERC20Basic token = ERC20Basic(_token);
-        uint256 balance = token.balanceOf(this);
+        ERC20 token = ERC20(_token);
+        uint256 balance = token.balanceOf(address(this));
         _token.safeTransfer(_to, balance);
     }
 }

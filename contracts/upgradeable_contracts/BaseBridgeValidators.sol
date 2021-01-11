@@ -1,7 +1,7 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 import "./Ownable.sol";
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./InitializableBridge.sol";
 
 contract BaseBridgeValidators is InitializableBridge, Ownable {
@@ -27,7 +27,7 @@ contract BaseBridgeValidators is InitializableBridge, Ownable {
         return (2, 3, 0);
     }
 
-    function validatorList() external view returns (address[]) {
+    function validatorList() external view returns (address[] memory) {
         address[] memory list = new address[](validatorCount());
         uint256 counter = 0;
         address nextValidator = getNextValidator(F_ADDR);
@@ -91,7 +91,7 @@ contract BaseBridgeValidators is InitializableBridge, Ownable {
         return addressStorage[keccak256(abi.encodePacked("validatorsList", _address))];
     }
 
-    function deleteItemFromAddressStorage(string _mapName, address _address) internal {
+    function deleteItemFromAddressStorage(string memory _mapName, address _address) internal {
         delete addressStorage[keccak256(abi.encodePacked(_mapName, _address))];
     }
 

@@ -1,6 +1,6 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
-import "openzeppelin-solidity/contracts/AddressUtils.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
 import "./Ownable.sol";
 import "./FeeTypes.sol";
 
@@ -73,7 +73,7 @@ contract RewardableBridge is Ownable, FeeTypes {
      * @param _feeManager address of the new fee manager contract, or zero address to disable fee collection.
      */
     function setFeeManagerContract(address _feeManager) external onlyOwner {
-        require(_feeManager == address(0) || AddressUtils.isContract(_feeManager));
+        require(_feeManager == address(0) || Address.isContract(_feeManager));
         addressStorage[FEE_MANAGER_CONTRACT] = _feeManager;
     }
 

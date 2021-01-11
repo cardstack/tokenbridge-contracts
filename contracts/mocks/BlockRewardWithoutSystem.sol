@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.5;
 
 import "../upgradeable_contracts/amb_erc20_to_native/BlockReward.sol";
 
@@ -17,7 +17,7 @@ contract BlockRewardWithoutSystem is BlockReward {
         bridgeContractAddress = _addr;
     }
 
-    function bridgesAllowed() public view returns (address[bridgesAllowedLength]) {
+    function bridgesAllowed() public view returns (address[bridgesAllowedLength] memory) {
         // These values must be changed before deploy
         return [address(bridgeContractAddress)];
     }

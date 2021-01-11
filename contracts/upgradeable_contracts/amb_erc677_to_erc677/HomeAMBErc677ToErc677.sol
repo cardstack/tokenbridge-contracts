@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 import "./BasicAMBErc677ToErc677.sol";
 import "../../interfaces/IBurnableMintableERC677Token.sol";
@@ -28,7 +28,7 @@ contract HomeAMBErc677ToErc677 is BasicAMBErc677ToErc677 {
      * @param _value requsted amount of bridged tokens
      * @param _data alternative receiver, if specified
      */
-    function bridgeSpecificActionsOnTokenTransfer(ERC677 _token, address _from, uint256 _value, bytes _data) internal {
+    function bridgeSpecificActionsOnTokenTransfer(ERC677 _token, address _from, uint256 _value, bytes memory _data) internal {
         if (!lock()) {
             IBurnableMintableERC677Token(_token).burn(_value);
             passMessage(_from, chooseReceiver(_from, _data), _value);

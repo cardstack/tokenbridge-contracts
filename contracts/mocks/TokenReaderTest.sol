@@ -1,14 +1,14 @@
 /* solhint-disable */
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 import "../../contracts/libraries/TokenReader.sol";
 
 contract Token1 {
-    function name() external view returns (string) {
+    function name() external view returns (string memory) {
         return "Token";
     }
 
-    function symbol() external view returns (string) {
+    function symbol() external view returns (string memory) {
         return "TKN";
     }
 
@@ -18,11 +18,11 @@ contract Token1 {
 }
 
 contract Token2 {
-    function NAME() external view returns (string) {
+    function NAME() external view returns (string memory) {
         return "Token";
     }
 
-    function SYMBOL() external view returns (string) {
+    function SYMBOL() external view returns (string memory) {
         return "TKN";
     }
 
@@ -66,17 +66,17 @@ contract Token5 {
 }
 
 contract Token6 {
-    function NAME() external view returns (string) {
+    function NAME() external view returns (string memory) {
         return "0123456789abcdef0123456789abcdefX";
     }
 
-    function symbol() external view returns (string) {
+    function symbol() external view returns (string memory) {
         return "0123456789abcdef0123456789abcdefY";
     }
 }
 
 contract Token7 {
-    function symbol() external view returns (string) {
+    function symbol() external view returns (string memory) {
         return "";
     }
 

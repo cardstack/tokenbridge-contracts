@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 import "../../libraries/Message.sol";
 import "../../upgradeability/EternalStorage.sol";
@@ -22,7 +22,7 @@ contract HomeBridgeErcToNative is
 {
     bytes32 internal constant TOTAL_BURNT_COINS = 0x17f187b2e5d1f8770602b32c1159b85c9600859277fae1eaa9982e9bcf63384c; // keccak256(abi.encodePacked("totalBurntCoins"))
 
-    function() public payable {
+    function() external payable {
         require(msg.data.length == 0);
         nativeTransfer(msg.sender);
     }
@@ -54,11 +54,11 @@ contract HomeBridgeErcToNative is
 
     function initialize(
         address _validatorContract,
-        uint256[3] _dailyLimitMaxPerTxMinPerTxArray, // [ 0 = _dailyLimit, 1 = _maxPerTx, 2 = _minPerTx ]
+        uint256[3] calldata _dailyLimitMaxPerTxMinPerTxArray, // [ 0 = _dailyLimit, 1 = _maxPerTx, 2 = _minPerTx ]
         uint256 _homeGasPrice,
         uint256 _requiredBlockConfirmations,
         address _blockReward,
-        uint256[2] _foreignDailyLimitForeignMaxPerTxArray, // [ 0 = _foreignDailyLimit, 1 = _foreignMaxPerTx ]
+        uint256[2] calldata _foreignDailyLimitForeignMaxPerTxArray, // [ 0 = _foreignDailyLimit, 1 = _foreignMaxPerTx ]
         address _owner,
         int256 _decimalShift
     ) external onlyRelevantSender returns (bool) {
@@ -79,14 +79,14 @@ contract HomeBridgeErcToNative is
 
     function rewardableInitialize(
         address _validatorContract,
-        uint256[3] _dailyLimitMaxPerTxMinPerTxArray, // [ 0 = _dailyLimit, 1 = _maxPerTx, 2 = _minPerTx ]
+        uint256[3] calldata _dailyLimitMaxPerTxMinPerTxArray, // [ 0 = _dailyLimit, 1 = _maxPerTx, 2 = _minPerTx ]
         uint256 _homeGasPrice,
         uint256 _requiredBlockConfirmations,
         address _blockReward,
-        uint256[2] _foreignDailyLimitForeignMaxPerTxArray, // [ 0 = _foreignDailyLimit, 1 = _foreignMaxPerTx ]
+        uint256[2] calldata _foreignDailyLimitForeignMaxPerTxArray, // [ 0 = _foreignDailyLimit, 1 = _foreignMaxPerTx ]
         address _owner,
         address _feeManager,
-        uint256[2] _homeFeeForeignFeeArray, // [ 0 = _homeFee, 1 = _foreignFee ]
+        uint256[2] calldata _homeFeeForeignFeeArray, // [ 0 = _homeFee, 1 = _foreignFee ]
         int256 _decimalShift
     ) external onlyRelevantSender returns (bool) {
         _initialize(
@@ -99,7 +99,7 @@ contract HomeBridgeErcToNative is
             _owner,
             _decimalShift
         );
-        require(AddressUtils.isContract(_feeManager));
+        require(Address.isContract(_feeManager));
         addressStorage[FEE_MANAGER_CONTRACT] = _feeManager;
         _setFee(_feeManager, _homeFeeForeignFeeArray[0], HOME_FEE);
         _setFee(_feeManager, _homeFeeForeignFeeArray[1], FOREIGN_FEE);
@@ -140,17 +140,17 @@ contract HomeBridgeErcToNative is
 
     function _initialize(
         address _validatorContract,
-        uint256[3] _dailyLimitMaxPerTxMinPerTxArray, // [ 0 = _dailyLimit, 1 = _maxPerTx, 2 = _minPerTx ]
+        uint256[3] memory _dailyLimitMaxPerTxMinPerTxArray, // [ 0 = _dailyLimit, 1 = _maxPerTx, 2 = _minPerTx ]
         uint256 _homeGasPrice,
         uint256 _requiredBlockConfirmations,
         address _blockReward,
-        uint256[2] _foreignDailyLimitForeignMaxPerTxArray, // [ 0 = _foreignDailyLimit, 1 = _foreignMaxPerTx ]
+        uint256[2] memory _foreignDailyLimitForeignMaxPerTxArray, // [ 0 = _foreignDailyLimit, 1 = _foreignMaxPerTx ]
         address _owner,
         int256 _decimalShift
     ) internal {
         require(!isInitialized());
-        require(AddressUtils.isContract(_validatorContract));
-        require(_blockReward == address(0) || AddressUtils.isContract(_blockReward));
+        require(Address.isContract(_validatorContract));
+        require(_blockReward == address(0) || Address.isContract(_blockReward));
 
         addressStorage[VALIDATOR_CONTRACT] = _validatorContract;
         uintStorage[DEPLOYED_AT_BLOCK] = block.number;
@@ -196,7 +196,7 @@ contract HomeBridgeErcToNative is
      * Distributed the fee for collecting signatures.
      * @param _message encoded message signed by the validators.
      */
-    function onSignaturesCollected(bytes _message) internal {
+    function onSignaturesCollected(bytes memory _message) internal {
         address feeManager = feeManagerContract();
         if (feeManager != address(0)) {
             (, uint256 amount, bytes32 txHash, ) = Message.parseMessage(_message);

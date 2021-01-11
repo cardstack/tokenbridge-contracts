@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.5;
 
 import "../../interfaces/IAMB.sol";
 import "../Ownable.sol";
@@ -29,8 +29,8 @@ contract BasicAMBErc677ToErc677 is
         address _bridgeContract,
         address _mediatorContract,
         address _erc677token,
-        uint256[3] _dailyLimitMaxPerTxMinPerTxArray, // [ 0 = _dailyLimit, 1 = _maxPerTx, 2 = _minPerTx ]
-        uint256[2] _executionDailyLimitExecutionMaxPerTxArray, // [ 0 = _executionDailyLimit, 1 = _executionMaxPerTx ]
+        uint256[3] memory _dailyLimitMaxPerTxMinPerTxArray, // [ 0 = _dailyLimit, 1 = _maxPerTx, 2 = _minPerTx ]
+        uint256[2] memory  _executionDailyLimitExecutionMaxPerTxArray, // [ 0 = _executionDailyLimit, 1 = _executionMaxPerTx ]
         uint256 _requestGasLimit,
         int256 _decimalShift,
         address _owner
@@ -84,7 +84,7 @@ contract BasicAMBErc677ToErc677 is
         bridgeSpecificActionsOnTokenTransfer(token, msg.sender, _value, abi.encodePacked(_receiver));
     }
 
-    function onTokenTransfer(address _from, uint256 _value, bytes _data) external returns (bool) {
+    function onTokenTransfer(address _from, uint256 _value, bytes calldata _data) external returns (bool) {
         ERC677 token = erc677token();
         require(msg.sender == address(token));
         if (!lock()) {
