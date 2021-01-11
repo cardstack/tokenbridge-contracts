@@ -70,7 +70,7 @@ contract ForeignMultiAMBErc20ToErc677 is BasicMultiAMBErc20ToErc677 {
     function onTokenTransfer(address _from, uint256 _value, bytes _data) public returns (bool) {
         if (!lock()) {
             ERC677 token = ERC677(msg.sender);
-            bridgeSpecificActionsOnTokenTransfer(token, _from, chooseReceiver(_from, _data), _value);
+            bridgeSpecificActionsOnTokenTransfer(token, _from, chooseReceiver(_from, _data), _value, true);
         }
         return true;
     }
@@ -82,7 +82,7 @@ contract ForeignMultiAMBErc20ToErc677 is BasicMultiAMBErc20ToErc677 {
     * @param _recipient address that will receive the tokens.
     * @param _value amount of tokens to be received.
     */
-    function handleBridgedTokens(ERC677 _token, address _recipient, uint256 _value) external onlyMediator {
+    function handleBridgedTokens(ERC677 _token, address _recipient, uint256 _value, bool _isTransferDirect) external onlyMediator {
         require(isTokenRegistered(_token));
         _handleBridgedTokens(_token, _recipient, _value);
     }
@@ -95,7 +95,7 @@ contract ForeignMultiAMBErc20ToErc677 is BasicMultiAMBErc20ToErc677 {
     * @param _receiver address that will receive the native tokens on the other network.
     * @param _value amount of tokens to be transferred to the other network.
     */
-    function _relayTokens(ERC677 token, address _receiver, uint256 _value) internal {
+    function _relayTokens(ERC677 token, address _receiver, uint256 _value, bool _isTransferDirect) internal {
         // This lock is to prevent calling passMessage twice if a ERC677 token is used.
         // When transferFrom is called, after the transfer, the ERC677 token will call onTokenTransfer from this contract
         // which will call passMessage.
@@ -104,7 +104,7 @@ contract ForeignMultiAMBErc20ToErc677 is BasicMultiAMBErc20ToErc677 {
         setLock(true);
         token.safeTransferFrom(msg.sender, _value);
         setLock(false);
-        bridgeSpecificActionsOnTokenTransfer(token, msg.sender, _receiver, _value);
+        bridgeSpecificActionsOnTokenTransfer(token, msg.sender, _receiver, _value, _isTransferDirect);
     }
 
     /**
@@ -114,7 +114,7 @@ contract ForeignMultiAMBErc20ToErc677 is BasicMultiAMBErc20ToErc677 {
      * @param _receiver address of tokens receiver on the other side
      * @param _value requested amount of bridged tokens
      */
-    function bridgeSpecificActionsOnTokenTransfer(ERC677 _token, address _from, address _receiver, uint256 _value)
+    function bridgeSpecificActionsOnTokenTransfer(ERC677 _token, address _from, address _receiver, uint256 _value, bool _isTransferDirect)
         internal
     {
         bool isKnownToken = isTokenRegistered(_token);
@@ -134,7 +134,7 @@ contract ForeignMultiAMBErc20ToErc677 is BasicMultiAMBErc20ToErc677 {
         bytes memory data;
 
         if (isKnownToken) {
-            data = abi.encodeWithSelector(this.handleBridgedTokens.selector, _token, _receiver, _value);
+            data = abi.encodeWithSelector(this.handleBridgedTokens.selector, _token, _receiver, _value, _isTransferDirect);
         } else {
             data = abi.encodeWithSelector(
                 HomeMultiAMBErc20ToErc677(this).deployAndHandleBridgedTokens.selector,
@@ -143,7 +143,8 @@ contract ForeignMultiAMBErc20ToErc677 is BasicMultiAMBErc20ToErc677 {
                 symbol,
                 decimals,
                 _receiver,
-                _value
+                _value, 
+                _isTransferDirect
             );
         }
 

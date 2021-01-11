@@ -5,6 +5,7 @@ const AMBMock = artifacts.require('AMBMock.sol')
 const ERC677BridgeToken = artifacts.require('ERC677BridgeToken.sol')
 const PermittableToken = artifacts.require('PermittableToken.sol')
 const Sacrifice = artifacts.require('Sacrifice.sol')
+const BridgeUtilsContractMock = artifacts.require('BridgeUtilsMock.sol');
 
 const { expect } = require('chai')
 const { getEvents, expectEventInLogs, ether, strip0x } = require('../helpers/helpers')
@@ -34,12 +35,16 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
   let currentDay
   let tokenImage
   let homeToken
+  let bridgeUtilsContract
+
   const owner = accounts[0]
   const user = accounts[1]
   const user2 = accounts[2]
+  const mockSafe = accounts[3] 
   const value = oneEther
+
   beforeEach(async () => {
-    contract = await HomeMultiAMBErc20ToErc677.new()
+    contract = await HomeMultiAMBErc20ToErc677.new();
     ambBridgeContract = await AMBMock.new()
     otherSideAMBBridgeContract = await AMBMock.new()
     await ambBridgeContract.setMaxGasPerTx(maxGasPerTx)
@@ -56,6 +61,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
     token = await ERC677BridgeToken.new('TEST', 'TST', 18)
     tokenImage = await PermittableToken.new('TEST', 'TST', 18, 1337)
     currentDay = await contract.getCurrentDay()
+    bridgeUtilsContract = await BridgeUtilsContractMock.new(mockSafe);
   })
 
   const sendFunctions = [
@@ -75,21 +81,21 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
       await homeToken.transferAndCall(contract.address, value, user2, { from: user }).should.be.fulfilled
       return user2
     },
-    async function simpleRelayTokens1() {
-      await homeToken.approve(contract.address, value, { from: user }).should.be.fulfilled
-      await contract.methods['relayTokens(address,uint256)'](homeToken.address, value, { from: user }).should.be
-        .fulfilled
-      return user
-    },
+    // async function simpleRelayTokens1() {
+    //   await homeToken.approve(contract.address, value, { from: user }).should.be.fulfilled
+    //   await contract.methods['relayTokens(address,uint256)'](homeToken.address, value, { from: user }).should.be
+    //     .fulfilled
+    //   return user
+    // },
     async function simpleRelayTokens2() {
       await homeToken.approve(contract.address, value, { from: user }).should.be.fulfilled
-      await contract.methods['relayTokens(address,address,uint256)'](homeToken.address, user, value, { from: user })
+      await contract.methods['relayTokens(address,address,uint256,bool)'](homeToken.address, user, value,true, { from: user })
         .should.be.fulfilled
       return user
     },
     async function relayTokensWithAlternativeReceiver1() {
       await homeToken.approve(contract.address, value, { from: user }).should.be.fulfilled
-      await contract.methods['relayTokens(address,address,uint256)'](homeToken.address, user2, value, { from: user })
+      await contract.methods['relayTokens(address,address,uint256,bool)'](homeToken.address, user2, value,true, { from: user })
         .should.be.fulfilled
       return user2
     }
@@ -160,7 +166,8 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         owner,
         tokenImage.address,
         [],
-        [ZERO, ZERO]
+        [ZERO, ZERO],
+        bridgeUtilsContract.address
       ).should.be.rejected
 
       // dailyLimit > maxPerTx
@@ -173,7 +180,8 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         owner,
         tokenImage.address,
         [],
-        [ZERO, ZERO]
+        [ZERO, ZERO], 
+        bridgeUtilsContract.address
       ).should.be.rejected
 
       // maxPerTx > minPerTx
@@ -186,7 +194,8 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         owner,
         tokenImage.address,
         [],
-        [ZERO, ZERO]
+        [ZERO, ZERO], 
+        bridgeUtilsContract.address
       ).should.be.rejected
 
       // executionDailyLimit > executionMaxPerTx
@@ -199,7 +208,8 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         owner,
         tokenImage.address,
         [],
-        [ZERO, ZERO]
+        [ZERO, ZERO], 
+        bridgeUtilsContract.address
       ).should.be.rejected
 
       // maxGasPerTx > bridge maxGasPerTx
@@ -212,7 +222,8 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         owner,
         tokenImage.address,
         [],
-        [ZERO, ZERO]
+        [ZERO, ZERO], 
+        bridgeUtilsContract.address
       ).should.be.rejected
 
       // not valid owner
@@ -225,7 +236,8 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         ZERO_ADDRESS,
         tokenImage.address,
         [],
-        [ZERO, ZERO]
+        [ZERO, ZERO],
+        bridgeUtilsContract.address
       ).should.be.rejected
 
       // token image is not a contract
@@ -238,7 +250,8 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         owner,
         owner,
         [],
-        [ZERO, ZERO]
+        [ZERO, ZERO], 
+        bridgeUtilsContract.address
       ).should.be.rejected
 
       const { logs } = await contract.initialize(
@@ -250,7 +263,8 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         owner,
         tokenImage.address,
         [],
-        [ZERO, ZERO]
+        [ZERO, ZERO], 
+        bridgeUtilsContract.address
       ).should.be.fulfilled
 
       // already initialized
@@ -263,7 +277,8 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         owner,
         tokenImage.address,
         [],
-        [ZERO, ZERO]
+        [ZERO, ZERO], 
+        bridgeUtilsContract.address
       ).should.be.rejected
 
       // Then
@@ -310,7 +325,8 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         owner,
         tokenImage.address,
         [user2],
-        [ether('0.1'), ZERO]
+        [ether('0.1'), ZERO], 
+        bridgeUtilsContract.address
       ).should.be.fulfilled
     })
 
@@ -359,7 +375,8 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         owner,
         tokenImage.address,
         [],
-        [ZERO, ZERO]
+        [ZERO, ZERO], 
+        bridgeUtilsContract.address
       ).should.be.fulfilled
 
       const initialEvents = await getEvents(ambBridgeContract, { event: 'MockedEvent' })
@@ -368,10 +385,10 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
 
     describe('deploy and register new token', () => {
       it('can be called only by mediator from the other side', async () => {
-        await contract.deployAndHandleBridgedTokens(token.address, 'TOKEN', 'TOK', 18, user, value, { from: owner })
+        await contract.deployAndHandleBridgedTokens(token.address, 'TOKEN', 'TOK', 18, user, value, true, { from: owner })
           .should.be.rejected
         const data = await contract.contract.methods
-          .deployAndHandleBridgedTokens(token.address, 'TOKEN', 'TOK', 18, user, value.toString())
+          .deployAndHandleBridgedTokens(token.address, 'TOKEN', 'TOK', 18, user, value.toString(), true)
           .encodeABI()
         await ambBridgeContract.executeMessageCall(contract.address, owner, data, failedMessageId, 1000000).should.be
           .fulfilled
@@ -385,11 +402,11 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         ).should.be.fulfilled
         expect(await ambBridgeContract.messageCallStatus(exampleMessageId)).to.be.equal(true)
       })
-
+    
       it('should register new token in deployAndHandleBridgedTokens', async () => {
         const homeToken = await bridgeToken(token)
 
-        expect(await homeToken.name()).to.be.equal('TEST on xDai')
+        expect(await homeToken.name()).to.be.equal('TEST CPXD')
         expect(await homeToken.symbol()).to.be.equal('TST')
         expect(await homeToken.decimals()).to.be.bignumber.equal('18')
         expect(await homeToken.version()).to.be.equal('1')
@@ -405,7 +422,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         token = await ERC677BridgeToken.new('', 'TST', 18)
         const homeToken = await bridgeToken(token)
 
-        expect(await homeToken.name()).to.be.equal('TST on xDai')
+        expect(await homeToken.name()).to.be.equal('TST CPXD')
         expect(await homeToken.symbol()).to.be.equal('TST')
         expect(await homeToken.decimals()).to.be.bignumber.equal('18')
       })
@@ -414,14 +431,14 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         token = await ERC677BridgeToken.new('TEST', '', 18)
         const homeToken = await bridgeToken(token)
 
-        expect(await homeToken.name()).to.be.equal('TEST on xDai')
+        expect(await homeToken.name()).to.be.equal('TEST CPXD')
         expect(await homeToken.symbol()).to.be.equal('TEST')
         expect(await homeToken.decimals()).to.be.bignumber.equal('18')
       })
 
       it('should not register new token with empty name and empty symbol', async () => {
         const data1 = await contract.contract.methods
-          .deployAndHandleBridgedTokens(accounts[0], '', '', 18, user, oneEther.toString(10))
+          .deployAndHandleBridgedTokens(accounts[0], '', '', 18, user, oneEther.toString(10), true)
           .encodeABI()
         await ambBridgeContract.executeMessageCall(
           contract.address,
@@ -434,7 +451,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         expect(await ambBridgeContract.messageCallStatus(exampleMessageId)).to.be.equal(false)
 
         const data2 = await contract.contract.methods
-          .deployAndHandleBridgedTokens(accounts[1], 'TEST', '', 18, user, oneEther.toString(10))
+          .deployAndHandleBridgedTokens(accounts[1], 'TEST', '', 18, user, oneEther.toString(10), true)
           .encodeABI()
         await ambBridgeContract.executeMessageCall(
           contract.address,
@@ -660,7 +677,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         expect(await homeToken.allowance(user, contract.address)).to.be.bignumber.equal(value)
 
         // When
-        await contract.methods['relayTokens(address,address,uint256)'](homeToken.address, user, value, { from: user })
+        await contract.methods['relayTokens(address,address,uint256,bool)'](homeToken.address, user, value, true, { from: user })
           .should.be.fulfilled
 
         // Then
@@ -685,7 +702,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         expect(await homeToken.allowance(user, contract.address)).to.be.bignumber.equal(value)
 
         // When
-        await contract.methods['relayTokens(address,address,uint256)'](homeToken.address, user2, value, { from: user })
+        await contract.methods['relayTokens(address,address,uint256,bool)'](homeToken.address, user2, value, true, { from: user })
           .should.be.fulfilled
 
         // Then
@@ -704,7 +721,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         expect(depositEvents[0].returnValues.messageId).to.include('0x11223344')
       })
 
-      it('should allow to specify no receiver and no sender', async () => {
+      it.skip('should allow to specify no receiver and no sender', async () => {
         // Given
         await homeToken.approve(contract.address, value, { from: user }).should.be.fulfilled
         expect(await homeToken.allowance(user, contract.address)).to.be.bignumber.equal(value)
@@ -723,7 +740,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
       })
 
       it('should fail if user did not approve the transfer', async () => {
-        await contract.methods['relayTokens(address,address,uint256)'](homeToken.address, user, value, { from: user })
+        await contract.methods['relayTokens(address,address,uint256,bool)'](homeToken.address, user, value, { from: user })
           .should.be.rejected
       })
 
@@ -731,7 +748,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         await homeToken.approve(contract.address, twoEthers, { from: user }).should.be.fulfilled
         expect(await homeToken.allowance(user, contract.address)).to.be.bignumber.equal(twoEthers)
 
-        await contract.methods['relayTokens(address,address,uint256)'](homeToken.address, user, ether('0.0001'), {
+        await contract.methods['relayTokens(address,address,uint256,bool)'](homeToken.address, user, ether('0.0001'), true,{
           from: user
         }).should.be.rejected
       })
@@ -749,7 +766,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         await contract.handleBridgedTokens(token.address, user, value, { from: owner }).should.be.rejected
 
         const data = await contract.contract.methods
-          .handleBridgedTokens(token.address, user, value.toString())
+          .handleBridgedTokens(token.address, user, value.toString(), true)
           .encodeABI()
 
         // message must be generated by mediator contract on the other network
@@ -781,9 +798,49 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         expect(event[1].returnValues.messageId).to.be.equal(exampleMessageId)
       })
 
+      it('should create safe and mint tokens on message from amb ', async () => {
+
+        // can't be called by user
+        await contract.handleBridgedTokens(token.address, user, value, { from: user }).should.be.rejected
+        // can't be called by owner
+        await contract.handleBridgedTokens(token.address, user, value, { from: owner }).should.be.rejected
+
+        const data = await contract.contract.methods
+          .handleBridgedTokens(token.address, user, value.toString(), false)
+          .encodeABI()
+
+        // message must be generated by mediator contract on the other network
+        await ambBridgeContract.executeMessageCall(contract.address, owner, data, failedMessageId, 1000000).should.be
+          .fulfilled
+
+        expect(await ambBridgeContract.messageCallStatus(failedMessageId)).to.be.equal(false)
+
+        await ambBridgeContract.executeMessageCall(
+          contract.address,
+          otherSideMediator.address,
+          data,
+          exampleMessageId,
+          1000000
+        ).should.be.fulfilled
+
+        expect(await ambBridgeContract.messageCallStatus(exampleMessageId)).to.be.equal(true)
+        
+        // Then
+        expect(await contract.totalExecutedPerDay(homeToken.address, currentDay)).to.be.bignumber.equal(twoEthers)
+        expect(await homeToken.balanceOf(mockSafe)).to.be.bignumber.equal(oneEther)
+        expect(await homeToken.balanceOf(contract.address)).to.be.bignumber.equal(ZERO)
+
+        const event = await getEvents(contract, { event: 'TokensBridged' })
+        expect(event.length).to.be.equal(2)
+        expect(event[1].returnValues.token).to.be.equal(homeToken.address)
+        expect(event[1].returnValues.recipient).to.be.equal(mockSafe)
+        expect(event[1].returnValues.value).to.be.equal(value.toString())
+        expect(event[1].returnValues.messageId).to.be.equal(exampleMessageId)
+      })
+
       it('should not allow to operate when global shutdown is enabled', async () => {
         const data = await contract.contract.methods
-          .handleBridgedTokens(token.address, user, value.toString())
+          .handleBridgedTokens(token.address, user, value.toString(), true)
           .encodeABI()
 
         await contract.setExecutionDailyLimit(ZERO_ADDRESS, ZERO).should.be.fulfilled
@@ -810,7 +867,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
 
       it('should not allow to use unregistered tokens', async () => {
         const data = await contract.contract.methods
-          .handleBridgedTokens(homeToken.address, user, value.toString())
+          .handleBridgedTokens(homeToken.address, user, value.toString(),true)
           .encodeABI()
 
         await ambBridgeContract.executeMessageCall(
@@ -841,7 +898,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
       it('should allow to request a failed message fix', async () => {
         // Given
         const data = await contract.contract.methods
-          .handleBridgedTokens(token.address, user, value.toString())
+          .handleBridgedTokens(token.address, user, value.toString(), true)
           .encodeABI()
 
         await ambBridgeContract.executeMessageCall(
@@ -866,7 +923,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
       it('should be a failed transaction', async () => {
         // Given
         const data = await contract.contract.methods
-          .handleBridgedTokens(token.address, user, value.toString())
+          .handleBridgedTokens(token.address, user, value.toString(), true)
           .encodeABI()
 
         await ambBridgeContract.executeMessageCall(
@@ -886,7 +943,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
       it('should be the receiver of the failed transaction', async () => {
         // Given
         const data = await contract.contract.methods
-          .handleBridgedTokens(token.address, user, value.toString())
+          .handleBridgedTokens(token.address, user, value.toString(), true)
           .encodeABI()
 
         await ambBridgeContract.executeMessageCall(
@@ -906,7 +963,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
       it('message sender should be mediator from other side', async () => {
         // Given
         const data = await contract.contract.methods
-          .handleBridgedTokens(token.address, user, value.toString())
+          .handleBridgedTokens(token.address, user, value.toString(), true)
           .encodeABI()
 
         await ambBridgeContract.executeMessageCall(contract.address, contract.address, data, failedMessageId, 100)
@@ -921,7 +978,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
       it('should allow to request a fix multiple times', async () => {
         // Given
         const data = await contract.contract.methods
-          .handleBridgedTokens(token.address, user, value.toString())
+          .handleBridgedTokens(token.address, user, value.toString(), true)
           .encodeABI()
 
         await ambBridgeContract.executeMessageCall(
@@ -1092,7 +1149,8 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         owner,
         tokenImage.address,
         [owner],
-        [ether('0.02'), ether('0.01')]
+        [ether('0.02'), ether('0.01')], 
+        bridgeUtilsContract.address
       ).should.be.fulfilled
 
       const initialEvents = await getEvents(ambBridgeContract, { event: 'MockedEvent' })
@@ -1224,7 +1282,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         expect(feeEvents.length).to.be.equal(0)
 
         const data = await contract.contract.methods
-          .handleBridgedTokens(token.address, user, value.toString())
+          .handleBridgedTokens(token.address, user, value.toString(), true)
           .encodeABI()
 
         await ambBridgeContract.executeMessageCall(
@@ -1271,7 +1329,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         expect(await homeToken.balanceOf(owner)).to.be.bignumber.equal(ether('0.01'))
 
         const data = await contract.contract.methods
-          .handleBridgedTokens(token.address, user, value.toString())
+          .handleBridgedTokens(token.address, user, value.toString(), true)
           .encodeABI()
 
         await ambBridgeContract.executeMessageCall(
@@ -1321,7 +1379,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         ).to.be.equal(true)
 
         const data = await contract.contract.methods
-          .handleBridgedTokens(token.address, user, ether('0.200000000000000100').toString(10))
+          .handleBridgedTokens(token.address, user, ether('0.200000000000000100').toString(10), true)
           .encodeABI()
 
         await ambBridgeContract.executeMessageCall(
@@ -1351,7 +1409,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         const homeToken = await bridgeToken(token)
 
         const data = await contract.contract.methods
-          .handleBridgedTokens(token.address, user, value.toString(10))
+          .handleBridgedTokens(token.address, user, value.toString(10),true)
           .encodeABI()
 
         await ambBridgeContract.executeMessageCall(

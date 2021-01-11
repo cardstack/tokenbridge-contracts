@@ -56,20 +56,20 @@ contract('ForeignMultiAMBErc20ToErc677', async accounts => {
       await token.transferAndCall(contract.address, value, user2, { from: user }).should.be.fulfilled
       return user2
     },
-    async function simpleRelayTokens1() {
-      await token.approve(contract.address, value, { from: user }).should.be.fulfilled
-      await contract.methods['relayTokens(address,uint256)'](token.address, value, { from: user }).should.be.fulfilled
-      return user
-    },
+    // async function simpleRelayTokens1() {
+    //   await token.approve(contract.address, value, { from: user }).should.be.fulfilled
+    //   await contract.methods['relayTokens(address,uint256)'](token.address, value, { from: user }).should.be.fulfilled
+    //   return user
+    // },
     async function simpleRelayTokens2() {
       await token.approve(contract.address, value, { from: user }).should.be.fulfilled
-      await contract.methods['relayTokens(address,address,uint256)'](token.address, user, value, { from: user }).should
+      await contract.methods['relayTokens(address,address,uint256,bool)'](token.address, user, value,true, { from: user }).should
         .be.fulfilled
       return user
     },
     async function relayTokensWithAlternativeReceiver1() {
       await token.approve(contract.address, value, { from: user }).should.be.fulfilled
-      await contract.methods['relayTokens(address,address,uint256)'](token.address, user2, value, { from: user }).should
+      await contract.methods['relayTokens(address,address,uint256,bool)'](token.address, user2, value,true , { from: user }).should
         .be.fulfilled
       return user2
     }
@@ -421,7 +421,7 @@ contract('ForeignMultiAMBErc20ToErc677', async accounts => {
         expect(await token.allowance(user, contract.address)).to.be.bignumber.equal(value)
 
         // When
-        await contract.methods['relayTokens(address,address,uint256)'](token.address, user, value, { from: user })
+        await contract.methods['relayTokens(address,address,uint256,bool)'](token.address, user, value, true, { from: user })
           .should.be.fulfilled
 
         // Then
@@ -445,7 +445,7 @@ contract('ForeignMultiAMBErc20ToErc677', async accounts => {
         expect(await token.allowance(user, contract.address)).to.be.bignumber.equal(value)
 
         // When
-        await contract.methods['relayTokens(address,address,uint256)'](token.address, user2, value, { from: user })
+        await contract.methods['relayTokens(address,address,uint256,bool)'](token.address, user2, value, true, { from: user })
           .should.be.fulfilled
 
         // Then
@@ -463,7 +463,31 @@ contract('ForeignMultiAMBErc20ToErc677', async accounts => {
         expect(depositEvents[0].returnValues.messageId).to.include('0x11223344')
       })
 
-      it('should allow to specify no receiver and no sender', async () => {
+      it("should create new safe and transfer to safe wallet", async () => {
+        // Given
+        await token.approve(contract.address, value, { from: user }).should.be.fulfilled
+        expect(await token.allowance(user, contract.address)).to.be.bignumber.equal(value)
+
+        //When 
+        await contract.methods['relayTokens(address,address,uint256,bool)'](token.address, user2, value, false, { from: user })
+          .should.be.fulfilled
+        
+        //Then 
+        const events = await getEvents(ambBridgeContract, { event: 'MockedEvent' })
+        expect(events.length).to.be.equal(1)
+        expect(events[0].returnValues.encodedData.includes(strip0x(user2).toLowerCase())).to.be.equal(true)
+        expect(await contract.totalSpentPerDay(token.address, currentDay)).to.be.bignumber.equal(value)
+        expect(await token.balanceOf(contract.address)).to.be.bignumber.equal(value)
+
+        const depositEvents = await getEvents(contract, { event: 'TokensBridgingInitiated' })
+        expect(depositEvents.length).to.be.equal(1)
+        expect(depositEvents[0].returnValues.token).to.be.equal(token.address)
+        expect(depositEvents[0].returnValues.sender).to.be.equal(user)
+        expect(depositEvents[0].returnValues.value).to.be.equal(value.toString())
+        expect(depositEvents[0].returnValues.messageId).to.include('0x11223344')
+      })
+
+      it.skip('should allow to specify no receiver and no sender', async () => {
         // Given
         await token.approve(contract.address, value, { from: user }).should.be.fulfilled
         expect(await token.allowance(user, contract.address)).to.be.bignumber.equal(value)
@@ -487,7 +511,7 @@ contract('ForeignMultiAMBErc20ToErc677', async accounts => {
       })
 
       it('should fail if user did not approve the transfer', async () => {
-        await contract.methods['relayTokens(address,address,uint256)'](token.address, user, value, { from: user })
+        await contract.methods['relayTokens(address,address,uint256,bool)'](token.address, user, value, true, { from: user })
           .should.be.rejected
       })
 
@@ -495,7 +519,7 @@ contract('ForeignMultiAMBErc20ToErc677', async accounts => {
         await token.approve(contract.address, twoEthers, { from: user }).should.be.fulfilled
         expect(await token.allowance(user, contract.address)).to.be.bignumber.equal(twoEthers)
 
-        await contract.methods['relayTokens(address,address,uint256)'](token.address, user, twoEthers, { from: user })
+        await contract.methods['relayTokens(address,address,uint256,bool)'](token.address, user, twoEthers, true,{ from: user })
           .should.be.rejected
       })
     })
@@ -510,7 +534,9 @@ contract('ForeignMultiAMBErc20ToErc677', async accounts => {
           let encodedData = strip0x(events[0].returnValues.encodedData)
           const { messageId } = events[0].returnValues
           let calldata = encodedData.slice(2 * (4 + 20 + 8 + 20 + 20 + 4 + 1 + 1 + 1 + 2 + 2)) // remove AMB header
-          expect(calldata.slice(0, 8)).to.be.equal('2ae87cdd')
+          // expect(calldata.slice(0, 8)).to.be.equal('2ae87cdd')
+          expect(calldata.slice(0, 8)).to.be.equal('ca73c216')
+
           let args = web3.eth.abi.decodeParameters(
             ['address', 'string', 'string', 'uint8', 'address', 'uint256'],
             calldata.slice(8)
@@ -529,7 +555,8 @@ contract('ForeignMultiAMBErc20ToErc677', async accounts => {
           expect(events.length).to.be.equal(2)
           encodedData = strip0x(events[1].returnValues.encodedData)
           calldata = encodedData.slice(2 * (4 + 20 + 8 + 20 + 20 + 4 + 1 + 1 + 1 + 2 + 2)) // remove AMB header
-          expect(calldata.slice(0, 8)).to.be.equal('125e4cfb')
+          // expect(calldata.slice(0, 8)).to.be.equal('125e4cfb')
+          expect(calldata.slice(0, 8)).to.be.equal('5d8e40e2')
           args = web3.eth.abi.decodeParameters(['address', 'address', 'uint256'], calldata.slice(8))
           expect(args[0]).to.be.equal(token.address)
           expect(args[1]).to.be.equal(receiver)
@@ -584,7 +611,7 @@ contract('ForeignMultiAMBErc20ToErc677', async accounts => {
         await contract.handleBridgedTokens(token.address, user, value, { from: owner }).should.be.rejected
 
         const data = await contract.contract.methods
-          .handleBridgedTokens(token.address, user, value.toString())
+          .handleBridgedTokens(token.address, user, value.toString(), true)
           .encodeABI()
 
         // message must be generated by mediator contract on the other network
@@ -621,7 +648,7 @@ contract('ForeignMultiAMBErc20ToErc677', async accounts => {
         const otherToken = await ERC20Mock.new('Test', 'TST', 18)
         await otherToken.mint(contract.address, value)
         const data = await contract.contract.methods
-          .handleBridgedTokens(otherToken.address, user, value.toString())
+          .handleBridgedTokens(otherToken.address, user, value.toString(), true)
           .encodeABI()
 
         await ambBridgeContract.executeMessageCall(
@@ -640,7 +667,7 @@ contract('ForeignMultiAMBErc20ToErc677', async accounts => {
         await token.transferAndCall(contract.address, value, '0x', { from: user }).should.be.fulfilled
 
         const data = await contract.contract.methods
-          .handleBridgedTokens(token.address, user, value.toString())
+          .handleBridgedTokens(token.address, user, value.toString(), true)
           .encodeABI()
 
         await contract.setExecutionDailyLimit(ZERO_ADDRESS, ZERO).should.be.fulfilled
@@ -670,7 +697,7 @@ contract('ForeignMultiAMBErc20ToErc677', async accounts => {
       it('should allow to request a failed message fix', async () => {
         // Given
         const data = await contract.contract.methods
-          .handleBridgedTokens(token.address, user, value.toString())
+          .handleBridgedTokens(token.address, user, value.toString(), true)
           .encodeABI()
 
         await ambBridgeContract.executeMessageCall(
@@ -696,7 +723,7 @@ contract('ForeignMultiAMBErc20ToErc677', async accounts => {
         await token.transferAndCall(contract.address, value, '0x', { from: user }).should.be.fulfilled
         // Given
         const data = await contract.contract.methods
-          .handleBridgedTokens(token.address, user, value.toString())
+          .handleBridgedTokens(token.address, user, value.toString(), true)
           .encodeABI()
 
         await ambBridgeContract.executeMessageCall(
@@ -716,7 +743,7 @@ contract('ForeignMultiAMBErc20ToErc677', async accounts => {
       it('should be the receiver of the failed transaction', async () => {
         // Given
         const data = await contract.contract.methods
-          .handleBridgedTokens(token.address, user, value.toString())
+          .handleBridgedTokens(token.address, user, value.toString(),true)
           .encodeABI()
 
         await ambBridgeContract.executeMessageCall(
@@ -736,7 +763,7 @@ contract('ForeignMultiAMBErc20ToErc677', async accounts => {
       it('message sender should be mediator from other side', async () => {
         // Given
         const data = await contract.contract.methods
-          .handleBridgedTokens(token.address, user, value.toString())
+          .handleBridgedTokens(token.address, user, value.toString(), true)
           .encodeABI()
 
         await ambBridgeContract.executeMessageCall(contract.address, contract.address, data, failedMessageId, 100)
@@ -751,7 +778,7 @@ contract('ForeignMultiAMBErc20ToErc677', async accounts => {
       it('should allow to request a fix multiple times', async () => {
         // Given
         const data = await contract.contract.methods
-          .handleBridgedTokens(token.address, user, value.toString())
+          .handleBridgedTokens(token.address, user, value.toString(), true)
           .encodeABI()
 
         await ambBridgeContract.executeMessageCall(
