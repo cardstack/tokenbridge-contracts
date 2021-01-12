@@ -4,6 +4,7 @@ import "./BasicMultiAMBErc20ToErc677.sol";
 import "./TokenProxy.sol";
 import "./HomeFeeManagerMultiAMBErc20ToErc677.sol";
 import "../../interfaces/IBurnableMintableERC677Token.sol";
+import "../../interfaces/IBridgeUtils.sol";
 import "./MultiTokenForwardingRules.sol";
 
 /**
@@ -17,6 +18,7 @@ contract HomeMultiAMBErc20ToErc677 is
     MultiTokenForwardingRules
 {
     bytes32 internal constant TOKEN_IMAGE_CONTRACT = 0x20b8ca26cc94f39fab299954184cf3a9bd04f69543e4f454fab299f015b8130f; // keccak256(abi.encodePacked("tokenImageContract"))
+    bytes32 internal constant BRIDGE_UTILS_CONTRACT = 0x174a58966ad4181674ba19a3131ba82f8683cbe56350f1172634244845855e9b; // keccak256(abi.encodePacked("bridgeUtilsContract"))
 
     event NewTokenRegistered(address indexed foreignToken, address indexed homeToken);
 
@@ -44,11 +46,13 @@ contract HomeMultiAMBErc20ToErc677 is
         address _owner,
         address _tokenImage,
         address[] _rewardAddresses,
-        uint256[2] _fees // [ 0 = homeToForeignFee, 1 = foreignToHomeFee ]
+        uint256[2] _fees, // [ 0 = homeToForeignFee, 1 = foreignToHomeFee ],
+        address _bridgeUtilsContract
     ) external onlyRelevantSender returns (bool) {
         require(!isInitialized());
 
         _setBridgeContract(_bridgeContract);
+        _setBridgeUtilsContract(_bridgeUtilsContract);
         _setMediatorContractOnOtherSide(_mediatorContract);
         _setLimits(address(0), _dailyLimitMaxPerTxMinPerTxArray);
         _setExecutionLimits(address(0), _executionDailyLimitExecutionMaxPerTxArray);
@@ -74,12 +78,21 @@ contract HomeMultiAMBErc20ToErc677 is
         _setTokenImage(_tokenImage);
     }
 
+    function _setBridgeUtilsContract(address _bridgeUtilsContract) internal {
+        require(AddressUtils.isContract(_bridgeUtilsContract));
+        addressStorage[BRIDGE_UTILS_CONTRACT] = _bridgeUtilsContract;
+    }
+
     /**
     * @dev Retrieves address of the token image contract.
     * @return address of block reward contract.
     */
     function tokenImage() public view returns (address) {
         return addressStorage[TOKEN_IMAGE_CONTRACT];
+    }
+
+    function bridgeUtils() public view returns (address) {
+        return addressStorage[BRIDGE_UTILS_CONTRACT];
     }
 
     /**
@@ -109,15 +122,29 @@ contract HomeMultiAMBErc20ToErc677 is
         } else if (bytes(symbol).length == 0) {
             symbol = name;
         }
-        name = string(abi.encodePacked(name, " on xDai"));
+        name = string(abi.encodePacked(name, " CPXD"));
         address homeToken = new TokenProxy(tokenImage(), name, symbol, _decimals, bridgeContract().sourceChainId());
         _setTokenAddressPair(_token, homeToken);
         _initializeTokenBridgeLimits(homeToken, _decimals);
         _setFee(HOME_TO_FOREIGN_FEE, homeToken, getFee(HOME_TO_FOREIGN_FEE, address(0)));
         _setFee(FOREIGN_TO_HOME_FEE, homeToken, getFee(FOREIGN_TO_HOME_FEE, address(0)));
+
+        IBridgeUtils bridgeUtilsInstance = IBridgeUtils(bridgeUtils());
+        bridgeUtilsInstance.updateToken(homeToken);
+
         _handleBridgedTokens(ERC677(homeToken), _recipient, _value);
 
         emit NewTokenRegistered(_token, homeToken);
+    }
+
+    function _safeAddressFor(address _recipient) internal returns (address) {
+        IBridgeUtils bridgeUtilsInstance = IBridgeUtils(bridgeUtils());
+
+        if (bridgeUtilsInstance.isRegistered(_recipient)) {
+            return _recipient;
+        } else {
+            return bridgeUtilsInstance.registerSupplier(_recipient);
+        }
     }
 
     /**
@@ -192,8 +219,10 @@ contract HomeMultiAMBErc20ToErc677 is
             emit FeeDistributed(fee, _token, _messageId);
             valueToMint = valueToMint.sub(fee);
         }
-        IBurnableMintableERC677Token(_token).mint(_recipient, valueToMint);
-        emit TokensBridged(_token, _recipient, valueToMint, _messageId);
+        address safeAddress = _safeAddressFor(_recipient);
+
+        IBurnableMintableERC677Token(_token).mint(safeAddress, valueToMint);
+        emit TokensBridged(_token, safeAddress, valueToMint, _messageId);
     }
 
     /**
