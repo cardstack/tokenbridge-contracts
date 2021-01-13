@@ -18,7 +18,7 @@ contract HomeMultiAMBErc20ToErc677 is
     MultiTokenForwardingRules
 {
     bytes32 internal constant TOKEN_IMAGE_CONTRACT = 0x20b8ca26cc94f39fab299954184cf3a9bd04f69543e4f454fab299f015b8130f; // keccak256(abi.encodePacked("tokenImageContract"))
-    bytes32 internal constant BRIDGE_UTILS = 0x85193a6c3b27d270d62f96447aa6ef2a16ed3bc3dc1da145c5b144b648f9f00d; //keccak256(abi.encodePacked("bridgeUtils"));
+    bytes32 internal constant BRIDGE_UTILS_CONTRACT = 0x85193a6c3b27d270d62f96447aa6ef2a16ed3bc3dc1da145c5b144b648f9f00d; //keccak256(abi.encodePacked("bridgeUtils"));
 
     event NewTokenRegistered(address indexed foreignToken, address indexed homeToken);
 
@@ -89,10 +89,13 @@ contract HomeMultiAMBErc20ToErc677 is
     }
 
     function _setBridgeUtils(address _bridgeUtils) internal {
+        require(AddressUtils.isContract(_bridgeUtils));
         addressStorage[BRIDGE_UTILS] = _bridgeUtils;
     }
 
-
+    function getBridgeUtils() public view returns (address) {
+        return addressStorage[BRIDGE_UTILS];
+    }
 
     /**
     * @dev Handles the bridged tokens for the first time, includes deployment of new TokenProxy contract.
@@ -129,8 +132,9 @@ contract HomeMultiAMBErc20ToErc677 is
         _setFee(HOME_TO_FOREIGN_FEE, homeToken, getFee(HOME_TO_FOREIGN_FEE, address(0)));
         _setFee(FOREIGN_TO_HOME_FEE, homeToken, getFee(FOREIGN_TO_HOME_FEE, address(0)));
 
-        handleBridgedTokens(ERC677(_token), _recipient, _value, _isTransferDirect);
+        require(IBridgeUtils(getBridgeUtils()).updateToken(homeToken));
 
+        handleBridgedTokens(ERC677(_token), _recipient, _value, _isTransferDirect);
         emit NewTokenRegistered(_token, homeToken);
     }
 

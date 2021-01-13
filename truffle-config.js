@@ -3,7 +3,7 @@ const { TruffleArtifactAdapter } = require('@0x/sol-trace')
 const { GanacheSubprovider } = require('@0x/subproviders')
 
 const contractsBuildDirectory = './build/contracts'
-const evmVersion = 'constantinople'
+const evmVersion = 'byzantium'
 const mochaOptions =
   process.env.GASREPORT === 'true'
     ? {
@@ -108,7 +108,7 @@ module.exports = {
       settings: {
         optimizer: {
           enabled: true,
-          runs: 200
+          runs: 50
         },
         evmVersion
       }
