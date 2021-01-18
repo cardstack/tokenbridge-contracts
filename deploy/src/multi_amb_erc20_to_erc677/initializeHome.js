@@ -25,7 +25,8 @@ const {
   HOME_REWARDABLE,
   HOME_TRANSACTIONS_FEE,
   FOREIGN_TRANSACTIONS_FEE,
-  HOME_MEDIATOR_REWARD_ACCOUNTS
+  HOME_MEDIATOR_REWARD_ACCOUNTS,
+  BRIDGE_UTILS_ON_HOME_ADDRESS
 } = require('../loadEnv')
 
 const DEPLOYMENT_ACCOUNT_ADDRESS = privateKeyToAddress(DEPLOYMENT_ACCOUNT_PRIVATE_KEY)
@@ -45,12 +46,14 @@ async function initializeMediator({
     tokenImage,
     rewardAddressList,
     homeToForeignFee,
-    foreignToHomeFee
+    foreignToHomeFee,
+    bridgeUtilsContract
   }
 }) {
   console.log(`
     AMB contract: ${bridgeContract},
     Mediator contract: ${mediatorContract},
+    Bridge utils contract: ${bridgeUtilsContract},
     DAILY_LIMIT : ${dailyLimit} which is ${Web3Utils.fromWei(dailyLimit)} in eth,
     MAX_AMOUNT_PER_TX: ${maxPerTx} which is ${Web3Utils.fromWei(maxPerTx)} in eth,
     MIN_AMOUNT_PER_TX: ${minPerTx} which is ${Web3Utils.fromWei(minPerTx)} in eth,
@@ -78,7 +81,8 @@ async function initializeMediator({
       owner,
       tokenImage,
       rewardAddressList,
-      [homeToForeignFee.toString(), foreignToHomeFee.toString()]
+      [homeToForeignFee.toString(), foreignToHomeFee.toString()],
+      bridgeUtilsContract
     )
     .encodeABI()
 }
@@ -111,7 +115,8 @@ async function initialize({ homeBridge, foreignBridge, homeTokenImage }) {
       tokenImage: homeTokenImage,
       rewardAddressList: rewardList,
       homeToForeignFee: homeFeeInWei,
-      foreignToHomeFee: foreignFeeInWei
+      foreignToHomeFee: foreignFeeInWei,
+      bridgeUtilsContract: BRIDGE_UTILS_ON_HOME_ADDRESS
     }
   })
 

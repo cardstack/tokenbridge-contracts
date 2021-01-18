@@ -430,7 +430,8 @@ if (env.BRIDGE_MODE === 'MULTI_AMB_ERC_TO_ERC') {
     FOREIGN_AMB_BRIDGE: addressValidator(),
     HOME_MEDIATOR_REQUEST_GAS_LIMIT: bigNumValidator(),
     FOREIGN_MEDIATOR_REQUEST_GAS_LIMIT: bigNumValidator(),
-    HOME_ERC677_TOKEN_IMAGE: optionalAddressValidator()
+    HOME_ERC677_TOKEN_IMAGE: optionalAddressValidator(),
+    BRIDGE_UTILS_ON_HOME_ADDRESS: addressValidator()
   }
 }
 
