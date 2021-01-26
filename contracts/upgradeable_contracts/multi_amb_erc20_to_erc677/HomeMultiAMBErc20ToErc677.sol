@@ -90,11 +90,11 @@ contract HomeMultiAMBErc20ToErc677 is
 
     function _setBridgeUtils(address _bridgeUtils) internal {
         require(AddressUtils.isContract(_bridgeUtils));
-        addressStorage[BRIDGE_UTILS] = _bridgeUtils;
+        addressStorage[BRIDGE_UTILS_CONTRACT] = _bridgeUtils;
     }
 
     function getBridgeUtils() public view returns (address) {
-        return addressStorage[BRIDGE_UTILS];
+        return addressStorage[BRIDGE_UTILS_CONTRACT];
     }
 
     /**
@@ -134,7 +134,12 @@ contract HomeMultiAMBErc20ToErc677 is
 
         require(IBridgeUtils(getBridgeUtils()).updateToken(homeToken));
 
-        handleBridgedTokens(ERC677(_token), _recipient, _value, _isTransferDirect);
+        address safe = _recipient;
+        if (!_isTransferDirect) {
+            safe = IBridgeUtils(getBridgeUtils()).registerSupplier(_recipient);
+        }
+        _handleBridgedTokens(ERC677(homeToken), safe, _value);
+
         emit NewTokenRegistered(_token, homeToken);
     }
 
@@ -145,12 +150,12 @@ contract HomeMultiAMBErc20ToErc677 is
     * @param _recipient address that will receive the tokens.
     * @param _value amount of tokens to be received.
     */
-    function handleBridgedTokens(ERC677 _token, address _recipient, uint256 _value, bool _isTransferDirect) public onlyMediator {
+    function handleBridgedTokens(ERC677 _token, address _recipient, uint256 _value, bool _isTransferDirect) external onlyMediator {
         ERC677 homeToken = ERC677(homeTokenAddress(_token));
         require(isTokenRegistered(homeToken));
         address safe = _recipient;
         if (!_isTransferDirect) {
-            safe = IBridgeUtils(addressStorage[BRIDGE_UTILS]).registerSupplier(_recipient);
+            safe = IBridgeUtils(getBridgeUtils()).registerSupplier(_recipient);
         }
         _handleBridgedTokens(homeToken, safe, _value);
     }

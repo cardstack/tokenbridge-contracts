@@ -134,7 +134,7 @@ contract ForeignMultiAMBErc20ToErc677 is BasicMultiAMBErc20ToErc677 {
         bytes memory data;
 
         if (isKnownToken) {
-            data = abi.encodeWithSelector(this.handleBridgedTokens.selector, _token, _receiver, _value, _isTransferDirect);
+            data = abi.encodeWithSelector(HomeMultiAMBErc20ToErc677(this).handleBridgedTokens.selector, _token, _receiver, _value, _isTransferDirect);
         } else {
             data = abi.encodeWithSelector(
                 HomeMultiAMBErc20ToErc677(this).deployAndHandleBridgedTokens.selector,
