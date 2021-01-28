@@ -18,7 +18,8 @@ Create `.env` file
 cp .env.example .env
 ```
 
-Complete the variables in `.env` file. The `ROLE` variable indicates if the validator will send the creation transaction on the multisig wallet or if it will send the confirmation.
+Complete the variables in `.env` file.
 
 Run the script. The following are available:
 * `npm run upgradeBridgeOnForeign`
+* `npm run upgradeBridgeOnHome`

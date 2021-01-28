@@ -1,20 +1,15 @@
 require('dotenv').config()
 const Web3 = require('web3')
-const multiSigWalletAbi = require('../abi/multiSigwallet')
 const proxyAbi = require('../../build/contracts/EternalStorageProxy').abi
-const bridgeAbi = require('../../build/contracts/ForeignBridgeErcToNative').abi
-const callMultiSigWallet = require('./utils/callMultiSigWallet')
-const validatorState = require('./utils/validatorState')
 
 const {
-  FOREIGN_PRIVKEY,
   FOREIGN_RPC_URL,
-  FOREIGN_BRIDGE_ADDRESS,
-  ROLE,
-  FOREIGN_START_BLOCK,
+  FOREIGN_PRIVKEY,
+  FOREIGN_BRIDGE_PROXY_STORAGE_ADDRESS,
   FOREIGN_GAS_PRICE,
-  NEW_IMPLEMENTATION_ETH_BRIDGE,
-  SAI_TOKENS_RECEIVER
+  NEW_FOREIGN_BRIDGE_MEDIATOR_IMPLEMENTATION,
+  FOREIGN_CURRENT_VERSION,
+  FOREIGN_NEW_VERSION
 } = process.env
 
 const web3 = new Web3(new Web3.providers.HttpProvider(FOREIGN_RPC_URL))
@@ -22,28 +17,36 @@ const { address } = web3.eth.accounts.wallet.add(FOREIGN_PRIVKEY)
 
 const upgradeBridgeOnForeign = async () => {
   try {
-    const proxy = new web3.eth.Contract(proxyAbi, FOREIGN_BRIDGE_ADDRESS)
-    const foreignBridge = new web3.eth.Contract(bridgeAbi, FOREIGN_BRIDGE_ADDRESS)
-    const ownerAddress = await proxy.methods.upgradeabilityOwner().call()
-    const multiSigWallet = new web3.eth.Contract(multiSigWalletAbi, ownerAddress)
+    const proxy = new web3.eth.Contract(proxyAbi, FOREIGN_BRIDGE_PROXY_STORAGE_ADDRESS)
 
-    await validatorState(web3, address, multiSigWallet)
+    const versionBefore = await proxy.methods.version().call()
 
-    const fixData = foreignBridge.methods.fixLockedSai(SAI_TOKENS_RECEIVER).encodeABI()
+    console.log('Version before', versionBefore)
+    console.log('Implementation before', await proxy.methods.implementation().call())
 
-    const data = proxy.methods.upgradeToAndCall('6', NEW_IMPLEMENTATION_ETH_BRIDGE, fixData).encodeABI()
+    if (versionBefore !== FOREIGN_CURRENT_VERSION) {
+      throw new Error(
+        `Expected current version of the contract to be ${FOREIGN_CURRENT_VERSION} but it was ${versionBefore} - aborting`
+      )
+    }
 
-    await callMultiSigWallet({
-      role: ROLE,
-      contract: multiSigWallet,
-      destination: FOREIGN_BRIDGE_ADDRESS,
-      fromBlock: FOREIGN_START_BLOCK,
-      gasPrice: FOREIGN_GAS_PRICE,
-      address,
-      data
-    })
+    console.log(`Attempting upgrade to ${FOREIGN_NEW_VERSION}`)
+    console.log('Sending upgrade transaction from', address)
+
+    const upgradeCall = proxy.methods.upgradeTo(FOREIGN_NEW_VERSION, NEW_FOREIGN_BRIDGE_MEDIATOR_IMPLEMENTATION)
+
+    const gas = await upgradeCall.estimateGas({ from: address })
+
+    console.log('Estimated gas', gas)
+
+    const receipt = await upgradeCall.send({ from: address, gas, gasPrice: FOREIGN_GAS_PRICE })
+
+    console.log(`Tx Hash: ${receipt.transactionHash}`)
+    console.log('Version after', await proxy.methods.version().call())
+    console.log('Implementation after', await proxy.methods.implementation().call())
   } catch (e) {
     console.log(e.message)
+    console.log(e.stack)
   }
 }
 
