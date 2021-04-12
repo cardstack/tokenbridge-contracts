@@ -159,6 +159,12 @@ function expectEventInLogs(logs, eventName, eventArgs = {}) {
   return event
 }
 
+async function expectEventInTransaction(txHash, emitter, eventName, eventArgs = {}) {
+  const receipt = await web3.eth.getTransactionReceipt(txHash)
+  const logs = emitter.decodeLogs(receipt.logs)
+  return expectEventInLogs(logs, eventName, eventArgs)
+}
+
 function contains(args, key, value) {
   expect(key in args).to.equal(true, `Unknown event argument '${key}'`)
 
@@ -176,6 +182,7 @@ function isBN(object) {
 }
 
 module.exports.expectEventInLogs = expectEventInLogs
+module.exports.expectEventInTransaction = expectEventInTransaction
 
 function createAccounts(web3, amount) {
   const array = []
@@ -202,3 +209,9 @@ async function delay(ms) {
 }
 
 module.exports.delay = delay
+
+function expectRevert(transaction) {
+  return transaction.should.be.rejected
+}
+
+module.exports.expectRevert = expectRevert
