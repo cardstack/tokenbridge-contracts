@@ -55,6 +55,8 @@ if [ "$SOLIDITY_COVERAGE" != true ]; then
     fi
 fi
 
+node_modules/.bin/truffle compile
+
 if [ "$SOLIDITY_COVERAGE" = true ]; then
   node --max-old-space-size=4096 node_modules/.bin/truffle test 2>/dev/null; istanbul report lcov
 else
