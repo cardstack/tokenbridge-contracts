@@ -452,7 +452,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
       it('should register new token in deployAndHandleBridgedTokens', async () => {
         const homeToken = await bridgeToken(token)
 
-        expect(await homeToken.name()).to.be.equal('TEST CPXD')
+        expect(await homeToken.name()).to.be.equal('TEST.CPXD')
         expect(await homeToken.symbol()).to.be.equal('TST')
         expect(await homeToken.decimals()).to.be.bignumber.equal('18')
         expect(await homeToken.version()).to.be.equal('1')
@@ -469,7 +469,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         token = await ERC677BridgeToken.new('', 'TST', 18)
         const homeToken = await bridgeToken(token)
 
-        expect(await homeToken.name()).to.be.equal('TST CPXD')
+        expect(await homeToken.name()).to.be.equal('TST.CPXD')
         expect(await homeToken.symbol()).to.be.equal('TST')
         expect(await homeToken.decimals()).to.be.bignumber.equal('18')
       })
@@ -478,7 +478,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         token = await ERC677BridgeToken.new('TEST', '', 18)
         const homeToken = await bridgeToken(token)
 
-        expect(await homeToken.name()).to.be.equal('TEST CPXD')
+        expect(await homeToken.name()).to.be.equal('TEST.CPXD')
         expect(await homeToken.symbol()).to.be.equal('TEST')
         expect(await homeToken.decimals()).to.be.bignumber.equal('18')
       })
