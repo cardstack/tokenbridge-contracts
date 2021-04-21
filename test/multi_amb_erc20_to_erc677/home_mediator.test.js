@@ -636,6 +636,14 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         })
       })
 
+      it('should allow to update bridge utils contract', async () => {
+        const newBridgeUtilsContract = await BridgeUtilsMock.new(expectedSafeForUser)
+        await contract.setBridgeUtilsContract(newBridgeUtilsContract.address, { from: user }).should.be.rejected
+        await contract.setBridgeUtilsContract(ZERO_ADDRESS, { from: owner }).should.be.rejected
+        await contract.setBridgeUtilsContract(newBridgeUtilsContract.address, { from: owner }).should.be.fulfilled
+        expect(await contract.bridgeUtils()).to.equal(newBridgeUtilsContract.address)
+      })
+
       describe('tokenImage', () => {
         it('should allow to change token image', async () => {
           expect(await contract.tokenImage()).to.be.equal(tokenImage.address)

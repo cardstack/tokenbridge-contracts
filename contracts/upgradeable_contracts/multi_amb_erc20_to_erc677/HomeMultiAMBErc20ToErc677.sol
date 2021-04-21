@@ -78,6 +78,10 @@ contract HomeMultiAMBErc20ToErc677 is
         _setTokenImage(_tokenImage);
     }
 
+    function setBridgeUtilsContract(address _bridgeUtilsContract) external onlyOwner {
+        _setBridgeUtilsContract(_bridgeUtilsContract);
+    }
+
     function _setBridgeUtilsContract(address _bridgeUtilsContract) internal {
         require(AddressUtils.isContract(_bridgeUtilsContract));
         addressStorage[BRIDGE_UTILS_CONTRACT] = _bridgeUtilsContract;
