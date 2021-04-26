@@ -62,6 +62,8 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
     token = await ERC677BridgeToken.new('TEST', 'TST', 18)
     tokenImage = await PermittableToken.new('TEST', 'TST', 18, 1337)
     currentDay = await contract.getCurrentDay()
+
+    await otherSideMediator.allowToken(token.address).should.be.fulfilled
   })
 
   const sendFunctions = [
@@ -467,6 +469,8 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
 
       it('should register new token with empty name', async () => {
         token = await ERC677BridgeToken.new('', 'TST', 18)
+        await otherSideMediator.allowToken(token.address).should.be.fulfilled
+
         const homeToken = await bridgeToken(token)
 
         expect(await homeToken.name()).to.be.equal('TST.CPXD')
@@ -476,6 +480,8 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
 
       it('should register new token with empty symbol', async () => {
         token = await ERC677BridgeToken.new('TEST', '', 18)
+        await otherSideMediator.allowToken(token.address).should.be.fulfilled
+
         const homeToken = await bridgeToken(token)
 
         expect(await homeToken.name()).to.be.equal('TEST.CPXD')
@@ -517,6 +523,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
           const f2 = toBN('1000000000000000000')
 
           token = await ERC677BridgeToken.new('TEST', 'TST', decimals)
+          await otherSideMediator.allowToken(token.address).should.be.fulfilled
           token = await bridgeToken(token, value.mul(f1).div(f2))
 
           expect(await token.decimals()).to.be.bignumber.equal(decimals.toString())
@@ -534,6 +541,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
 
       it(`should initialize limits according to decimals = 0`, async () => {
         token = await ERC677BridgeToken.new('TEST', 'TST', 0)
+        await otherSideMediator.allowToken(token.address).should.be.fulfilled
         token = await bridgeToken(token, '1')
 
         expect(await token.decimals()).to.be.bignumber.equal('0')

@@ -117,6 +117,8 @@ contract ForeignMultiAMBErc20ToErc677 is BasicMultiAMBErc20ToErc677 {
     function bridgeSpecificActionsOnTokenTransfer(ERC677 _token, address _from, uint256 _value, bytes _data) internal {
         if (lock()) return;
 
+        require(isTokenAllowed(_token));
+
         bool isKnownToken = isTokenRegistered(_token);
         if (!isKnownToken) {
             string memory name = TokenReader.readName(_token);
@@ -268,4 +270,28 @@ contract ForeignMultiAMBErc20ToErc677 is BasicMultiAMBErc20ToErc677 {
     function _setTokenRegistrationMessageId(address _token, bytes32 _messageId) internal {
         uintStorage[keccak256(abi.encodePacked("tokenRegistrationMessageId", _token))] = uint256(_messageId);
     }
+
+    function isTokenAllowed(address _token) public view returns (bool) {
+        return boolStorage[keccak256(abi.encodePacked("tokenAllowed", _token))];
+    }
+
+    function allowToken(address _token) external onlyOwner {
+        _allowToken(_token);
+    }
+
+    function _allowToken(address _token) internal {
+        require(!isTokenAllowed(_token));
+        require(AddressUtils.isContract(_token));
+        boolStorage[keccak256(abi.encodePacked("tokenAllowed", _token))] = true;
+    }
+    function disallowToken(address _token) external onlyOwner {
+        _disallowToken(_token);
+    }
+
+    function _disallowToken(address _token) internal {
+        require(isTokenAllowed(_token));
+        require(AddressUtils.isContract(_token));
+        boolStorage[keccak256(abi.encodePacked("tokenAllowed", _token))] = false;
+    }
+
 }

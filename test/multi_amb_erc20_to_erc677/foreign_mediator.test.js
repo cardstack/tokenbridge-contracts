@@ -211,6 +211,7 @@ contract('ForeignMultiAMBErc20ToErc677', async accounts => {
         maxGasPerTx,
         owner
       ).should.be.fulfilled
+      await contract.allowToken(token.address).should.be.fulfilled
     })
 
     it('should only work with unknown token', async () => {
@@ -268,8 +269,35 @@ contract('ForeignMultiAMBErc20ToErc677', async accounts => {
       const initialEvents = await getEvents(ambBridgeContract, { event: 'MockedEvent' })
       expect(initialEvents.length).to.be.equal(0)
     })
+    it('should allow adding and removing a token from the whitelist', async () => {
+      expect(await contract.isTokenAllowed(token.address)).to.be.equal(false)
+
+      // Only owner can allow token, and only a real token contract
+      await contract.allowToken(token.address, { from: user }).should.be.rejected
+      await contract.allowToken(ZERO_ADDRESS, { from: owner }).should.be.rejected
+
+      // Cannot disallow a token that isn't already allowed
+      await contract.disallowToken(token.address, { from: owner }).should.be.rejected
+
+      await contract.allowToken(token.address, { from: owner }).should.be.fulfilled
+
+      // Cannot allow token that is already allowed
+      await contract.allowToken(token.address, { from: owner }).should.be.rejected
+
+      expect(await contract.isTokenAllowed(token.address)).to.be.equal(true)
+
+      await contract.disallowToken(token.address, { from: user }).should.be.rejected
+      await contract.disallowToken(ZERO_ADDRESS, { from: owner }).should.be.rejected
+      await contract.disallowToken(token.address, { from: owner }).should.be.fulfilled
+
+      expect(await contract.isTokenAllowed(token.address)).to.be.equal(false)
+    })
 
     describe('update mediator parameters', () => {
+      beforeEach(async () => {
+        await contract.allowToken(token.address).should.be.fulfilled
+      })
+
       describe('limits', () => {
         it('should allow to update default daily limits', async () => {
           await contract.setDailyLimit(ZERO_ADDRESS, ether('5'), { from: user }).should.be.rejected
@@ -343,6 +371,9 @@ contract('ForeignMultiAMBErc20ToErc677', async accounts => {
     })
 
     describe('onTokenTransfer', () => {
+      beforeEach(async () => {
+        await contract.allowToken(token.address).should.be.fulfilled
+      })
       afterEach(async () => {
         // Total supply remains the same
         expect(await token.totalSupply()).to.be.bignumber.equal(twoEthers)
@@ -383,6 +414,13 @@ contract('ForeignMultiAMBErc20ToErc677', async accounts => {
         await token.transferAndCall(contract.address, halfEther, '0x', { from: user }).should.be.fulfilled
       })
 
+      it('should respect token disallowed', async () => {
+        await contract.disallowToken(token.address).should.be.fulfilled
+        await token.transferAndCall(contract.address, halfEther, user2, { from: user }).should.be.rejected
+        await contract.allowToken(token.address).should.be.fulfilled
+        await token.transferAndCall(contract.address, halfEther, user2, { from: user }).should.be.fulfilled
+      })
+
       it('should be able to specify a different receiver', async () => {
         expect(await contract.isTokenRegistered(token.address)).to.be.equal(false)
         // must be a valid address param
@@ -410,6 +448,10 @@ contract('ForeignMultiAMBErc20ToErc677', async accounts => {
     })
 
     describe('relayTokens', () => {
+      beforeEach(async () => {
+        await contract.allowToken(token.address).should.be.fulfilled
+      })
+
       afterEach(async () => {
         // Total supply remains the same
         expect(await token.totalSupply()).to.be.bignumber.equal(twoEthers)
@@ -491,6 +533,15 @@ contract('ForeignMultiAMBErc20ToErc677', async accounts => {
           .should.be.rejected
       })
 
+      it('should fail if not allowed', async () => {
+        await token.approve(contract.address, value, { from: user }).should.be.fulfilled
+
+        await contract.disallowToken(token.address).should.be.fulfilled
+        await contract.methods['relayTokens(address,uint256)'](token.address, value, { from: user }).should.be.rejected
+        await contract.allowToken(token.address).should.be.fulfilled
+        await contract.methods['relayTokens(address,uint256)'](token.address, value, { from: user }).should.be.fulfilled
+      })
+
       it('should fail if value is not within limits', async () => {
         await token.approve(contract.address, twoEthers, { from: user }).should.be.fulfilled
         expect(await token.allowance(user, contract.address)).to.be.bignumber.equal(twoEthers)
@@ -501,6 +552,10 @@ contract('ForeignMultiAMBErc20ToErc677', async accounts => {
     })
 
     describe('token registration', () => {
+      beforeEach(async () => {
+        await contract.allowToken(token.address).should.be.fulfilled
+      })
+
       for (const send of sendFunctions) {
         it(`should make subsequent calls deployAndHandleBridgedTokens handleBridgedTokens to when using ${send.name}`, async () => {
           const receiver = await send()
@@ -543,6 +598,7 @@ contract('ForeignMultiAMBErc20ToErc677', async accounts => {
           const f2 = toBN('1000000000000000000')
 
           token = await ERC677BridgeToken.new('TEST', 'TST', decimals)
+          await contract.allowToken(token.address).should.be.fulfilled
           await token.mint(user, value.mul(f1).div(f2)).should.be.fulfilled
           await token.transferAndCall(contract.address, value.mul(f1).div(f2), '0x', { from: user }).should.be.fulfilled
 
@@ -560,6 +616,7 @@ contract('ForeignMultiAMBErc20ToErc677', async accounts => {
 
       it(`should initialize limits according to decimals = 0`, async () => {
         token = await ERC677BridgeToken.new('TEST', 'TST', 0)
+        await contract.allowToken(token.address).should.be.fulfilled
         await token.mint(user, '1').should.be.fulfilled
         await token.transferAndCall(contract.address, '1', '0x', { from: user }).should.be.fulfilled
 
@@ -572,6 +629,10 @@ contract('ForeignMultiAMBErc20ToErc677', async accounts => {
     })
 
     describe('handleBridgedTokens', () => {
+      beforeEach(async () => {
+        await contract.allowToken(token.address).should.be.fulfilled
+      })
+
       it('should unlock tokens on message from amb', async () => {
         await token.transferAndCall(contract.address, value, '0x', { from: user }).should.be.fulfilled
         await token.transferAndCall(contract.address, value, '0x', { from: user }).should.be.fulfilled
@@ -667,6 +728,10 @@ contract('ForeignMultiAMBErc20ToErc677', async accounts => {
     })
 
     describe('requestFailedMessageFix', () => {
+      beforeEach(async () => {
+        await contract.allowToken(token.address).should.be.fulfilled
+      })
+
       it('should allow to request a failed message fix', async () => {
         // Given
         const data = await contract.contract.methods
@@ -782,6 +847,10 @@ contract('ForeignMultiAMBErc20ToErc677', async accounts => {
     })
 
     describe('fixFailedMessage', () => {
+      beforeEach(async () => {
+        await contract.allowToken(token.address).should.be.fulfilled
+      })
+
       let transferMessageId
       for (const send of sendFunctions) {
         it(`should fix tokens locked via ${send.name}`, async () => {
@@ -882,6 +951,7 @@ contract('ForeignMultiAMBErc20ToErc677', async accounts => {
       expect(await contract.totalSpentPerDay(token.address, currentDay)).to.be.bignumber.equal(ZERO)
       const initialEvents = await getEvents(ambBridgeContract, { event: 'MockedEvent' })
       expect(initialEvents.length).to.be.equal(0)
+      await contract.allowToken(token.address).should.be.fulfilled
     })
 
     it('should allow to fix extra mediator balance', async () => {
