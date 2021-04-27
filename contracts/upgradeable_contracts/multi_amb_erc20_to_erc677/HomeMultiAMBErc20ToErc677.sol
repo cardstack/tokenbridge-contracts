@@ -145,7 +145,9 @@ contract HomeMultiAMBErc20ToErc677 is
         IBridgeUtils bridgeUtilsInstance = IBridgeUtils(bridgeUtils());
 
         if (bridgeUtilsInstance.isRegistered(_recipient)) {
-            return _recipient;
+            address safe = bridgeUtilsInstance.safeForSupplier(_recipient);
+            require(safe != address(0));
+            return safe;
         } else {
             return bridgeUtilsInstance.registerSupplier(_recipient);
         }

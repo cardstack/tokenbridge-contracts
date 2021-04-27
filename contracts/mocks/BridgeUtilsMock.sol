@@ -11,16 +11,20 @@ contract BridgeUtilsMock is IBridgeUtils {
 
     struct Supplier {
         bool registered;
+        address safe;
     }
 
     mapping(address => Supplier) public suppliers;
+    mapping(address => address) public safes;
 
     constructor(address _safeMock) public {
         safeMock = _safeMock;
     }
 
     function registerSupplier(address ownerAddr) external returns (address) {
-        suppliers[safeMock].registered = true;
+        suppliers[ownerAddr].registered = true;
+        suppliers[ownerAddr].safe = safeMock;
+        safes[safeMock] = ownerAddr;
 
         emit SupplierWallet(ownerAddr, safeMock);
 
@@ -36,4 +40,8 @@ contract BridgeUtilsMock is IBridgeUtils {
         return true;
     }
 
+    function safeForSupplier(address supplierAddr) public view returns (address) {
+        require(isRegistered(supplierAddr), "supplier is not registered");
+        return suppliers[supplierAddr].safe;
+    }
 }

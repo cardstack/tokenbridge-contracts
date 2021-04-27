@@ -736,7 +736,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
     })
 
     describe('relayTokens', () => {
-      it('bridge the tokens to a gnosis safe on the home network', async () => {
+      it('bridges the tokens to a gnosis safe on the home network', async () => {
         await token.mint(user, value)
 
         await token.approve(otherSideMediator.address, value, { from: user })
