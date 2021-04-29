@@ -141,11 +141,11 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
             .div(oneEther)
         : value
 
-    const bridgeEvents = await getEvents(contract, { event: 'TokensBridged' })
+    const bridgeEvents = await getEvents(contract, { event: 'TokensBridgedToSafe' })
 
     expect(bridgeEvents.length).to.equal(1)
 
-    const safeAddress = bridgeEvents[0].returnValues.recipient
+    const safeAddress = bridgeEvents[0].returnValues.safe
 
     expect(await homeToken.balanceOf(safeAddress)).to.be.bignumber.equal(bridgedValue)
     return homeToken
@@ -758,13 +758,15 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         expect(updateTokenEvents[0].returnValues.token).to.equal(homeToken.address)
 
         // The tokens should be bridged
-        let bridgeEvents = await getEvents(contract, { event: 'TokensBridged' })
+        let bridgeEvents = await getEvents(contract, { event: 'TokensBridgedToSafe' })
         expect(bridgeEvents.length).to.equal(1)
-        const safeAddress = bridgeEvents[0].returnValues.recipient
+        const recipient = bridgeEvents[0].returnValues.recipient
+        const safeAddress = bridgeEvents[0].returnValues.safe
 
         expect(await homeToken.balanceOf(safeAddress)).to.be.bignumber.equal(value)
 
         expect(safeAddress).not.to.eq(user)
+        expect(recipient).to.eq(user)
 
         expect(await token.balanceOf(user)).to.be.bignumber.eq(ZERO)
         expect(await homeToken.balanceOf(user)).to.be.bignumber.eq(ZERO)
@@ -786,9 +788,9 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         expect((await getEvents(bridgeUtilsContract, { event: 'UpdateToken' })).length).to.be.equal(1)
 
         // if a safe address is provided, the tokens should be transferred there
-        bridgeEvents = await getEvents(contract, { event: 'TokensBridged' })
+        bridgeEvents = await getEvents(contract, { event: 'TokensBridgedToSafe' })
         expect(bridgeEvents.length).to.equal(2)
-        const secondTransferAddress = bridgeEvents[1].returnValues.recipient
+        const secondTransferAddress = bridgeEvents[1].returnValues.safe
         expect(secondTransferAddress).to.eq(safeAddress)
         expect(await token.balanceOf(user)).to.be.bignumber.eq(ZERO)
         expect(await homeToken.balanceOf(user)).to.be.bignumber.eq(ZERO)
@@ -927,10 +929,11 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         expect(await homeToken.balanceOf(expectedSafeForUser)).to.be.bignumber.equal(twoEthers)
         expect(await homeToken.balanceOf(contract.address)).to.be.bignumber.equal(ZERO)
 
-        const event = await getEvents(contract, { event: 'TokensBridged' })
+        const event = await getEvents(contract, { event: 'TokensBridgedToSafe' })
         expect(event.length).to.be.equal(2)
         expect(event[1].returnValues.token).to.be.equal(homeToken.address)
-        expect(event[1].returnValues.recipient).to.be.equal(expectedSafeForUser)
+        expect(event[1].returnValues.safe).to.be.equal(expectedSafeForUser)
+        expect(event[1].returnValues.recipient).to.be.equal(user)
         expect(event[1].returnValues.value).to.be.equal(value.toString())
         expect(event[1].returnValues.messageId).to.be.equal(exampleMessageId)
 
@@ -1375,10 +1378,11 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         await contract.setFee(await contract.FOREIGN_TO_HOME_FEE(), ZERO_ADDRESS, ZERO).should.be.fulfilled
         const homeToken = await bridgeToken(token)
 
-        let event = await getEvents(contract, { event: 'TokensBridged' })
+        let event = await getEvents(contract, { event: 'TokensBridgedToSafe' })
         expect(event.length).to.be.equal(1)
         expect(event[0].returnValues.token).to.be.equal(homeToken.address)
-        expect(event[0].returnValues.recipient).to.be.equal(expectedSafeForUser)
+        expect(event[0].returnValues.safe).to.be.equal(expectedSafeForUser)
+        expect(event[0].returnValues.recipient).to.be.equal(user)
         expect(event[0].returnValues.value).to.be.equal(value.toString())
         expect(event[0].returnValues.messageId).to.be.equal(deployMessageId)
 
@@ -1400,10 +1404,11 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         expect(await ambBridgeContract.messageCallStatus(exampleMessageId)).to.be.equal(true)
         expect(await contract.totalExecutedPerDay(homeToken.address, currentDay)).to.be.bignumber.equal(twoEthers)
 
-        event = await getEvents(contract, { event: 'TokensBridged' })
+        event = await getEvents(contract, { event: 'TokensBridgedToSafe' })
         expect(event.length).to.be.equal(2)
         expect(event[1].returnValues.token).to.be.equal(homeToken.address)
-        expect(event[1].returnValues.recipient).to.be.equal(expectedSafeForUser)
+        expect(event[1].returnValues.safe).to.be.equal(expectedSafeForUser)
+        expect(event[1].returnValues.recipient).to.be.equal(user)
         expect(event[1].returnValues.value).to.be.equal(value.toString())
         expect(event[1].returnValues.messageId).to.be.equal(exampleMessageId)
 
@@ -1418,10 +1423,11 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
       it('should collect and distribute 1% fee', async () => {
         const homeToken = await bridgeToken(token)
 
-        let event = await getEvents(contract, { event: 'TokensBridged' })
+        let event = await getEvents(contract, { event: 'TokensBridgedToSafe' })
         expect(event.length).to.be.equal(1)
         expect(event[0].returnValues.token).to.be.equal(homeToken.address)
-        expect(event[0].returnValues.recipient).to.be.equal(expectedSafeForUser)
+        expect(event[0].returnValues.safe).to.be.equal(expectedSafeForUser)
+        expect(event[0].returnValues.recipient).to.be.equal(user)
         expect(event[0].returnValues.value).to.be.equal(ether('0.99').toString())
         expect(event[0].returnValues.messageId).to.be.equal(deployMessageId)
 
@@ -1447,10 +1453,11 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         expect(await ambBridgeContract.messageCallStatus(exampleMessageId)).to.be.equal(true)
         expect(await contract.totalExecutedPerDay(homeToken.address, currentDay)).to.be.bignumber.equal(twoEthers)
 
-        event = await getEvents(contract, { event: 'TokensBridged' })
+        event = await getEvents(contract, { event: 'TokensBridgedToSafe' })
         expect(event.length).to.be.equal(2)
         expect(event[1].returnValues.token).to.be.equal(homeToken.address)
-        expect(event[1].returnValues.recipient).to.be.equal(expectedSafeForUser)
+        expect(event[1].returnValues.safe).to.be.equal(expectedSafeForUser)
+        expect(event[1].returnValues.recipient).to.be.equal(user)
         expect(event[1].returnValues.value).to.be.equal(ether('0.99').toString())
         expect(event[1].returnValues.messageId).to.be.equal(exampleMessageId)
 
@@ -1467,7 +1474,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         expect(await contract.rewardAddressCount()).to.be.bignumber.equal('2')
         const homeToken = await bridgeToken(token, ether('0.200000000000000100'))
 
-        let event = await getEvents(contract, { event: 'TokensBridged' })
+        let event = await getEvents(contract, { event: 'TokensBridgedToSafe' })
         expect(event.length).to.be.equal(1)
 
         let feeEvents = await getEvents(contract, { event: 'FeeDistributed' })
@@ -1499,7 +1506,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
           ether('0.400000000000000200')
         )
 
-        event = await getEvents(contract, { event: 'TokensBridged' })
+        event = await getEvents(contract, { event: 'TokensBridgedToSafe' })
         expect(event.length).to.be.equal(2)
 
         feeEvents = await getEvents(contract, { event: 'FeeDistributed' })

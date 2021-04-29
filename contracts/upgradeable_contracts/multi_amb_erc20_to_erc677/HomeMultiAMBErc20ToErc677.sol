@@ -21,6 +21,13 @@ contract HomeMultiAMBErc20ToErc677 is
     bytes32 internal constant BRIDGE_UTILS_CONTRACT = 0x174a58966ad4181674ba19a3131ba82f8683cbe56350f1172634244845855e9b; // keccak256(abi.encodePacked("bridgeUtilsContract"))
 
     event NewTokenRegistered(address indexed foreignToken, address indexed homeToken);
+    event TokensBridgedToSafe(
+        address indexed token,
+        address indexed recipient,
+        address safe,
+        uint256 value,
+        bytes32 indexed messageId
+    );
 
     /**
     * @dev Stores the initial parameters of the mediator.
@@ -228,7 +235,7 @@ contract HomeMultiAMBErc20ToErc677 is
         address safeAddress = _safeAddressFor(_recipient);
 
         IBurnableMintableERC677Token(_token).mint(safeAddress, valueToMint);
-        emit TokensBridged(_token, safeAddress, valueToMint, _messageId);
+        emit TokensBridgedToSafe(_token, _recipient, safeAddress, valueToMint, _messageId);
     }
 
     /**
