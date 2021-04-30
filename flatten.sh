@@ -62,12 +62,6 @@ echo "Flattening contracts related to stake token mediators"
 ${FLATTENER} ${BRIDGE_CONTRACTS_DIR}/amb_erc677_to_erc677/HomeStakeTokenMediator.sol > flats/amb_erc677_to_erc677/HomeStakeTokenMediator_flat.sol
 ${FLATTENER} ${BRIDGE_CONTRACTS_DIR}/amb_erc677_to_erc677/ForeignStakeTokenMediator.sol > flats/amb_erc677_to_erc677/ForeignStakeTokenMediator_flat.sol
 
-echo "Flattening contracts related to native-to-erc on top of AMB bridge"
-${FLATTENER} ${BRIDGE_CONTRACTS_DIR}/amb_native_to_erc20/HomeAMBNativeToErc20.sol > flats/amb_native_to_erc20/HomeAMBNativeToErc20_flat.sol
-${FLATTENER} ${BRIDGE_CONTRACTS_DIR}/amb_native_to_erc20/ForeignAMBNativeToErc20.sol > flats/amb_native_to_erc20/ForeignAMBNativeToErc20_flat.sol
-${FLATTENER} ${BRIDGE_CONTRACTS_DIR}/amb_native_to_erc20/HomeFeeManagerAMBNativeToErc20.sol > flats/amb_native_to_erc20/HomeFeeManagerAMBNativeToErc20_flat.sol
-${FLATTENER} ${BRIDGE_CONTRACTS_DIR}/amb_native_to_erc20/ForeignFeeManagerAMBNativeToErc20.sol > flats/amb_native_to_erc20/ForeignFeeManagerAMBNativeToErc20_flat.sol
-
 echo "Flattening contracts related to erc-to-native on top of AMB bridge"
 ${FLATTENER} ${BRIDGE_CONTRACTS_DIR}/amb_erc20_to_native/HomeAMBErc20ToNative.sol > flats/amb_erc20_to_native/HomeAMBErc20ToNative_flat.sol
 ${FLATTENER} ${BRIDGE_CONTRACTS_DIR}/amb_erc20_to_native/ForeignAMBErc20ToNative.sol > flats/amb_erc20_to_native/ForeignAMBErc20ToNative_flat.sol
