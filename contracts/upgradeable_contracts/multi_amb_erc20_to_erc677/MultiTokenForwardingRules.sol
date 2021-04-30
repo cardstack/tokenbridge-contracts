@@ -103,7 +103,7 @@ contract MultiTokenForwardingRules is Ownable {
      * @return preferred destination lane for the particular bridge operation.
      */
     function forwardingRule(address _token, address _sender, address _receiver) public view returns (int256) {
-        return intStorage[keccak256(abi.encodePacked("forwardTo", _token, _sender, _receiver))];
+        return intStorage[keccak256(abi.encodePacked("f2", _token, _sender, _receiver))];
     }
 
     /**
@@ -123,7 +123,7 @@ contract MultiTokenForwardingRules is Ownable {
      * -1 - manual lane should be used.
      */
     function _setForwardingRule(address _token, address _sender, address _receiver, int256 _lane) internal onlyOwner {
-        intStorage[keccak256(abi.encodePacked("forwardTo", _token, _sender, _receiver))] = _lane;
+        intStorage[keccak256(abi.encodePacked("f2", _token, _sender, _receiver))] = _lane;
 
         emit ForwardingRuleUpdated(_token, _sender, _receiver, _lane);
     }

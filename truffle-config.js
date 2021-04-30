@@ -108,11 +108,12 @@ module.exports = {
       settings: {
         optimizer: {
           enabled: true,
-          runs: 25
+          runs: 10
         },
         evmVersion
       }
     }
   },
-  mocha: mochaOptions
+  mocha: mochaOptions,
+  plugins: ['truffle-contract-size']
 }

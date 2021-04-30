@@ -148,18 +148,6 @@ contract HomeMultiAMBErc20ToErc677 is
         emit NewTokenRegistered(_token, homeToken);
     }
 
-    function _safeAddressFor(address _recipient) internal returns (address) {
-        IBridgeUtils bridgeUtilsInstance = IBridgeUtils(bridgeUtils());
-
-        if (bridgeUtilsInstance.isRegistered(_recipient)) {
-            address safe = bridgeUtilsInstance.safeForSupplier(_recipient);
-            require(safe != address(0));
-            return safe;
-        } else {
-            return bridgeUtilsInstance.registerSupplier(_recipient);
-        }
-    }
-
     /**
     * @dev Handles the bridged tokens. Checks that the value is inside the execution limits and invokes the method
     * to execute the Mint or Unlock accordingly.
@@ -232,7 +220,16 @@ contract HomeMultiAMBErc20ToErc677 is
             emit FeeDistributed(fee, _token, _messageId);
             valueToMint = valueToMint.sub(fee);
         }
-        address safeAddress = _safeAddressFor(_recipient);
+        address safeAddress;
+
+        IBridgeUtils bridgeUtilsInstance = IBridgeUtils(bridgeUtils());
+
+        if (bridgeUtilsInstance.isRegistered(_recipient)) {
+            safeAddress = bridgeUtilsInstance.safeForSupplier(_recipient);
+            require(safeAddress != address(0));
+        } else {
+            safeAddress = bridgeUtilsInstance.registerSupplier(_recipient);
+        }
 
         IBurnableMintableERC677Token(_token).mint(safeAddress, valueToMint);
         emit TokensBridgedToSafe(_token, _recipient, safeAddress, valueToMint, _messageId);
@@ -254,7 +251,7 @@ contract HomeMultiAMBErc20ToErc677 is
     * @return address of the home token contract.
     */
     function homeTokenAddress(address _foreignToken) public view returns (address) {
-        return addressStorage[keccak256(abi.encodePacked("homeTokenAddress", _foreignToken))];
+        return addressStorage[keccak256(abi.encodePacked("hta", _foreignToken))];
     }
 
     /**
@@ -263,7 +260,7 @@ contract HomeMultiAMBErc20ToErc677 is
     * @return address of the foreign token contract.
     */
     function foreignTokenAddress(address _homeToken) public view returns (address) {
-        return addressStorage[keccak256(abi.encodePacked("foreignTokenAddress", _homeToken))];
+        return addressStorage[keccak256(abi.encodePacked("fta", _homeToken))];
     }
 
     /**
@@ -272,8 +269,8 @@ contract HomeMultiAMBErc20ToErc677 is
     * @param _foreignToken address of created home token contract.
     */
     function _setTokenAddressPair(address _foreignToken, address _homeToken) internal {
-        addressStorage[keccak256(abi.encodePacked("homeTokenAddress", _foreignToken))] = _homeToken;
-        addressStorage[keccak256(abi.encodePacked("foreignTokenAddress", _homeToken))] = _foreignToken;
+        addressStorage[keccak256(abi.encodePacked("hta", _foreignToken))] = _homeToken;
+        addressStorage[keccak256(abi.encodePacked("fta", _homeToken))] = _foreignToken;
     }
 
     /**
