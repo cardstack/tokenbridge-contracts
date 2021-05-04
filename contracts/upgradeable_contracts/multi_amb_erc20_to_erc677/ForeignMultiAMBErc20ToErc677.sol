@@ -279,19 +279,25 @@ contract ForeignMultiAMBErc20ToErc677 is BasicMultiAMBErc20ToErc677 {
         _allowToken(_token);
     }
 
+    event TokenAllowed(address indexed token);
     function _allowToken(address _token) internal {
         require(!isTokenAllowed(_token));
         require(AddressUtils.isContract(_token));
         boolStorage[keccak256(abi.encodePacked("tokenAllowed", _token))] = true;
+        emit TokenAllowed(_token);
     }
+
     function disallowToken(address _token) external onlyOwner {
         _disallowToken(_token);
     }
+
+    event TokenDisallowed(address indexed token);
 
     function _disallowToken(address _token) internal {
         require(isTokenAllowed(_token));
         require(AddressUtils.isContract(_token));
         boolStorage[keccak256(abi.encodePacked("tokenAllowed", _token))] = false;
+        emit TokenDisallowed(_token);
     }
 
 }

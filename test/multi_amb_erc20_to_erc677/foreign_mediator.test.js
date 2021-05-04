@@ -279,7 +279,9 @@ contract('ForeignMultiAMBErc20ToErc677', async accounts => {
       // Cannot disallow a token that isn't already allowed
       await contract.disallowToken(token.address, { from: owner }).should.be.rejected
 
-      await contract.allowToken(token.address, { from: owner }).should.be.fulfilled
+      const { logs } = await contract.allowToken(token.address, { from: owner }).should.be.fulfilled
+
+      expectEventInLogs(logs, 'TokenAllowed', { token: token.address })
 
       // Cannot allow token that is already allowed
       await contract.allowToken(token.address, { from: owner }).should.be.rejected
@@ -288,7 +290,8 @@ contract('ForeignMultiAMBErc20ToErc677', async accounts => {
 
       await contract.disallowToken(token.address, { from: user }).should.be.rejected
       await contract.disallowToken(ZERO_ADDRESS, { from: owner }).should.be.rejected
-      await contract.disallowToken(token.address, { from: owner }).should.be.fulfilled
+      const { logs: logs2 } = await contract.disallowToken(token.address, { from: owner }).should.be.fulfilled
+      expectEventInLogs(logs2, 'TokenDisallowed', { token: token.address })
 
       expect(await contract.isTokenAllowed(token.address)).to.be.equal(false)
     })
