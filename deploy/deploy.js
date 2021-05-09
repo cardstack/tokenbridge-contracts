@@ -231,6 +231,8 @@ async function deployMultiAMBErcToErc() {
   const deployForeign = require('./src/multi_amb_erc20_to_erc677/foreign')
   const initializeHome = require('./src/multi_amb_erc20_to_erc677/initializeHome')
   const initializeForeign = require('./src/multi_amb_erc20_to_erc677/initializeForeign')
+  const allow = require('./src/multi_amb_erc20_to_erc677/allow')
+
   await preDeploy()
   const { homeBridgeMediator, homeTokenImage } = await deployHome()
   const { foreignBridgeMediator } = await deployForeign()
@@ -245,6 +247,8 @@ async function deployMultiAMBErcToErc() {
     foreignBridge: foreignBridgeMediator.address,
     homeBridge: homeBridgeMediator.address
   })
+
+  await allow(foreignBridgeMediator.address)
 
   console.log('\nDeployment has been completed.\n\n')
   console.log(`[   Home  ] Bridge Mediator: ${homeBridgeMediator.address}`)
