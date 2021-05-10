@@ -1,17 +1,15 @@
 const Web3Utils = require('web3-utils')
 const assert = require('assert')
-const { web3Foreign, FOREIGN_RPC_URL, deploymentPrivateKey } = require('../web3')
+const { web3Foreign, FOREIGN_RPC_URL } = require('../web3')
 const {
   foreignContracts: { ForeignMultiAMBErc20ToErc677: ForeignBridge }
 } = require('../loadContracts')
-const { privateKeyToAddress, sendRawTxForeign } = require('../deploymentUtils')
+const { sendRawTxForeign } = require('../deploymentUtils')
 
-const { DEPLOYMENT_ACCOUNT_PRIVATE_KEY, FOREIGN_ALLOW_TOKEN_LIST } = require('../loadEnv')
-
-const DEPLOYMENT_ACCOUNT_ADDRESS = privateKeyToAddress(DEPLOYMENT_ACCOUNT_PRIVATE_KEY)
+const { FOREIGN_DEPLOYMENT_ACCOUNT_ADDRESS, FOREIGN_ALLOW_TOKEN_LIST } = require('../loadEnv')
 
 async function allow(foreignAddress) {
-  let nonce = await web3Foreign.eth.getTransactionCount(DEPLOYMENT_ACCOUNT_ADDRESS)
+  let nonce = await web3Foreign.eth.getTransactionCount(FOREIGN_DEPLOYMENT_ACCOUNT_ADDRESS)
   const foreignBridge = new web3Foreign.eth.Contract(ForeignBridge.abi, foreignAddress)
 
   const allowList = FOREIGN_ALLOW_TOKEN_LIST.split(',').map(a => a.trim())
@@ -26,7 +24,7 @@ async function allow(foreignAddress) {
       data: allowData,
       nonce,
       to: foreignAddress,
-      privateKey: deploymentPrivateKey,
+      from: FOREIGN_DEPLOYMENT_ACCOUNT_ADDRESS,
       url: FOREIGN_RPC_URL
     })
 

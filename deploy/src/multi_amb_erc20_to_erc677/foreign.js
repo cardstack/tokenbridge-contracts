@@ -1,24 +1,16 @@
 const { web3Foreign, FOREIGN_RPC_URL } = require('../web3')
-const {
-  deployContract,
-  privateKeyToAddress,
-  upgradeProxy
-} = require('../deploymentUtils')
+const { deployContract, upgradeProxy } = require('../deploymentUtils')
 const {
   foreignContracts: { EternalStorageProxy, ForeignMultiAMBErc20ToErc677: ForeignBridge }
 } = require('../loadContracts')
-const {
-  DEPLOYMENT_ACCOUNT_PRIVATE_KEY
-} = require('../loadEnv')
-
-const DEPLOYMENT_ACCOUNT_ADDRESS = privateKeyToAddress(DEPLOYMENT_ACCOUNT_PRIVATE_KEY)
+const { FOREIGN_DEPLOYMENT_ACCOUNT_ADDRESS } = require('../loadEnv')
 
 async function deployForeign() {
-  let nonce = await web3Foreign.eth.getTransactionCount(DEPLOYMENT_ACCOUNT_ADDRESS)
+  let nonce = await web3Foreign.eth.getTransactionCount(FOREIGN_DEPLOYMENT_ACCOUNT_ADDRESS)
 
   console.log('\n[Foreign] Deploying Bridge Mediator storage\n')
   const foreignBridgeStorage = await deployContract(EternalStorageProxy, [], {
-    from: DEPLOYMENT_ACCOUNT_ADDRESS,
+    from: FOREIGN_DEPLOYMENT_ACCOUNT_ADDRESS,
     network: 'foreign',
     nonce
   })
@@ -27,7 +19,7 @@ async function deployForeign() {
 
   console.log('\n[Foreign] Deploying Bridge Mediator implementation\n')
   const foreignBridgeImplementation = await deployContract(ForeignBridge, [], {
-    from: DEPLOYMENT_ACCOUNT_ADDRESS,
+    from: FOREIGN_DEPLOYMENT_ACCOUNT_ADDRESS,
     network: 'foreign',
     nonce
   })

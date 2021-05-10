@@ -1,7 +1,5 @@
 /* eslint-disable no-param-reassign */
 const BigNumber = require('bignumber.js')
-const Web3 = require('web3')
-const Tx = require('ethereumjs-tx')
 const Web3Utils = require('web3-utils')
 const fetch = require('node-fetch')
 const assert = require('assert')
@@ -9,7 +7,6 @@ const promiseRetry = require('promise-retry')
 const {
   web3Home,
   web3Foreign,
-  deploymentPrivateKey,
   FOREIGN_RPC_URL,
   HOME_RPC_URL,
   GAS_LIMIT_EXTRA,
@@ -19,7 +16,9 @@ const {
   HOME_EXPLORER_URL,
   FOREIGN_EXPLORER_URL,
   HOME_EXPLORER_API_KEY,
-  FOREIGN_EXPLORER_API_KEY
+  FOREIGN_EXPLORER_API_KEY,
+  HOME_DEPLOYMENT_ACCOUNT_ADDRESS,
+  FOREIGN_DEPLOYMENT_ACCOUNT_ADDRESS
 } = require('./web3')
 const verifier = require('./utils/verifier')
 
@@ -29,18 +28,21 @@ async function deployContract(contractJson, args, { from, network, nonce }) {
   let gasPrice
   let apiUrl
   let apiKey
+  let deploymentAccountAddress
   if (network === 'foreign') {
     web3 = web3Foreign
     url = FOREIGN_RPC_URL
     gasPrice = FOREIGN_DEPLOYMENT_GAS_PRICE
     apiUrl = FOREIGN_EXPLORER_URL
     apiKey = FOREIGN_EXPLORER_API_KEY
+    deploymentAccountAddress = FOREIGN_DEPLOYMENT_ACCOUNT_ADDRESS
   } else {
     web3 = web3Home
     url = HOME_RPC_URL
     gasPrice = HOME_DEPLOYMENT_GAS_PRICE
     apiUrl = HOME_EXPLORER_URL
     apiKey = HOME_EXPLORER_API_KEY
+    deploymentAccountAddress = HOME_DEPLOYMENT_ACCOUNT_ADDRESS
   }
   const options = {
     from
@@ -56,7 +58,7 @@ async function deployContract(contractJson, args, { from, network, nonce }) {
     data: result,
     nonce: Web3Utils.toHex(nonce),
     to: null,
-    privateKey: deploymentPrivateKey,
+    from: deploymentAccountAddress,
     url,
     gasPrice
   })
@@ -91,10 +93,10 @@ async function sendRawTxForeign(options) {
   })
 }
 
-async function sendRawTx({ data, nonce, to, privateKey, url, gasPrice, value }) {
+async function sendRawTx({ data, nonce, to, from, url, gasPrice, value }) {
   try {
     const txToEstimateGas = {
-      from: privateKeyToAddress(Web3Utils.bytesToHex(privateKey)),
+      from,
       value,
       to,
       data
@@ -119,19 +121,28 @@ async function sendRawTx({ data, nonce, to, privateKey, url, gasPrice, value }) 
       nonce,
       gasPrice: Web3Utils.toHex(gasPrice),
       gasLimit: Web3Utils.toHex(gas),
+      from,
       to,
       data,
       value
     }
 
-    const tx = new Tx(rawTx)
-    tx.sign(privateKey)
-    const serializedTx = tx.serialize()
-    const txHash = await sendNodeRequest(url, 'eth_sendRawTransaction', `0x${serializedTx.toString('hex')}`)
+    if (rawTx.to === null) {
+      rawTx.to = ''
+    }
+
+    const provider = getWeb3Provider(url)
+
+    console.log('Signing transaction…')
+
+    const signedTransaction = await provider.eth.signTransaction(rawTx)
+    const txHash = await sendNodeRequest(url, 'eth_sendRawTransaction', signedTransaction.raw)
+
     console.log('pending txHash', txHash)
     return await getReceipt(txHash, url)
   } catch (e) {
     console.error(e)
+    throw e
   }
 }
 
@@ -174,18 +185,6 @@ async function getReceipt(txHash, url) {
   return receipt
 }
 
-function add0xPrefix(s) {
-  if (s.indexOf('0x') === 0) {
-    return s
-  }
-
-  return `0x${s}`
-}
-
-function privateKeyToAddress(privateKey) {
-  return new Web3().eth.accounts.privateKeyToAccount(add0xPrefix(privateKey)).address
-}
-
 function logValidatorsAndRewardAccounts(validators, rewards) {
   console.log(`VALIDATORS\n==========`)
   validators.forEach((validator, index) => {
@@ -200,7 +199,7 @@ async function upgradeProxy({ proxy, implementationAddress, version, nonce, url 
     data,
     nonce,
     to: proxy.options.address,
-    privateKey: deploymentPrivateKey,
+    from: getDeploymentAccountAddress(url),
     url
   })
   if (result.status) {
@@ -217,7 +216,7 @@ async function transferProxyOwnership({ proxy, newOwner, nonce, url }) {
     data,
     nonce,
     to: proxy.options.address,
-    privateKey: deploymentPrivateKey,
+    from: getDeploymentAccountAddress(url),
     url
   })
   if (result.status) {
@@ -234,7 +233,7 @@ async function transferOwnership({ contract, newOwner, nonce, url }) {
     data,
     nonce,
     to: contract.options.address,
-    privateKey: deploymentPrivateKey,
+    from: getDeploymentAccountAddress(url),
     url
   })
   if (result.status) {
@@ -251,7 +250,7 @@ async function setBridgeContract({ contract, bridgeAddress, nonce, url }) {
     data,
     nonce,
     to: contract.options.address,
-    privateKey: deploymentPrivateKey,
+    from: getDeploymentAccountAddress(url),
     url
   })
   if (result.status) {
@@ -288,7 +287,7 @@ async function initializeValidators({
     data,
     nonce,
     to: contract.options.address,
-    privateKey: deploymentPrivateKey,
+    from: getDeploymentAccountAddress(url),
     url
   })
   if (result.status) {
@@ -311,6 +310,14 @@ function getSendTxMethod(url) {
   return url === HOME_RPC_URL ? sendRawTxHome : sendRawTxForeign
 }
 
+function getWeb3Provider(url) {
+  return url === HOME_RPC_URL ? web3Home : web3Foreign
+}
+
+function getDeploymentAccountAddress(url) {
+  return url === HOME_RPC_URL ? HOME_DEPLOYMENT_ACCOUNT_ADDRESS : FOREIGN_DEPLOYMENT_ACCOUNT_ADDRESS
+}
+
 async function isContract(web3, address) {
   const code = await web3.eth.getCode(address)
   return code !== '0x' && code !== '0x0'
@@ -320,7 +327,6 @@ module.exports = {
   deployContract,
   sendRawTxHome,
   sendRawTxForeign,
-  privateKeyToAddress,
   logValidatorsAndRewardAccounts,
   upgradeProxy,
   initializeValidators,

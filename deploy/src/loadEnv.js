@@ -32,7 +32,7 @@ const validateAddress = address => {
   throw new Error(`Invalid address: ${address}`)
 }
 const validateOptionalAddress = address => {
-  if (address !== "") {
+  if (address !== '') {
     return validateAddress(address)
   }
   return address
@@ -101,7 +101,8 @@ if (!validBridgeModes.includes(BRIDGE_MODE)) {
 }
 
 let validations = {
-  DEPLOYMENT_ACCOUNT_PRIVATE_KEY: envalid.str(),
+  HOME_DEPLOYMENT_ACCOUNT_ADDRESS: envalid.str(),
+  FOREIGN_DEPLOYMENT_ACCOUNT_ADDRESS: envalid.str(),
   DEPLOYMENT_GAS_LIMIT_EXTRA: envalid.num(),
   HOME_DEPLOYMENT_GAS_PRICE: bigNumValidator(),
   FOREIGN_DEPLOYMENT_GAS_PRICE: bigNumValidator(),
@@ -113,7 +114,9 @@ let validations = {
   FOREIGN_BRIDGE_OWNER: addressValidator(),
   FOREIGN_UPGRADEABLE_ADMIN: addressValidator(),
   HOME_MAX_AMOUNT_PER_TX: bigNumValidator(),
-  FOREIGN_MAX_AMOUNT_PER_TX: bigNumValidator()
+  FOREIGN_MAX_AMOUNT_PER_TX: bigNumValidator(),
+  HOME_CHAIN_ID: envalid.num(),
+  FOREIGN_CHAIN_ID: envalid.num()
 }
 
 if (BRIDGE_MODE.includes('AMB_')) {
@@ -124,7 +127,7 @@ if (BRIDGE_MODE.includes('AMB_')) {
     HOME_MEDIATOR_REQUEST_GAS_LIMIT: bigNumValidator(),
     FOREIGN_MEDIATOR_REQUEST_GAS_LIMIT: bigNumValidator(),
     FOREIGN_MIN_AMOUNT_PER_TX: bigNumValidator(),
-    FOREIGN_DAILY_LIMIT: bigNumValidator(),
+    FOREIGN_DAILY_LIMIT: bigNumValidator()
   }
 
   if (BRIDGE_MODE !== 'AMB_ERC_TO_NATIVE' && BRIDGE_MODE !== 'MULTI_AMB_ERC_TO_ERC') {
@@ -373,7 +376,12 @@ if (env.BRIDGE_MODE === 'ERC_TO_NATIVE') {
   }
 }
 
-if (env.BRIDGE_MODE === 'AMB_ERC_TO_ERC' || env.BRIDGE_MODE === 'STAKE_AMB_ERC_TO_ERC' || env.BRIDGE_MODE === 'AMB_ERC_TO_NATIVE' || env.BRIDGE_MODE === 'MULTI_AMB_ERC_TO_ERC') {
+if (
+  env.BRIDGE_MODE === 'AMB_ERC_TO_ERC' ||
+  env.BRIDGE_MODE === 'STAKE_AMB_ERC_TO_ERC' ||
+  env.BRIDGE_MODE === 'AMB_ERC_TO_NATIVE' ||
+  env.BRIDGE_MODE === 'MULTI_AMB_ERC_TO_ERC'
+) {
   checkLimits(env.FOREIGN_MIN_AMOUNT_PER_TX, env.FOREIGN_MAX_AMOUNT_PER_TX, env.FOREIGN_DAILY_LIMIT, foreignPrefix)
 }
 

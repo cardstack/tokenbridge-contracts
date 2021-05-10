@@ -1,15 +1,10 @@
 const Web3Utils = require('web3-utils')
 const assert = require('assert')
-const { web3Home, HOME_RPC_URL, deploymentPrivateKey } = require('../web3')
+const { web3Home, HOME_RPC_URL } = require('../web3')
 const {
   homeContracts: { EternalStorageProxy, HomeMultiAMBErc20ToErc677: HomeBridge }
 } = require('../loadContracts')
-const {
-  privateKeyToAddress,
-  sendRawTxHome,
-  assertStateWithRetry,
-  transferProxyOwnership
-} = require('../deploymentUtils')
+const { sendRawTxHome, assertStateWithRetry, transferProxyOwnership } = require('../deploymentUtils')
 
 const {
   HOME_DAILY_LIMIT,
@@ -21,15 +16,13 @@ const {
   HOME_MEDIATOR_REQUEST_GAS_LIMIT,
   HOME_BRIDGE_OWNER,
   HOME_UPGRADEABLE_ADMIN,
-  DEPLOYMENT_ACCOUNT_PRIVATE_KEY,
+  HOME_DEPLOYMENT_ACCOUNT_ADDRESS,
   HOME_REWARDABLE,
   HOME_TRANSACTIONS_FEE,
   FOREIGN_TRANSACTIONS_FEE,
   HOME_MEDIATOR_REWARD_ACCOUNTS,
   BRIDGE_UTILS_ON_HOME_ADDRESS
 } = require('../loadEnv')
-
-const DEPLOYMENT_ACCOUNT_ADDRESS = privateKeyToAddress(DEPLOYMENT_ACCOUNT_PRIVATE_KEY)
 
 async function initializeMediator({
   contract,
@@ -88,7 +81,7 @@ async function initializeMediator({
 }
 
 async function initialize({ homeBridge, foreignBridge, homeTokenImage }) {
-  let nonce = await web3Home.eth.getTransactionCount(DEPLOYMENT_ACCOUNT_ADDRESS)
+  let nonce = await web3Home.eth.getTransactionCount(HOME_DEPLOYMENT_ACCOUNT_ADDRESS)
   const mediatorContract = new web3Home.eth.Contract(HomeBridge.abi, homeBridge)
 
   console.log('\n[Home] Initializing Bridge Mediator with following parameters:')
@@ -124,7 +117,7 @@ async function initialize({ homeBridge, foreignBridge, homeTokenImage }) {
     data: initializeMediatorData,
     nonce,
     to: homeBridge,
-    privateKey: deploymentPrivateKey,
+    from: HOME_DEPLOYMENT_ACCOUNT_ADDRESS,
     url: HOME_RPC_URL
   })
 
