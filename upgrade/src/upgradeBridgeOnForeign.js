@@ -1,19 +1,25 @@
 require('dotenv').config()
 const Web3 = require('web3')
+const TrezorWalletProvider = require('trezor-cli-wallet-provider')
 const proxyAbi = require('../../build/contracts/EternalStorageProxy').abi
 
 const {
   FOREIGN_RPC_URL,
-  FOREIGN_PRIVKEY,
   FOREIGN_BRIDGE_PROXY_STORAGE_ADDRESS,
   FOREIGN_GAS_PRICE,
   NEW_FOREIGN_BRIDGE_MEDIATOR_IMPLEMENTATION,
   FOREIGN_CURRENT_VERSION,
-  FOREIGN_NEW_VERSION
+  FOREIGN_NEW_VERSION,
+  FOREIGN_DEPLOYMENT_ACCOUNT_ADDRESS,
+  FOREIGN_CHAIN_ID,
+  FOREIGN_KEY_DERIVATION_PATH
 } = process.env
 
-const web3 = new Web3(new Web3.providers.HttpProvider(FOREIGN_RPC_URL))
-const { address } = web3.eth.accounts.wallet.add(FOREIGN_PRIVKEY)
+const foreignProvider = new TrezorWalletProvider(FOREIGN_RPC_URL, {
+  chainId: FOREIGN_CHAIN_ID,
+  derivationPathPrefix: FOREIGN_KEY_DERIVATION_PATH
+})
+const web3 = new Web3(foreignProvider)
 
 const upgradeBridgeOnForeign = async () => {
   try {
@@ -31,15 +37,19 @@ const upgradeBridgeOnForeign = async () => {
     }
 
     console.log(`Attempting upgrade to ${FOREIGN_NEW_VERSION}`)
-    console.log('Sending upgrade transaction from', address)
+    console.log('Sending upgrade transaction from', FOREIGN_DEPLOYMENT_ACCOUNT_ADDRESS)
 
     const upgradeCall = proxy.methods.upgradeTo(FOREIGN_NEW_VERSION, NEW_FOREIGN_BRIDGE_MEDIATOR_IMPLEMENTATION)
 
-    const gas = await upgradeCall.estimateGas({ from: address })
+    const gas = await upgradeCall.estimateGas({ from: FOREIGN_DEPLOYMENT_ACCOUNT_ADDRESS })
 
     console.log('Estimated gas', gas)
 
-    const receipt = await upgradeCall.send({ from: address, gas, gasPrice: FOREIGN_GAS_PRICE })
+    const receipt = await upgradeCall.send({
+      from: FOREIGN_DEPLOYMENT_ACCOUNT_ADDRESS,
+      gas,
+      gasPrice: FOREIGN_GAS_PRICE
+    })
 
     console.log(`Tx Hash: ${receipt.transactionHash}`)
     console.log('Version after', await proxy.methods.version().call())
@@ -51,3 +61,8 @@ const upgradeBridgeOnForeign = async () => {
 }
 
 upgradeBridgeOnForeign()
+  .catch(e => {
+    console.error(e)
+    process.exit(1)
+  })
+  .then(() => process.exit(0))

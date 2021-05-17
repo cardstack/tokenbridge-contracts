@@ -116,7 +116,8 @@ let validations = {
   HOME_MAX_AMOUNT_PER_TX: bigNumValidator(),
   FOREIGN_MAX_AMOUNT_PER_TX: bigNumValidator(),
   HOME_CHAIN_ID: envalid.num(),
-  FOREIGN_CHAIN_ID: envalid.num()
+  FOREIGN_CHAIN_ID: envalid.num(),
+  DEPLOY_IMPLEMENTATIONS_ONLY: envalid.bool({ default: false })
 }
 
 if (BRIDGE_MODE.includes('AMB_')) {

@@ -18,7 +18,6 @@ const {
   FOREIGN_EXPLORER_API_KEY
 } = env
 
-console.log('HOME_CHAIN_ID', HOME_CHAIN_ID, 'FOREIGN_CHAIN_ID', FOREIGN_CHAIN_ID)
 const homeProvider = new TrezorWalletProvider(HOME_RPC_URL, {
   chainId: HOME_CHAIN_ID,
   derivationPathPrefix: HOME_KEY_DERIVATION_PATH

@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "dotenv": "^8.2.0",
+    "trezor-cli-wallet-provider": "^1.0.4",
     "web3": "^1.2.4"
   },
   "devDependencies": {

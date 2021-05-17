@@ -2,7 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const env = require('./src/loadEnv')
 
-const { BRIDGE_MODE } = env
+const { BRIDGE_MODE, DEPLOY_IMPLEMENTATIONS_ONLY } = env
 
 const deployResultsPath = path.join(__dirname, './bridgeDeploymentResults.json')
 
@@ -19,9 +19,20 @@ async function deployMultiAMBErcToErc() {
   const initializeForeign = require('./src/multi_amb_erc20_to_erc677/initializeForeign')
   const allow = require('./src/multi_amb_erc20_to_erc677/allow')
 
-  await preDeploy()
-  const { homeBridgeMediator, homeTokenImage } = await deployHome()
-  const { foreignBridgeMediator } = await deployForeign()
+  if (!DEPLOY_IMPLEMENTATIONS_ONLY) {
+    await preDeploy()
+  }
+  const { homeBridgeMediator, homeTokenImage, homeImplementationAddress } = await deployHome(
+    DEPLOY_IMPLEMENTATIONS_ONLY
+  )
+  const { foreignBridgeMediator, foreignImplementationAdress } = await deployForeign(DEPLOY_IMPLEMENTATIONS_ONLY)
+
+  if (DEPLOY_IMPLEMENTATIONS_ONLY) {
+    console.log('\nDeployment has been completed.\n\n')
+    console.log(`[   Home  ] Bridge implementation: ${homeImplementationAddress}`)
+    console.log(`[ Foreign ] Bridge implementation: ${foreignImplementationAdress}`)
+    return
+  }
 
   await initializeHome({
     homeBridge: homeBridgeMediator.address,
@@ -61,4 +72,9 @@ async function main() {
   }
 }
 
-main().catch(e => console.log('Error:', e))
+main()
+  .catch(e => {
+    console.log('Error:', e)
+    process.exit(1)
+  })
+  .then(() => process.exit(0))

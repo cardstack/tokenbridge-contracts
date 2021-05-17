@@ -7,16 +7,20 @@ const {
   homeContracts: { EternalStorageProxy, HomeMultiAMBErc20ToErc677: HomeBridge, ERC677BridgeTokenPermittable }
 } = require('../loadContracts')
 
-async function deployHome() {
+async function deployHome(implementationOnly) {
   let nonce = await web3Home.eth.getTransactionCount(HOME_DEPLOYMENT_ACCOUNT_ADDRESS)
 
-  console.log('\n[Home] Deploying Bridge Mediator storage\n')
-  const homeBridgeStorage = await deployContract(EternalStorageProxy, [], {
-    from: HOME_DEPLOYMENT_ACCOUNT_ADDRESS,
-    nonce
-  })
-  nonce++
-  console.log('[Home] Bridge Mediator Storage: ', homeBridgeStorage.options.address)
+  let homeBridgeStorage
+
+  if (!implementationOnly) {
+    console.log('\n[Home] Deploying Bridge Mediator storage\n')
+    homeBridgeStorage = await deployContract(EternalStorageProxy, [], {
+      from: HOME_DEPLOYMENT_ACCOUNT_ADDRESS,
+      nonce
+    })
+    nonce++
+    console.log('[Home] Bridge Mediator Storage: ', homeBridgeStorage.options.address)
+  }
 
   console.log('\n[Home] Deploying Bridge Mediator implementation\n')
   const homeBridgeImplementation = await deployContract(HomeBridge, [], {
@@ -25,6 +29,10 @@ async function deployHome() {
   })
   nonce++
   console.log('[Home] Bridge Mediator Implementation: ', homeBridgeImplementation.options.address)
+
+  if (implementationOnly) {
+    return { homeImplementationAddress: homeBridgeImplementation.options.address }
+  }
 
   console.log('\n[Home] Hooking up Mediator storage to Mediator implementation')
   await upgradeProxy({
