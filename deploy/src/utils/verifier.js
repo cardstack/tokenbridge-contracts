@@ -7,7 +7,8 @@ const { EXPLORER_TYPES, REQUEST_STATUS } = require('../constants')
 
 const basePath = path.join(__dirname, '..', '..', '..', 'flats')
 
-const isBridgeToken = name => name === 'ERC677BridgeToken.sol' || name === 'ERC677BridgeTokenRewardable.sol' || name === 'PermittableToken.sol'
+const isBridgeToken = name =>
+  name === 'ERC677BridgeToken.sol' || name === 'ERC677BridgeTokenRewardable.sol' || name === 'PermittableToken.sol'
 const isValidators = name => name === 'BridgeValidators.sol' || name === 'RewardableValidators.sol'
 const isInterestReceiver = name => name === 'InterestReceiver.sol'
 
@@ -71,6 +72,30 @@ const sendVerifyRequestBlockscout = async (contractPath, options) => {
   return sendRequest(options.apiUrl, postQueries)
 }
 
+async function isVerifiedBlockscout({ address, apiUrl }) {
+  try {
+    const {
+      data: { result }
+    } = await axios.get(`${apiUrl}?module=contract&action=getsourcecode&address=${address}&ignoreProxy=1`)
+    return result && result.length && result[0].SourceCode
+  } catch (e) {
+    return false
+  }
+}
+
+async function isVerifiedEtherscan({ address, apiUrl, apiKey }) {
+  try {
+    const {
+      data: { result }
+    } = await axios.get(
+      `${apiUrl}?module=contract&action=getsourcecode&address=${address}&ignoreProxy=1&apikey=${apiKey}`
+    )
+    return result && result.length && result[0].SourceCode
+  } catch (e) {
+    return false
+  }
+}
+
 const getExplorerType = apiUrl =>
   apiUrl && apiUrl.includes('etherscan') ? EXPLORER_TYPES.ETHERSCAN : EXPLORER_TYPES.BLOCKSCOUT
 
@@ -78,8 +103,16 @@ const verifyContract = async (contract, params, type) => {
   try {
     let result
     if (type === EXPLORER_TYPES.ETHERSCAN) {
+      if (await isVerifiedEtherscan(params)) {
+        console.log(`${params.address} is already verified in ${type}`)
+        return true
+      }
       result = await sendVerifyRequestEtherscan(contract, params)
     } else {
+      if (await isVerifiedBlockscout(params)) {
+        console.log(`${params.address} is already verified in ${type}`)
+        return true
+      }
       result = await sendVerifyRequestBlockscout(contract, params)
     }
     if (result.data.message === REQUEST_STATUS.OK) {
@@ -94,6 +127,7 @@ const verifyContract = async (contract, params, type) => {
 
 const verifier = async ({ artifact, address, constructorArguments, apiUrl, apiKey }) => {
   const type = getExplorerType(apiUrl)
+  console.log('Attempting to verify contract at', address, 'on', type)
 
   let metadata
   try {
@@ -116,12 +150,16 @@ const verifier = async ({ artifact, address, constructorArguments, apiUrl, apiKe
   }
 
   try {
-    await promiseRetry(async retry => {
-      const verified = await verifyContract(contract, params, type)
-      if (!verified) {
-        retry()
-      }
-    })
+    await promiseRetry(
+      async retry => {
+        const verified = await verifyContract(contract, params, type)
+        if (!verified) {
+          console.log('Failed verification, retrying')
+          retry()
+        }
+      },
+      { retries: 3 }
+    )
   } catch (e) {
     console.log(`It was not possible to verify ${address} in ${type}`)
   }
