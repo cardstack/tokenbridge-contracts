@@ -6,7 +6,7 @@ import "../interfaces/IBridgeUtils.sol";
 contract BridgeUtilsMock is IBridgeUtils {
     address public safeMock;
 
-    event UpdateToken(address token);
+    event TokenAdded(address token);
     event SupplierWallet(address owner, address wallet);
 
     struct Supplier {
@@ -35,8 +35,8 @@ contract BridgeUtilsMock is IBridgeUtils {
         return suppliers[supplierAddr].registered;
     }
 
-    function updateToken(address tokenAddr) external returns (bool) {
-        emit UpdateToken(tokenAddr);
+    function addToken(address tokenAddr) external returns (bool) {
+        emit TokenAdded(tokenAddr);
         return true;
     }
 
