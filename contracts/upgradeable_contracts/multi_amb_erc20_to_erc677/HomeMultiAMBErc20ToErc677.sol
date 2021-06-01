@@ -141,7 +141,7 @@ contract HomeMultiAMBErc20ToErc677 is
         _setFee(FOREIGN_TO_HOME_FEE, homeToken, getFee(FOREIGN_TO_HOME_FEE, address(0)));
 
         IBridgeUtils bridgeUtilsInstance = IBridgeUtils(bridgeUtils());
-        bridgeUtilsInstance.updateToken(homeToken);
+        bridgeUtilsInstance.addToken(homeToken);
 
         _handleBridgedTokens(ERC677(homeToken), _recipient, _value);
 

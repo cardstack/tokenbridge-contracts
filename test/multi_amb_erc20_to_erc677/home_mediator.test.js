@@ -752,10 +752,10 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         expect(await contract.isTokenRegistered(token.address)).to.be.equal(false)
         expect(await contract.isTokenRegistered(homeToken.address)).to.be.equal(true)
 
-        // Update token should be called on the bridgeUtilsContract
-        const updateTokenEvents = await getEvents(bridgeUtilsContract, { event: 'UpdateToken' })
-        expect(updateTokenEvents.length).to.equal(1)
-        expect(updateTokenEvents[0].returnValues.token).to.equal(homeToken.address)
+        // Add token should be called on the bridgeUtilsContract
+        const addTokenEvents = await getEvents(bridgeUtilsContract, { event: 'TokenAdded' })
+        expect(addTokenEvents.length).to.equal(1)
+        expect(addTokenEvents[0].returnValues.token).to.equal(homeToken.address)
 
         // The tokens should be bridged
         let bridgeEvents = await getEvents(contract, { event: 'TokensBridgedToSafe' })
@@ -785,7 +785,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         // The token should not be registered again
         expect((await getEvents(contract, { event: 'NewTokenRegistered' })).length).to.be.equal(1)
         // The token should not be updated again
-        expect((await getEvents(bridgeUtilsContract, { event: 'UpdateToken' })).length).to.be.equal(1)
+        expect((await getEvents(bridgeUtilsContract, { event: 'TokenAdded' })).length).to.be.equal(1)
 
         // if a safe address is provided, the tokens should be transferred there
         bridgeEvents = await getEvents(contract, { event: 'TokensBridgedToSafe' })
@@ -938,9 +938,9 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         expect(event[1].returnValues.messageId).to.be.equal(exampleMessageId)
 
         // the token should be updated because it is a new token deploy
-        const updateTokenEvents = await getEvents(bridgeUtilsContract, { event: 'UpdateToken' })
-        expect(updateTokenEvents.length).to.equal(1)
-        expect(updateTokenEvents[0].returnValues.token).to.equal(homeToken.address)
+        const addTokenEvents = await getEvents(bridgeUtilsContract, { event: 'TokenAdded' })
+        expect(addTokenEvents.length).to.equal(1)
+        expect(addTokenEvents[0].returnValues.token).to.equal(homeToken.address)
       })
 
       it('should not allow to operate when global shutdown is enabled', async () => {
