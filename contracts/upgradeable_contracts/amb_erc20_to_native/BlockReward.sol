@@ -16,6 +16,8 @@ contract BlockReward is EternalStorage {
     bytes32 internal constant MINTED_IN_BLOCK = 0x3840e646f7ce9b3210f5440e2dbd6b36451169bfdac65ef00a161729eded81bd; // keccak256(abi.encodePacked("mintedInBlock"))
     bytes32 internal constant MINTED_TOTALLY_BY_BRIDGE = 0x12e71282a577e2b463da2c18bc96b6122db29bcef9065ed5a7f0f9316c11c08e; // keccak256(abi.encodePacked("mintedTotallyByBridge"))
 
+    address internal initialAllowedBridge;
+
     // solhint-disable const-name-snakecase
     uint256 public constant bridgesAllowedLength = 1;
     // solhint-enable const-name-snakecase
@@ -38,13 +40,16 @@ contract BlockReward is EternalStorage {
         _;
     }
 
+    constructor(address _initialAllowedBridge) {
+        initialAllowedBridge = _initialAllowedBridge;
+    }
+
     /**
     * @dev Return the allowed bridge addresses.
     * @return List of bridge contracts addresses.
     */
     function bridgesAllowed() public view returns (address[bridgesAllowedLength]) {
-        // These values must be changed before deploy
-        return [address(0x0000000000000000000000000000000000000000)];
+        return [initialAllowedBridge];
     }
 
     /**
