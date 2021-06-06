@@ -57,3 +57,8 @@ const upgradeBridgeOnHome = async () => {
 }
 
 upgradeBridgeOnHome()
+  .then(() => process.exit(0))
+  .catch(() => {
+    console.log('error')
+    process.exit(1)
+  })

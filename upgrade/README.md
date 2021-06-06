@@ -5,6 +5,7 @@ Install dependencies in root project and compile and deploy the upgraded contrac
 cd ..
 npm i
 npm run compile
+cd deploy
 env DEPLOY_IMPLEMENTATIONS_ONLY=true npm run deploy
 ```
 
