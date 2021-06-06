@@ -107,7 +107,7 @@ contract ChaiMock {
     }
     // like transferFrom but dai-denominated
     function move(address src, address dst, uint256 wad) external returns (bool) {
-        uint256 chi = (now > pot.rho()) ? pot.drip() : pot.chi();
+        uint256 chi = (block.timestamp > pot.rho()) ? pot.drip() : pot.chi();
         // rounding up ensures dst gets at least wad dai
         return transferFrom(src, dst, rdivup(wad, chi));
     }
@@ -148,7 +148,7 @@ contract ChaiMock {
         );
         require(holder != address(0), "chai/invalid holder");
         require(holder == ecrecover(digest, v, r, s), "chai/invalid-permit");
-        require(expiry == 0 || now <= expiry, "chai/permit-expired");
+        require(expiry == 0 || block.timestamp <= expiry, "chai/permit-expired");
         require(nonce == nonces[holder]++, "chai/invalid-nonce");
 
         uint256 can = allowed ? uint256(-1) : 0;
@@ -157,12 +157,12 @@ contract ChaiMock {
     }
 
     function dai(address usr) external returns (uint256 wad) {
-        uint256 chi = (now > pot.rho()) ? pot.drip() : pot.chi();
+        uint256 chi = (block.timestamp > pot.rho()) ? pot.drip() : pot.chi();
         wad = rmul(chi, balanceOf[usr]);
     }
     // wad is denominated in dai
     function join(address dst, uint256 wad) external {
-        uint256 chi = (now > pot.rho()) ? pot.drip() : pot.chi();
+        uint256 chi = (block.timestamp > pot.rho()) ? pot.drip() : pot.chi();
         uint256 pie = rdiv(wad, chi);
         balanceOf[dst] = add(balanceOf[dst], pie);
         totalSupply = add(totalSupply, pie);
@@ -183,7 +183,7 @@ contract ChaiMock {
         balanceOf[src] = sub(balanceOf[src], wad);
         totalSupply = sub(totalSupply, wad);
 
-        uint256 chi = (now > pot.rho()) ? pot.drip() : pot.chi();
+        uint256 chi = (block.timestamp > pot.rho()) ? pot.drip() : pot.chi();
         pot.exit(wad);
         daiJoin.exit(msg.sender, rmul(chi, wad));
         emit Transfer(src, address(0), wad);
@@ -191,7 +191,7 @@ contract ChaiMock {
 
     // wad is denominated in dai
     function draw(address src, uint256 wad) external {
-        uint256 chi = (now > pot.rho()) ? pot.drip() : pot.chi();
+        uint256 chi = (block.timestamp > pot.rho()) ? pot.drip() : pot.chi();
         // rounding up ensures usr gets at least wad dai
         exit(src, rdivup(wad, chi));
     }

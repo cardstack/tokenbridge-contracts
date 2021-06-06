@@ -70,7 +70,7 @@ contract PotMock {
         vat = VatLike(vat_);
         dsr = 1000000021979553151239153028; // 100% anually
         chi = ONE;
-        rho = now;
+        rho = block.timestamp;
         live = 1;
     }
 
@@ -147,7 +147,7 @@ contract PotMock {
     function file(bytes32 what, uint256 data) external auth {
         require(live == 1, "Pot/not-live");
         drip();
-        require(now == rho, "Pot/rho-not-updated");
+        require(block.timestamp == rho, "Pot/rho-not-updated");
         if (what == "dsr") dsr = data;
         else revert("Pot/file-unrecognized-param");
     }
@@ -164,17 +164,17 @@ contract PotMock {
 
     // --- Savings Rate Accumulation ---
     function drip() public returns (uint256 tmp) {
-        require(now >= rho, "Pot/invalid-now");
-        tmp = rmul(rpow(dsr, now - rho, ONE), chi);
+        require(block.timestamp >= rho, "Pot/invalid-now");
+        tmp = rmul(rpow(dsr, block.timestamp - rho, ONE), chi);
         uint256 chi_ = sub(tmp, chi);
         chi = tmp;
-        rho = now;
+        rho = block.timestamp;
         vat.suck(address(vow), address(this), mul(Pie, chi_));
     }
 
     // --- Savings Dai Management ---
     function join(uint256 wad) external {
-        require(now == rho, "Pot/rho-not-updated");
+        require(block.timestamp == rho, "Pot/rho-not-updated");
         pie[msg.sender] = add(pie[msg.sender], wad);
         Pie = add(Pie, wad);
         vat.move(msg.sender, address(this), mul(chi, wad));

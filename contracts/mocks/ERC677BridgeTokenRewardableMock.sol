@@ -25,7 +25,7 @@ contract ERC677BridgeTokenRewardableMock is ERC677BridgeTokenRewardable {
     }
 
     function _now() internal view returns (uint256) {
-        return _blockTimestamp != 0 ? _blockTimestamp : now;
+        return _blockTimestamp != 0 ? _blockTimestamp : block.timestamp;
     }
 
 }

@@ -161,6 +161,6 @@ contract PermittableToken is ERC677BridgeToken {
     }
 
     function _now() internal view returns (uint256) {
-        return now;
+        return block.timestamp;
     }
 }
