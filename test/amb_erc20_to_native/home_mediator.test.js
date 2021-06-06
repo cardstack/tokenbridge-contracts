@@ -456,7 +456,7 @@ contract('HomeAMBErc20ToNative', async accounts => {
         ).should.be.fulfilled
         expect(await ambBridgeContract.messageCallStatus(exampleMessageId)).to.be.equal(true)
 
-        await blockReward.reward([], []).should.be.fulfilled
+        await blockReward.reward().should.be.fulfilled
 
         await contract.setExecutionMaxPerTx(maxPerTx).should.be.fulfilled
         await contract.setExecutionDailyLimit(dailyLimit).should.be.fulfilled
@@ -628,7 +628,7 @@ contract('HomeAMBErc20ToNative', async accounts => {
           expect(await blockReward.extraReceiverByIndex(0)).to.be.equal(user)
           expect(await blockReward.extraReceiverAmount(user)).to.be.bignumber.equal(value)
 
-          const { receipt } = await blockReward.reward([], []).should.be.fulfilled
+          const { receipt } = await blockReward.reward().should.be.fulfilled
 
           expect(await blockReward.extraReceiversLength()).to.be.bignumber.equal('0')
           expect(await blockReward.extraReceiverAmount(user)).to.be.bignumber.equal(ZERO)
@@ -694,7 +694,7 @@ contract('HomeAMBErc20ToNative', async accounts => {
           expect(await blockReward.extraReceiverByIndex(0)).to.be.equal(user)
           expect(await blockReward.extraReceiverAmount(user)).to.be.bignumber.equal(value)
 
-          const { receipt } = await blockReward.reward([], []).should.be.fulfilled
+          const { receipt } = await blockReward.reward().should.be.fulfilled
 
           expect(await blockReward.extraReceiversLength()).to.be.bignumber.equal('0')
           expect(await blockReward.extraReceiverAmount(user)).to.be.bignumber.equal(ZERO)
@@ -743,7 +743,7 @@ contract('HomeAMBErc20ToNative', async accounts => {
         expect(await blockReward.extraReceiverAmount(user)).to.be.bignumber.equal(value)
         expect(await blockReward.mintedTotallyByBridge(contract.address)).to.be.bignumber.equal(ZERO)
 
-        const { receipt } = await blockReward.reward([], []).should.be.fulfilled
+        const { receipt } = await blockReward.reward().should.be.fulfilled
 
         expect(await blockReward.extraReceiversLength()).to.be.bignumber.equal('0')
         expect(await blockReward.extraReceiverAmount(user)).to.be.bignumber.equal(ZERO)
@@ -1178,7 +1178,7 @@ contract('HomeAMBErc20ToNative', async accounts => {
         expect(await blockReward.extraReceiverAmount(owner)).to.be.bignumber.equal(ether('0.02'))
         expect(await blockReward.mintedTotallyByBridge(contract.address)).to.be.bignumber.equal(ZERO)
 
-        const { receipt } = await blockReward.reward([], []).should.be.fulfilled
+        const { receipt } = await blockReward.reward().should.be.fulfilled
 
         expect(await blockReward.extraReceiversLength()).to.be.bignumber.equal('0')
         expect(await blockReward.extraReceiverAmount(user)).to.be.bignumber.equal(ZERO)
@@ -1229,7 +1229,7 @@ contract('HomeAMBErc20ToNative', async accounts => {
         expect(amount2.eq(ether('0.001')) || amount2.eq(ether('0.001000000000000001'))).to.be.equal(true)
         expect(await blockReward.mintedTotallyByBridge(contract.address)).to.be.bignumber.equal(ZERO)
 
-        await blockReward.reward([], []).should.be.fulfilled
+        await blockReward.reward().should.be.fulfilled
 
         const event = await getEvents(contract, { event: 'TokensBridged' })
         expect(event.length).to.be.equal(1)
@@ -1254,7 +1254,7 @@ contract('HomeAMBErc20ToNative', async accounts => {
         ).should.be.fulfilled
 
         expect(await ambBridgeContract.messageCallStatus(exampleMessageId)).to.be.equal(true)
-        await blockReward.reward([], []).should.be.fulfilled
+        await blockReward.reward().should.be.fulfilled
       })
 
       it('should collect and distribute 0% fee', async () => {
