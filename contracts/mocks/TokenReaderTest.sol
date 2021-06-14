@@ -85,6 +85,32 @@ contract Token7 {
     }
 }
 
+contract Token8 {}
+
+contract Token9 {
+    function name() external view returns (string) {
+        return "My NFT";
+    }
+
+    function symbol() external view returns (string) {
+        return "NFT";
+    }
+
+    function totalSupply() external view returns (uint256) {
+        return 123456;
+    }
+
+    function tokenURI(uint256 _tokenId) external view returns (string) {
+        if (_tokenId == 0) {
+            return "http://example.com/t0";
+        } else if (_tokenId == 1) {
+            return "http://example.com/t1";
+        } else {
+            return "";
+        }
+    }
+}
+
 contract TokenReaderTest {
     function test1() external {
         address token = new Token1();
@@ -140,6 +166,29 @@ contract TokenReaderTest {
         require(keccak256(TokenReader.readName(token)) == keccak256(""));
         require(keccak256(TokenReader.readSymbol(token)) == keccak256(""));
         require(TokenReader.readDecimals(token) == 0);
+    }
+
+    function test8() external {
+        address token = new Token8();
+
+        require(keccak256(TokenReader.readName(token)) == keccak256(""));
+        require(keccak256(TokenReader.readSymbol(token)) == keccak256(""));
+        require(TokenReader.readDecimals(token) == 0);
+        require(TokenReader.readTotalSupply(token) == 0);
+        require(keccak256(TokenReader.readTokenURI(token, 0)) == keccak256(""));
+        require(keccak256(TokenReader.readTokenURI(token, 1)) == keccak256(""));
+        require(keccak256(TokenReader.readTokenURI(token, 2)) == keccak256(""));
+    }
+
+    function test9() external {
+        address token = new Token9();
+
+        require(keccak256(TokenReader.readName(token)) == keccak256("My NFT"));
+        require(keccak256(TokenReader.readSymbol(token)) == keccak256("NFT"));
+        require(TokenReader.readTotalSupply(token) == 123456);
+        require(keccak256(TokenReader.readTokenURI(token, 0)) == keccak256("http://example.com/t0"));
+        require(keccak256(TokenReader.readTokenURI(token, 1)) == keccak256("http://example.com/t1"));
+        require(keccak256(TokenReader.readTokenURI(token, 2)) == keccak256(""));
     }
 }
 /* solhint-enable */
