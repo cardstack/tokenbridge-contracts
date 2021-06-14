@@ -1,6 +1,6 @@
 const HomeMediator = artifacts.require('HomeMediator.sol')
 const ForeignMediator = artifacts.require('ForeignMediator.sol')
-const SimpleBridgeKitty = artifacts.require('SimpleBridgeKitty.sol')
+const ERC721BurnableMintable = artifacts.require('ERC721BurnableMintable.sol')
 const AMBMock = artifacts.require('AMBMock.sol')
 
 // const { expectRevert, expectEvent, BN } = require('openzeppelin-test-helpers')
@@ -25,7 +25,8 @@ const {
   generation,
   genes,
   metadata,
-  exampleTxHash
+  exampleTxHash,
+  chainId
 } = require('./helpers')
 
 contract('HomeMediator', accounts => {
@@ -42,7 +43,7 @@ contract('HomeMediator', accounts => {
       const contract = await HomeMediator.new()
       const bridgeContract = await AMBMock.new()
       await bridgeContract.setMaxGasPerTx(maxGasPerTx)
-      const token = await SimpleBridgeKitty.new()
+      const token = await ERC721BurnableMintable.new('TEST', 'TST', chainId)
       const mediatorContractOnOtherSide = await ForeignMediator.new()
 
       await contract.initialize(
@@ -79,12 +80,12 @@ contract('HomeMediator', accounts => {
       const { tx } = await contract.transferToken(user, tokenId, { from: user })
 
       // Then
-      await expectEventInTransaction(tx, SimpleBridgeKitty, 'Transfer', {
+      await expectEventInTransaction(tx, ERC721BurnableMintable, 'Transfer', {
         from: user,
         to: contract.address,
         tokenId: new BN(tokenId)
       })
-      await expectEventInTransaction(tx, SimpleBridgeKitty, 'Death', {
+      await expectEventInTransaction(tx, ERC721BurnableMintable, 'Death', {
         kittyId: new BN(tokenId)
       })
       await expectEventInTransaction(tx, AMBMock, 'MockedEvent')
@@ -96,7 +97,7 @@ contract('HomeMediator', accounts => {
       const contract = await HomeMediator.new()
       const bridgeContract = await AMBMock.new()
       await bridgeContract.setMaxGasPerTx(maxGasPerTx)
-      const token = await SimpleBridgeKitty.new()
+      const token = await ERC721BurnableMintable.new('TEST', 'TST', chainId)
       const mediatorContractOnOtherSide = await ForeignMediator.new()
 
       await contract.initialize(
@@ -135,7 +136,7 @@ contract('HomeMediator', accounts => {
       expect(await bridgeContract.messageCallStatus(exampleTxHash)).to.be.equal(true)
 
       // Then
-      await expectEventInTransaction(tx, SimpleBridgeKitty, 'Birth', {
+      await expectEventInTransaction(tx, ERC721BurnableMintable, 'Birth', {
         owner: user,
         kittyId: new BN(tokenId),
         matronId: new BN(matronId),
@@ -171,7 +172,7 @@ contract('HomeMediator', accounts => {
     beforeEach(async () => {
       bridgeContract = await AMBMock.new()
       await bridgeContract.setMaxGasPerTx(maxGasPerTx)
-      token = await SimpleBridgeKitty.new()
+      token = await ERC721BurnableMintable.new('TEST', 'TST', chainId)
 
       contract = await HomeMediator.new()
       mediatorContractOnOtherSide = await ForeignMediator.new()

@@ -20,7 +20,8 @@ const {
   generation,
   genes,
   metadata,
-  exampleTxHash
+  exampleTxHash,
+  chainId
 } = require('./helpers')
 
 function shouldBehaveLikeBasicMediator(accounts) {
@@ -41,55 +42,22 @@ function shouldBehaveLikeBasicMediator(accounts) {
         expect(await contract.isInitialized()).to.be.equal(false)
         expect(await contract.bridgeContract()).to.be.equal(ZERO_ADDRESS)
         expect(await contract.mediatorContractOnOtherSide()).to.be.equal(ZERO_ADDRESS)
-        expect(await contract.erc721token()).to.be.equal(ZERO_ADDRESS)
         expect(await contract.requestGasLimit()).to.be.bignumber.equal('0')
         expect(await contract.owner()).to.be.equal(ZERO_ADDRESS)
 
         // not valid bridge contract
-        await expectRevert(
-          contract.initialize(
-            ZERO_ADDRESS,
-            mediatorContractOnOtherSide.address,
-            erc721token.address,
-            maxGasPerTx,
-            owner
-          )
-        )
+        await expectRevert(contract.initialize(ZERO_ADDRESS, mediatorContractOnOtherSide.address, maxGasPerTx, owner))
 
-        // not valid erc721 contract
-        await expectRevert(
-          contract.initialize(
-            bridgeContract.address,
-            mediatorContractOnOtherSide.address,
-            ZERO_ADDRESS,
-            maxGasPerTx,
-            owner
-          )
-        )
-
-        await contract.initialize(
-          bridgeContract.address,
-          mediatorContractOnOtherSide.address,
-          erc721token.address,
-          maxGasPerTx,
-          owner
-        )
+        await contract.initialize(bridgeContract.address, mediatorContractOnOtherSide.address, maxGasPerTx, owner)
 
         // already initialized
         await expectRevert(
-          contract.initialize(
-            bridgeContract.address,
-            mediatorContractOnOtherSide.address,
-            erc721token.address,
-            maxGasPerTx,
-            owner
-          )
+          contract.initialize(bridgeContract.address, mediatorContractOnOtherSide.address, maxGasPerTx, owner)
         )
 
         expect(await contract.isInitialized()).to.be.equal(true)
         expect(await contract.bridgeContract()).to.be.equal(bridgeContract.address)
         expect(await contract.mediatorContractOnOtherSide()).to.be.equal(mediatorContractOnOtherSide.address)
-        expect(await contract.erc721token()).to.be.equal(erc721token.address)
         expect(await contract.requestGasLimit()).to.be.bignumber.equal(maxGasPerTx)
         expect(await contract.owner()).to.be.equal(owner)
       })
@@ -99,13 +67,7 @@ function shouldBehaveLikeBasicMediator(accounts) {
         const user = accounts[1]
         const notAContractAddress = accounts[2]
 
-        await contract.initialize(
-          bridgeContract.address,
-          mediatorContractOnOtherSide.address,
-          erc721token.address,
-          maxGasPerTx,
-          owner
-        )
+        await contract.initialize(bridgeContract.address, mediatorContractOnOtherSide.address, maxGasPerTx, owner)
 
         expect(await contract.bridgeContract()).to.be.equal(bridgeContract.address)
 
@@ -122,13 +84,7 @@ function shouldBehaveLikeBasicMediator(accounts) {
         const mediatorContractOnOtherSide = await this.mediatorContractOnOtherSide.new()
         const user = accounts[1]
 
-        await contract.initialize(
-          bridgeContract.address,
-          mediatorContractOnOtherSide.address,
-          erc721token.address,
-          maxGasPerTx,
-          owner
-        )
+        await contract.initialize(bridgeContract.address, mediatorContractOnOtherSide.address, maxGasPerTx, owner)
 
         expect(await contract.bridgeContract()).to.be.equal(bridgeContract.address)
 
@@ -144,13 +100,7 @@ function shouldBehaveLikeBasicMediator(accounts) {
         const mediatorContractOnOtherSide = await this.mediatorContractOnOtherSide.new()
         const user = accounts[1]
 
-        await contract.initialize(
-          bridgeContract.address,
-          mediatorContractOnOtherSide.address,
-          erc721token.address,
-          maxGasPerTx,
-          owner
-        )
+        await contract.initialize(bridgeContract.address, mediatorContractOnOtherSide.address, maxGasPerTx, owner)
 
         expect(await contract.requestGasLimit()).to.be.bignumber.equal(maxGasPerTx)
 
@@ -169,7 +119,7 @@ function shouldBehaveLikeBasicMediator(accounts) {
     describe('getBridgeMode', () => {
       it('should return bridge mode and interface', async function() {
         const contract = this.bridge
-        const bridgeModeHash = '0xb64f0fee' // 4 bytes of keccak256('nft-to-nft-amb')
+        const bridgeModeHash = '0xca7fc3dc' // 4 bytes of keccak256('multi-nft-to-nft-amb')
         expect(await contract.getBridgeMode()).to.be.equal(bridgeModeHash)
 
         const { major, minor, patch } = await contract.getBridgeInterfacesVersion()
@@ -186,36 +136,19 @@ function shouldBehaveLikeBasicMediator(accounts) {
       beforeEach(async function() {
         bridgeContract = await AMBMock.new()
         await bridgeContract.setMaxGasPerTx(maxGasPerTx)
-        erc721token = await SimpleBridgeKitty.new()
+        erc721token = await ERC721BurnableMintable.new('TEST', 'TST', chainId)
 
         contract = this.bridge
         mediatorContractOnOtherSide = await this.mediatorContractOnOtherSide.new()
 
-        await contract.initialize(
-          bridgeContract.address,
-          mediatorContractOnOtherSide.address,
-          erc721token.address,
-          maxGasPerTx,
-          owner
-        )
+        await contract.initialize(bridgeContract.address, mediatorContractOnOtherSide.address, maxGasPerTx, owner)
         try {
-          data = await contract.contract.methods.handleBridgedTokens(user, tokenId).encodeABI()
-          await erc721token.mint(
-            tokenId,
-            isReady,
-            cooldownIndex,
-            nextActionAt,
-            siringWithId,
-            birthTime,
-            matronId,
-            sireId,
-            generation,
-            genes,
-            contract.address,
-            { from: owner }
-          )
+          data = await contract.contract.methods.handleBridgedTokens(user, erc721token.address, tokenId).encodeABI()
+          await erc721token.mint(contract.address, tokenId, { from: owner })
         } catch (e) {
-          data = await contract.contract.methods.handleBridgedTokens(user, tokenId, metadata).encodeABI()
+          data = await contract.contract.methods
+            .handleBridgedTokens(user, erc721token.address, tokenId, metadata)
+            .encodeABI()
           await erc721token.transferBridgeRole(contract.address, { from: owner })
         }
       })

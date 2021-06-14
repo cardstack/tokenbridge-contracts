@@ -9,7 +9,7 @@ import "../../../libraries/Bytes.sol";
 import "./ERC721Bridge.sol";
 
 contract BasicMediator is Initializable, BasicAMBMediator, ERC721Bridge, Upgradeable, Claimable {
-    event FailedMessageFixed(bytes32 indexed messageId, address recipient, uint256 tokenId);
+    event FailedMessageFixed(bytes32 indexed messageId, address recipient, address tokenContract, uint256 tokenId);
 
     bytes4 internal constant GET_KITTY = 0xe98b7f4d; // getKitty(uint256)
 
