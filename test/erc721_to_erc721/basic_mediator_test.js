@@ -1,4 +1,4 @@
-const SimpleBridgeKitty = artifacts.require('SimpleBridgeKitty.sol')
+const ERC721BurnableMintable = artifacts.require('ERC721BurnableMintable.sol')
 const AMBMock = artifacts.require('AMBMock.sol')
 
 const { expect } = require('chai')
@@ -32,7 +32,7 @@ function shouldBehaveLikeBasicMediator(accounts) {
       beforeEach(async () => {
         bridgeContract = await AMBMock.new()
         await bridgeContract.setMaxGasPerTx(maxGasPerTx)
-        erc721token = await SimpleBridgeKitty.new()
+        erc721token = await ERC721BurnableMintable.new('TEST', 'TST', 123)
       })
       it('should initialize', async function() {
         const contract = this.bridge

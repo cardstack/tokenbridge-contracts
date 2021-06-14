@@ -1,7 +1,7 @@
 const { ether } = require('../helpers/helpers')
 
 const maxGasPerTx = ether('1')
-const tokenId = 1
+const tokenId = 456
 const isReady = true
 const cooldownIndex = 0
 const nextActionAt = 2

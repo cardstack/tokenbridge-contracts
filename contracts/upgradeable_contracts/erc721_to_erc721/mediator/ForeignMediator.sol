@@ -1,33 +1,38 @@
 pragma solidity 0.4.24;
 
 import "./BasicMediator.sol";
+import "../../../libraries/TokenReader.sol";
+import "openzeppelin-solidity/contracts/AddressUtils.sol";
+import "../interfaces/IForeignMediator.sol";
 import "../interfaces/IHomeMediator.sol";
 
-contract ForeignMediator is BasicMediator {
-    function passMessage(address _from, uint256 _tokenId) internal {
-        bytes memory metadata = getMetadata(_tokenId);
+contract ForeignMediator is IForeignMediator, BasicMediator {
+    function passMessage(address _tokenContract, address _from, uint256 _tokenId) internal {
+        string memory tokenURI = TokenReader.readTokenURI(_tokenContract, _tokenId);
 
         bytes4 methodSelector = IHomeMediator(0).handleBridgedTokens.selector;
-        bytes memory data = abi.encodeWithSelector(methodSelector, _from, _tokenId, metadata);
-
+        bytes memory data = abi.encodeWithSelector(methodSelector, _tokenContract, _from, _tokenId, tokenURI);
         bytes32 _messageId = bridgeContract().requireToPassMessage(
             mediatorContractOnOtherSide(),
             data,
             requestGasLimit()
         );
+        setMessageTokenContract(_messageId, _tokenContract);
         setMessageTokenId(_messageId, _tokenId);
         setMessageRecipient(_messageId, _from);
-
     }
 
-    function handleBridgedTokens(address _recipient, uint256 _tokenId) external {
+    // token bridged from home network
+    function handleBridgedTokens(address _recipient, address _tokenContract, uint256 _tokenId) external {
+        require(AddressUtils.isContract(_tokenContract));
         require(msg.sender == address(bridgeContract()));
         require(bridgeContract().messageSender() == mediatorContractOnOtherSide());
-        erc721token().transfer(_recipient, _tokenId);
+        erc721token(_tokenContract).transferFrom(this, _recipient, _tokenId);
     }
 
-    function bridgeSpecificActionsOnTokenTransfer(address _from, uint256 _tokenId) internal {
-        passMessage(_from, _tokenId);
+    // received token to bridge to home network
+    function bridgeSpecificActionsOnTokenTransfer(address _tokenContract, address _from, uint256 _tokenId) internal {
+        passMessage(_tokenContract, _from, _tokenId);
     }
 
     // *
@@ -38,9 +43,10 @@ contract ForeignMediator is BasicMediator {
 
     function executeActionOnFixedTokens(
         address _recipient,
+        address _tokenContract,
         uint256 _tokenId,
         bytes32 /* _messageId */
     ) internal {
-        erc721token().transfer(_recipient, _tokenId);
+        erc721token(_tokenContract).transferFrom(this, _recipient, _tokenId);
     }
 }

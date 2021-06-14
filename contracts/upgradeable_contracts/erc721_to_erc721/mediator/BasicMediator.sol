@@ -13,18 +13,14 @@ contract BasicMediator is Initializable, BasicAMBMediator, ERC721Bridge, Upgrade
 
     bytes4 internal constant GET_KITTY = 0xe98b7f4d; // getKitty(uint256)
 
-    function initialize(
-        address _bridgeContract,
-        address _mediatorContract,
-        address _erc721token,
-        uint256 _requestGasLimit,
-        address _owner
-    ) external returns (bool) {
+    function initialize(address _bridgeContract, address _mediatorContract, uint256 _requestGasLimit, address _owner)
+        external
+        returns (bool)
+    {
         require(!isInitialized());
 
         _setBridgeContract(_bridgeContract);
         _setMediatorContractOnOtherSide(_mediatorContract);
-        setErc721token(_erc721token);
         _setRequestGasLimit(_requestGasLimit);
         _setOwner(_owner);
         setInitialize();
@@ -37,47 +33,27 @@ contract BasicMediator is Initializable, BasicAMBMediator, ERC721Bridge, Upgrade
     }
 
     function getBridgeMode() external pure returns (bytes4 _data) {
-        return bytes4(keccak256(abi.encodePacked("nft-to-nft-amb")));
+        return bytes4(keccak256(abi.encodePacked("multi-nft-to-nft-amb")));
     }
 
-    function transferToken(address _from, uint256 _tokenId) external {
-        ERC721 token = erc721token();
+    function transferToken(address _tokenContract, address _from, uint256 _tokenId) external {
+        ERC721 token = erc721token(_tokenContract);
         address to = address(this);
 
         token.transferFrom(_from, to, _tokenId);
-        bridgeSpecificActionsOnTokenTransfer(_from, _tokenId);
-    }
-
-    /**
-    *  getKitty(uint256) returns:
-    *       bool isGestating,
-    *       bool isReady,
-    *       uint256 cooldownIndex,
-    *       uint256 nextActionAt,
-    *       uint256 siringWithId,
-    *       uint256 birthTime,
-    *       uint256 matronId,
-    *       uint256 sireId,
-    *       uint256 generation,
-    *       uint256 genes
-    **/
-    function getMetadata(uint256 _tokenId) internal view returns (bytes memory metadata) {
-        bytes memory callData = abi.encodeWithSelector(GET_KITTY, _tokenId);
-        address tokenAddress = erc721token();
-        metadata = new bytes(320);
-        assembly {
-            let result := call(gas, tokenAddress, 0x0, add(callData, 0x20), mload(callData), 0, 0)
-            returndatacopy(add(metadata, 0x20), 0, returndatasize)
-
-            switch result
-                case 0 {
-                    revert(0, 0)
-                }
-        }
+        bridgeSpecificActionsOnTokenTransfer(_tokenContract, _from, _tokenId);
     }
 
     function setMessageTokenId(bytes32 _messageId, uint256 _tokenId) internal {
         uintStorage[keccak256(abi.encodePacked("messageToken", _messageId))] = _tokenId;
+    }
+
+    function setMessageTokenContract(bytes32 _messageId, address _tokenContract) internal {
+        addressStorage[keccak256(abi.encodePacked("messageTokenContract", _messageId))] = _tokenContract;
+    }
+
+    function setMessageTokenURI(bytes32 _messageId, string _tokenURI) internal {
+        stringStorage[keccak256(abi.encodePacked("messageTokenURI", _messageId))] = _tokenURI;
     }
 
     function setMessageRecipient(bytes32 _messageId, address _recipient) internal {
@@ -86,6 +62,14 @@ contract BasicMediator is Initializable, BasicAMBMediator, ERC721Bridge, Upgrade
 
     function messageTokenId(bytes32 _messageId) internal view returns (uint256) {
         return uintStorage[keccak256(abi.encodePacked("messageToken", _messageId))];
+    }
+
+    function messageTokenURI(bytes32 _messageId) internal view returns (string) {
+        return stringStorage[keccak256(abi.encodePacked("messageTokenURI", _messageId))];
+    }
+
+    function messageTokenContract(bytes32 _messageId) internal view returns (address) {
+        return addressStorage[keccak256(abi.encodePacked("messageTokenContract", _messageId))];
     }
 
     function requestFailedMessageFix(bytes32 _txHash) external {
@@ -111,15 +95,21 @@ contract BasicMediator is Initializable, BasicAMBMediator, ERC721Bridge, Upgrade
     function fixFailedMessage(bytes32 _messageId) public onlyMediator {
         require(!messageFixed(_messageId));
         address recipient = messageRecipient(_messageId);
+        address tokenContract = messageTokenContract(_messageId);
         uint256 tokenId = messageTokenId(_messageId);
         setMessageFixed(_messageId);
 
-        executeActionOnFixedTokens(recipient, tokenId, _messageId);
-        emit FailedMessageFixed(_messageId, recipient, tokenId);
+        executeActionOnFixedTokens(recipient, tokenContract, tokenId, _messageId);
+        emit FailedMessageFixed(_messageId, recipient, tokenContract, tokenId);
 
     }
 
-    function executeActionOnFixedTokens(address _recipient, uint256 _tokenId, bytes32 _messageId) internal;
+    function executeActionOnFixedTokens(
+        address _recipient,
+        address _tokenContract,
+        uint256 _tokenId,
+        bytes32 _messageId
+    ) internal;
 
-    function bridgeSpecificActionsOnTokenTransfer(address _from, uint256 _tokenId) internal;
+    function bridgeSpecificActionsOnTokenTransfer(address _tokenContract, address _from, uint256 _tokenId) internal;
 }

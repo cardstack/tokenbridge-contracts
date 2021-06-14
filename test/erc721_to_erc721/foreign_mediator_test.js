@@ -1,6 +1,6 @@
 const ForeignMediator = artifacts.require('ForeignMediator.sol')
 const HomeMediator = artifacts.require('HomeMediator.sol')
-const SimpleBridgeKitty = artifacts.require('SimpleBridgeKitty.sol')
+const ERC721BurnableMintable = artifacts.require('ERC721BurnableMintable.sol')
 const AMBMock = artifacts.require('AMBMock.sol')
 
 const { expect } = require('chai')
@@ -10,20 +10,7 @@ const { expectEventInTransaction, expectRevert, getEvents } = require('../helper
 
 const { shouldBehaveLikeBasicMediator } = require('./basic_mediator_test')
 
-const {
-  maxGasPerTx,
-  tokenId,
-  isReady,
-  cooldownIndex,
-  nextActionAt,
-  siringWithId,
-  birthTime,
-  matronId,
-  sireId,
-  generation,
-  genes,
-  exampleTxHash
-} = require('./helpers')
+const { maxGasPerTx, exampleTxHash, tokenId } = require('./helpers')
 
 contract('ForeignMediator', accounts => {
   const owner = accounts[0]
@@ -39,45 +26,27 @@ contract('ForeignMediator', accounts => {
       const contract = await ForeignMediator.new()
       const bridgeContract = await AMBMock.new()
       await bridgeContract.setMaxGasPerTx(maxGasPerTx)
-      const token = await SimpleBridgeKitty.new()
+      const token = await ERC721BurnableMintable.new('TEST', 'TST', 123)
       const mediatorContractOnOtherSide = await HomeMediator.new()
 
-      await contract.initialize(
-        bridgeContract.address,
-        mediatorContractOnOtherSide.address,
-        token.address,
-        maxGasPerTx,
-        owner
-      )
+      await contract.initialize(bridgeContract.address, mediatorContractOnOtherSide.address, maxGasPerTx, owner)
 
-      await token.mint(
-        tokenId,
-        isReady,
-        cooldownIndex,
-        nextActionAt,
-        siringWithId,
-        birthTime,
-        matronId,
-        sireId,
-        generation,
-        genes,
-        user,
-        { from: owner }
-      )
+      await token.mint(user, tokenId, { from: owner })
 
       // When
       // should approve the transfer first
-      await expectRevert(contract.transferToken(user, tokenId, { from: user }))
+      await expectRevert(contract.transferToken(token.address, user, tokenId, { from: user }))
 
       await token.approve(contract.address, tokenId, { from: user })
 
-      const { tx } = await contract.transferToken(user, tokenId, { from: user })
+      const { tx } = await contract.transferToken(token.address, user, tokenId, { from: user })
 
       // Then
-      await expectEventInTransaction(tx, SimpleBridgeKitty, 'Transfer', {
-        from: user,
-        to: contract.address,
-        tokenId: new BN(tokenId)
+
+      await expectEventInTransaction(tx, ERC721BurnableMintable, 'Transfer', {
+        _from: user,
+        _to: contract.address,
+        _tokenId: new BN(tokenId)
       })
       await expectEventInTransaction(tx, AMBMock, 'MockedEvent')
     })
@@ -88,40 +57,21 @@ contract('ForeignMediator', accounts => {
       const contract = await ForeignMediator.new()
       const bridgeContract = await AMBMock.new()
       await bridgeContract.setMaxGasPerTx(maxGasPerTx)
-      const token = await SimpleBridgeKitty.new()
+      const token = await ERC721BurnableMintable.new('TEST', 'TST', 123)
       const mediatorContractOnOtherSide = await HomeMediator.new()
 
-      await contract.initialize(
-        bridgeContract.address,
-        mediatorContractOnOtherSide.address,
-        token.address,
-        maxGasPerTx,
-        owner
-      )
+      await contract.initialize(bridgeContract.address, mediatorContractOnOtherSide.address, maxGasPerTx, owner)
 
-      await token.mint(
-        tokenId,
-        isReady,
-        cooldownIndex,
-        nextActionAt,
-        siringWithId,
-        birthTime,
-        matronId,
-        sireId,
-        generation,
-        genes,
-        contract.address,
-        { from: owner }
-      )
+      await token.mint(contract.address, tokenId, { from: owner })
 
       expect(await token.totalSupply()).to.be.bignumber.equal('1')
       expect(await token.ownerOf(tokenId)).to.be.equal(contract.address)
 
       // must be called from bridge
-      await expectRevert(contract.handleBridgedTokens(user, tokenId, { from: user }))
-      await expectRevert(contract.handleBridgedTokens(user, tokenId, { from: owner }))
+      await expectRevert(contract.handleBridgedTokens(user, token.address, tokenId, { from: user }))
+      await expectRevert(contract.handleBridgedTokens(user, token.address, tokenId, { from: owner }))
 
-      const data = await contract.contract.methods.handleBridgedTokens(user, tokenId).encodeABI()
+      const data = await contract.contract.methods.handleBridgedTokens(user, token.address, tokenId).encodeABI()
 
       const failedTxHash = '0x2ebc2ccc755acc8eaf9252e19573af708d644ab63a39619adb080a3500a4ff2e'
 
@@ -129,6 +79,7 @@ contract('ForeignMediator', accounts => {
       await bridgeContract.executeMessageCall(contract.address, owner, data, failedTxHash, 1000000)
       expect(await bridgeContract.messageCallStatus(failedTxHash)).to.be.equal(false)
 
+      expect(await bridgeContract.messageCallStatus(exampleTxHash)).to.be.equal(false)
       const { tx } = await bridgeContract.executeMessageCall(
         contract.address,
         mediatorContractOnOtherSide.address,
@@ -136,16 +87,17 @@ contract('ForeignMediator', accounts => {
         exampleTxHash,
         1000000
       )
+
       expect(await bridgeContract.messageCallStatus(exampleTxHash)).to.be.equal(true)
 
       // Then
       expect(await token.totalSupply()).to.be.bignumber.equal('1')
       expect(await token.ownerOf(tokenId)).to.be.equal(user)
 
-      await expectEventInTransaction(tx, SimpleBridgeKitty, 'Transfer', {
-        from: contract.address,
-        to: user,
-        tokenId: new BN(tokenId)
+      await expectEventInTransaction(tx, ERC721BurnableMintable, 'Transfer', {
+        _from: contract.address,
+        _to: user,
+        _tokenId: new BN(tokenId)
       })
     })
   })
@@ -159,43 +111,26 @@ contract('ForeignMediator', accounts => {
     beforeEach(async () => {
       bridgeContract = await AMBMock.new()
       await bridgeContract.setMaxGasPerTx(maxGasPerTx)
-      token = await SimpleBridgeKitty.new()
+      token = await ERC721BurnableMintable.new('TEST', 'TST', 123)
 
       contract = await ForeignMediator.new()
       mediatorContractOnOtherSide = await HomeMediator.new()
 
-      await contract.initialize(
-        bridgeContract.address,
-        mediatorContractOnOtherSide.address,
-        token.address,
-        maxGasPerTx,
-        owner
-      )
+      await contract.initialize(bridgeContract.address, mediatorContractOnOtherSide.address, maxGasPerTx, owner)
 
       // User has a token
-      await token.mint(
-        tokenId,
-        isReady,
-        cooldownIndex,
-        nextActionAt,
-        siringWithId,
-        birthTime,
-        matronId,
-        sireId,
-        generation,
-        genes,
-        user,
-        { from: owner }
-      )
+
+      await token.mint(user, tokenId, { from: owner })
 
       expect(await token.ownerOf(tokenId)).to.be.equal(user)
       // User transfer token to mediator and generate amb event
       await token.approve(contract.address, tokenId, { from: user })
-      const { tx } = await contract.transferToken(user, tokenId, { from: user })
+      const { tx } = await contract.transferToken(token.address, user, tokenId, { from: user })
       expect(await token.ownerOf(tokenId)).to.be.equal(contract.address)
 
       const receipt = await web3.eth.getTransactionReceipt(tx)
       const logs = AMBMock.decodeLogs(receipt.logs)
+
       const data = `0x${logs[0].args.encodedData.substr(148, logs[0].args.encodedData.length - 148)}`
 
       // Bridge calls mediator from other side
@@ -241,7 +176,7 @@ contract('ForeignMediator', accounts => {
 
       // Re send token to know that dataHash is different even if same tokenId and metadata is used
       await token.approve(contract.address, tokenId, { from: user })
-      const { tx } = await contract.transferToken(user, tokenId, { from: user })
+      const { tx } = await contract.transferToken(token.address, user, tokenId, { from: user })
       expect(await token.ownerOf(tokenId)).to.be.equal(contract.address)
 
       const receipt = await web3.eth.getTransactionReceipt(tx)
