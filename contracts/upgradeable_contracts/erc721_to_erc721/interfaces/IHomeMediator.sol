@@ -1,6 +1,13 @@
 pragma solidity 0.4.24;
 
 interface IHomeMediator {
-    function handleBridgedTokens(address _tokenContractAddress, address _recipient, uint256 _tokenId, string _tokenURI)
-        external;
+    function handleBridgedTokens(
+        address _tokenContractAddress,
+        string _name,
+        string _symbol,
+        address _recipient,
+        uint256 _tokenId,
+        string _tokenURI
+    ) external;
+
 }

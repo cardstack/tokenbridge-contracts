@@ -28,4 +28,16 @@ contract ERC721BurnableMintable is ERC721Token {
         _burn(_owner, _tokenId);
     }
 
+    event OwnershipTransferred(address previousOwner, address newOwner);
+
+    function transferOwnership(address _newOwner) external onlyOwner {
+        _setOwner(_newOwner);
+    }
+
+    function _setOwner(address newOwner) internal {
+        require(newOwner != address(0));
+        emit OwnershipTransferred(owner, newOwner);
+        owner = newOwner;
+    }
+
 }

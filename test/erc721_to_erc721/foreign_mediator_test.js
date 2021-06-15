@@ -213,4 +213,6 @@ contract('ForeignMediator', accounts => {
       expect(await contract.messageFixed(transferMessageId)).to.be.equal(false)
     })
   })
+
+  // nocommit test ownership of proxy token
 })

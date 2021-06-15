@@ -11,10 +11,11 @@ import "./ERC721Bridge.sol";
 contract BasicMediator is Initializable, BasicAMBMediator, ERC721Bridge, Upgradeable, Claimable {
     event FailedMessageFixed(bytes32 indexed messageId, address recipient, address tokenContract, uint256 tokenId);
 
-    bytes4 internal constant GET_KITTY = 0xe98b7f4d; // getKitty(uint256)
+    // nocommit
+    // bytes4 internal constant GET_KITTY = 0xe98b7f4d; // getKitty(uint256)
 
     function initialize(address _bridgeContract, address _mediatorContract, uint256 _requestGasLimit, address _owner)
-        external
+        public
         returns (bool)
     {
         require(!isInitialized());
@@ -39,7 +40,6 @@ contract BasicMediator is Initializable, BasicAMBMediator, ERC721Bridge, Upgrade
     function transferToken(address _tokenContract, address _from, uint256 _tokenId) external {
         ERC721 token = erc721token(_tokenContract);
         address to = address(this);
-
         token.transferFrom(_from, to, _tokenId);
         bridgeSpecificActionsOnTokenTransfer(_tokenContract, _from, _tokenId);
     }

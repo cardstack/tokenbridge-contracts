@@ -20,6 +20,7 @@ contract AMBMock {
         maxGasPerTx = _value;
     }
 
+    event Debug(string message);
     function executeMessageCall(address _contract, address _sender, bytes _data, bytes32 _messageId, uint256 _gas)
         public
     {
@@ -35,10 +36,14 @@ contract AMBMock {
 
         messageCallStatus[_messageId] = status;
         if (!status) {
+            emit Debug("Failed executeMessageCall");
             failedMessageDataHash[_messageId] = keccak256(_data);
             failedMessageReceiver[_messageId] = _contract;
             failedMessageSender[_messageId] = _sender;
+        } else {
+            emit Debug("Succeeded executeMessageCall");
         }
+
     }
 
     function requireToPassMessage(address _contract, bytes _data, uint256 _gas) external returns (bytes32) {

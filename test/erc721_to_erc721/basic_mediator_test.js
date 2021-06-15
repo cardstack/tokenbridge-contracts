@@ -7,22 +7,7 @@ const { ZERO_ADDRESS } = require('../setup')
 
 const { ether, expectRevert } = require('../helpers/helpers')
 
-const {
-  maxGasPerTx,
-  tokenId,
-  isReady,
-  cooldownIndex,
-  nextActionAt,
-  siringWithId,
-  birthTime,
-  matronId,
-  sireId,
-  generation,
-  genes,
-  metadata,
-  exampleTxHash,
-  chainId
-} = require('./helpers')
+const { maxGasPerTx, tokenId, exampleTxHash, chainId } = require('./helpers')
 
 function shouldBehaveLikeBasicMediator(accounts) {
   describe('shouldBehaveLikeBasicMediator', () => {
@@ -146,9 +131,7 @@ function shouldBehaveLikeBasicMediator(accounts) {
           data = await contract.contract.methods.handleBridgedTokens(user, erc721token.address, tokenId).encodeABI()
           await erc721token.mint(contract.address, tokenId, { from: owner })
         } catch (e) {
-          data = await contract.contract.methods
-            .handleBridgedTokens(user, erc721token.address, tokenId, metadata)
-            .encodeABI()
+          data = await contract.contract.methods.handleBridgedTokens(user, erc721token.address, tokenId).encodeABI()
           await erc721token.transferBridgeRole(contract.address, { from: owner })
         }
       })

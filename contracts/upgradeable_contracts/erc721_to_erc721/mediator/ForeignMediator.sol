@@ -1,4 +1,5 @@
 pragma solidity 0.4.24;
+// nocommit rename
 
 import "./BasicMediator.sol";
 import "../../../libraries/TokenReader.sol";
@@ -9,9 +10,19 @@ import "../interfaces/IHomeMediator.sol";
 contract ForeignMediator is IForeignMediator, BasicMediator {
     function passMessage(address _tokenContract, address _from, uint256 _tokenId) internal {
         string memory tokenURI = TokenReader.readTokenURI(_tokenContract, _tokenId);
+        string memory name = TokenReader.readName(_tokenContract);
+        string memory symbol = TokenReader.readSymbol(_tokenContract);
 
         bytes4 methodSelector = IHomeMediator(0).handleBridgedTokens.selector;
-        bytes memory data = abi.encodeWithSelector(methodSelector, _tokenContract, _from, _tokenId, tokenURI);
+        bytes memory data = abi.encodeWithSelector(
+            methodSelector,
+            _tokenContract,
+            name,
+            symbol,
+            _from,
+            _tokenId,
+            tokenURI
+        );
         bytes32 _messageId = bridgeContract().requireToPassMessage(
             mediatorContractOnOtherSide(),
             data,

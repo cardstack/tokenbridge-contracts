@@ -14,6 +14,7 @@ mkdir -p flats/upgradeability
 mkdir -p flats/amb_native_to_erc20
 mkdir -p flats/amb_erc20_to_native
 mkdir -p flats/multi_amb_erc20_to_erc677
+mkdir -p flats/erc721_to_erc721
 
 FLATTENER=./node_modules/.bin/truffle-flattener
 BRIDGE_CONTRACTS_DIR=contracts/upgradeable_contracts
@@ -69,3 +70,8 @@ ${FLATTENER} ${BRIDGE_CONTRACTS_DIR}/amb_erc20_to_native/ForeignAMBErc20ToNative
 echo "Flattening contracts related to multi-erc-to-erc on top of AMB bridge"
 ${FLATTENER} ${BRIDGE_CONTRACTS_DIR}/multi_amb_erc20_to_erc677/HomeMultiAMBErc20ToErc677.sol > flats/multi_amb_erc20_to_erc677/HomeMultiAMBErc20ToErc677_flat.sol
 ${FLATTENER} ${BRIDGE_CONTRACTS_DIR}/multi_amb_erc20_to_erc677/ForeignMultiAMBErc20ToErc677.sol > flats/multi_amb_erc20_to_erc677/ForeignMultiAMBErc20ToErc677_flat.sol
+
+echo "Flattening contracts related to multi-erc721-to-erc721 on top of AMB bridge"
+${FLATTENER} ${BRIDGE_CONTRACTS_DIR}/erc721_to_erc721/mediator/HomeMediator.sol > flats/erc721_to_erc721/HomeMediator_flat.sol
+${FLATTENER} ${BRIDGE_CONTRACTS_DIR}/erc721_to_erc721/mediator/ForeignMediator.sol > flats/erc721_to_erc721/ForeignMediator_flat.sol
+${FLATTENER} ${BRIDGE_CONTRACTS_DIR}/erc721_to_erc721/ERC721BurnableMintable.sol > flats/erc721_to_erc721/ERC721BurnableMintable.sol
