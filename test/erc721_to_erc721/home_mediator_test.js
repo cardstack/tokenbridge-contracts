@@ -25,7 +25,8 @@ const {
   generation,
   genes,
   exampleTxHash,
-  chainId
+  chainId,
+  tokenURI
 } = require('./helpers')
 
 contract('HomeMediator', accounts => {
@@ -195,7 +196,10 @@ contract('HomeMediator', accounts => {
 
     async function bridgeToken(token) {
       await token.mint(user, tokenId).should.be.fulfilled
+      await token.setTokenURI(tokenId, tokenURI)
       await token.approve(mediatorContractOnOtherSide.address, tokenId, { from: user })
+
+      expect(await token.tokenURI(tokenId)).to.be.equal(tokenURI)
 
       const { receipt } = await mediatorContractOnOtherSide.transferToken(token.address, user, tokenId, { from: user })
 
@@ -257,15 +261,14 @@ contract('HomeMediator', accounts => {
 
       expect(await homeToken.name()).to.be.equal('Test on Foreign.CPXD')
       expect(await homeToken.symbol()).to.be.equal('TST')
-      // expect(await homeToken.decimals()).to.be.bignumber.equal('18')
-      // expect(await homeToken.version()).to.be.equal('1')
-      // expect(await homeToken.owner()).to.be.equal(contract.address)
-      // expect(await homeToken.bridgeContract()).to.be.equal(contract.address)
-      // expect(await homeToken.totalSupply()).to.be.bignumber.equal(value)
-      // expect(await homeToken.balanceOf(user)).to.be.bignumber.equal(ZERO)
-      // expect(await homeToken.balanceOf(expectedSafeForUser)).to.be.bignumber.equal(value)
-      // expect(await contract.homeTokenAddress(token.address)).to.be.equal(homeToken.address)
-      // expect(await contract.foreignTokenAddress(homeToken.address)).to.be.equal(token.address)
+      expect(await homeToken.version()).to.be.equal('1')
+      expect(await homeToken.owner()).to.be.equal(contract.address)
+      expect(await homeToken.totalSupply()).to.be.bignumber.equal('1')
+      expect(await homeToken.balanceOf(user)).to.be.bignumber.equal('1')
+      expect(await homeToken.ownerOf(tokenId)).to.equal(user)
+      expect(await homeToken.tokenURI(tokenId)).to.equal(tokenURI)
+      expect(await contract.homeTokenAddress(tokenOnForeign.address)).to.be.equal(homeToken.address)
+      expect(await contract.foreignTokenAddress(homeToken.address)).to.be.equal(tokenOnForeign.address)
     })
 
     // it('should register new token with empty name', async () => {

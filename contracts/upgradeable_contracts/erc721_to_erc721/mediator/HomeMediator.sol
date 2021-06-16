@@ -9,6 +9,21 @@ import "../interfaces/IForeignMediator.sol";
 import "../ERC721Proxy.sol";
 import "openzeppelin-solidity/contracts/AddressUtils.sol";
 
+interface TokenInterface {
+    function totalSupply() public view returns (uint256 total);
+    function balanceOf(address _owner) public view returns (uint256 balance);
+    function ownerOf(uint256 _tokenId) external view returns (address owner);
+    function approve(address _to, uint256 _tokenId) external;
+    function transfer(address _to, uint256 _tokenId) external;
+    function transferFrom(address _from, address _to, uint256 _tokenId) external;
+    function name() public view returns (string name);
+    function symbol() public view returns (string symbol);
+
+    function mint(address _to, uint256 _tokenId) external;
+    function burn(address _owner, uint256 _tokenId) external;
+    function setTokenURI(uint256 _tokenId, string memory _newURI);
+}
+
 contract HomeMediator is BasicMediator, IHomeMediator {
     function initialize(
         address _bridgeContract,
@@ -59,9 +74,6 @@ contract HomeMediator is BasicMediator, IHomeMediator {
         string memory name = _name;
         string memory symbol = _symbol;
 
-        emit Debug("initial name", name);
-        emit Debug("initial symbol", symbol);
-
         if (bytes(name).length == 0 && bytes(symbol).length == 0) {
             name = "<Unknown ERC721 Token>";
             symbol = "UNKNOWN.CPXD";
@@ -73,19 +85,11 @@ contract HomeMediator is BasicMediator, IHomeMediator {
             symbol = name;
         }
 
-        emit Debug("after name", name);
-        emit Debug("after symbol", symbol);
-
         name = string(abi.encodePacked(name, ".CPXD"));
-
-        emit Debug("cat name", name);
 
         address homeToken = new ERC721Proxy(tokenImage(), name, symbol, bridgeContract().sourceChainId());
 
-        ERC721 deployedToken = ERC721(homeToken);
-
-        emit Debug("dep name", deployedToken.name());
-        emit Debug("dep symbol", deployedToken.symbol());
+        TokenInterface deployedToken = TokenInterface(homeToken);
 
         _setTokenAddressPair(_tokenContractAddress, homeToken);
 
@@ -97,10 +101,7 @@ contract HomeMediator is BasicMediator, IHomeMediator {
 
         // _handleBridgedTokens(ERC677(homeToken), _recipient, _value);
 
-        // emit NewTokenRegistered(_token, homeToken);
-
-        // mintToken(_recipient, _tokenId, _metadata);
-
+        mintToken(deployedToken, _recipient, _tokenId, _tokenURI);
     }
 
     /**
@@ -113,21 +114,27 @@ contract HomeMediator is BasicMediator, IHomeMediator {
         addressStorage[keccak256(abi.encodePacked("fta", _homeToken))] = _foreignToken;
     }
 
-    function mintToken(ERC721 _token, address _recipient, uint256 _tokenId, bytes _metadata) internal {
-        // nocommit
-        // ISimpleBridgeKitty(erc721token()).mint(
-        //     _tokenId,
-        //     getMetadataBoolValue(_metadata, 2), // isReady
-        //     getMetadataUintValue(_metadata, 3), // cooldownIndex
-        //     getMetadataUintValue(_metadata, 4), // nextActionAt
-        //     getMetadataUintValue(_metadata, 5), // siringWithId
-        //     getMetadataUintValue(_metadata, 6), // birthTime
-        //     getMetadataUintValue(_metadata, 7), // matronId
-        //     getMetadataUintValue(_metadata, 8), // sireId
-        //     getMetadataUintValue(_metadata, 9), // generation
-        //     getMetadataUintValue(_metadata, 10), // genes
-        //     _recipient
-        // );
+    /**
+    * @dev Retrieves address of the home bridged token contract associated with a specific foreign token contract.
+    * @param _foreignToken address of the created home token contract.
+    * @return address of the home token contract.
+    */
+    function homeTokenAddress(address _foreignToken) public view returns (address) {
+        return addressStorage[keccak256(abi.encodePacked("hta", _foreignToken))];
+    }
+
+    /**
+    * @dev Retrieves address of the foreign bridged token contract associated with a specific home token contract.
+    * @param _homeToken address of the created home token contract.
+    * @return address of the foreign token contract.
+    */
+    function foreignTokenAddress(address _homeToken) public view returns (address) {
+        return addressStorage[keccak256(abi.encodePacked("fta", _homeToken))];
+    }
+
+    function mintToken(TokenInterface _token, address _recipient, uint256 _tokenId, string _tokenURI) internal {
+        _token.mint(_recipient, _tokenId);
+        _token.setTokenURI(_tokenId, _tokenURI);
     }
 
     // received a token to burn and bridge back to the foreign network

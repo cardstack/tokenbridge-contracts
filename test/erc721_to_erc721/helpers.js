@@ -25,6 +25,8 @@ const metadata =
   '0000000000000000000000000000000000000000000000000000000000000006' + // generation
   '00005a56b294e64a52e421c928c63218845adac30406314c739c454bd2e731cb' // genes
 
+const tokenURI = 'https://example.com/token.json'
+
 const chainId = 123
 module.exports = {
   maxGasPerTx,
@@ -40,7 +42,8 @@ module.exports = {
   genes,
   metadata,
   exampleTxHash,
-  chainId
+  chainId,
+  tokenURI
 }
 
 // nocommit

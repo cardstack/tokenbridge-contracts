@@ -5,8 +5,7 @@ import "openzeppelin-solidity/contracts/token/ERC721/ERC721Token.sol";
 contract ERC721BurnableMintable is ERC721Token {
     string public constant version = "1";
     uint256 public chainId;
-    address internal owner;
-    address internal bridgeContractAddr;
+    address public owner;
 
     constructor(string memory _name, string memory _symbol, uint256 _chainId) public ERC721Token(_name, _symbol) {
         require(_chainId != 0);
@@ -26,6 +25,10 @@ contract ERC721BurnableMintable is ERC721Token {
 
     function burn(address _owner, uint256 _tokenId) external onlyOwner {
         _burn(_owner, _tokenId);
+    }
+
+    function setTokenURI(uint256 _tokenId, string _newURI) external onlyOwner {
+        _setTokenURI(_tokenId, _newURI);
     }
 
     event OwnershipTransferred(address previousOwner, address newOwner);
