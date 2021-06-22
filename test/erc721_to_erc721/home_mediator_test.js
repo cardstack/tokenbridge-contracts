@@ -320,59 +320,8 @@ contract('HomeMediator', accounts => {
       expect(await homeToken.name()).to.be.equal('Test on Foreign.CPXD')
       expect(await homeToken.symbol()).to.be.equal('Test on Foreign')
     })
-
-    // for (const decimals of [3, 18, 20]) {
-    //   it(`should initialize limits according to decimals = ${decimals}`, async () => {
-    //     const f1 = toBN(`1${'0'.repeat(decimals)}`)
-    //     const f2 = toBN('1000000000000000000')
-
-    //     token = await ERC677BridgeToken.new('TEST', 'TST', decimals)
-    //     await otherSideMediator.allowToken(token.address).should.be.fulfilled
-    //     token = await bridgeToken(token, value.mul(f1).div(f2))
-
-    //     expect(await token.decimals()).to.be.bignumber.equal(decimals.toString())
-    //     expect(await contract.dailyLimit(token.address)).to.be.bignumber.equal(dailyLimit.mul(f1).div(f2))
-    //     expect(await contract.maxPerTx(token.address)).to.be.bignumber.equal(maxPerTx.mul(f1).div(f2))
-    //     expect(await contract.minPerTx(token.address)).to.be.bignumber.equal(minPerTx.mul(f1).div(f2))
-    //     expect(await contract.executionDailyLimit(token.address)).to.be.bignumber.equal(
-    //       executionDailyLimit.mul(f1).div(f2)
-    //     )
-    //     expect(await contract.executionMaxPerTx(token.address)).to.be.bignumber.equal(executionMaxPerTx.mul(f1).div(f2))
-    //   })
-    // }
-
-    // it(`should initialize limits according to decimals = 0`, async () => {
-    //   token = await ERC677BridgeToken.new('TEST', 'TST', 0)
-    //   await otherSideMediator.allowToken(token.address).should.be.fulfilled
-    //   token = await bridgeToken(token, '1')
-
-    //   expect(await token.decimals()).to.be.bignumber.equal('0')
-    //   expect(await contract.dailyLimit(token.address)).to.be.bignumber.equal('10000')
-    //   expect(await contract.maxPerTx(token.address)).to.be.bignumber.equal('100')
-    //   expect(await contract.minPerTx(token.address)).to.be.bignumber.equal('1')
-    //   expect(await contract.executionDailyLimit(token.address)).to.be.bignumber.equal('10000')
-    //   expect(await contract.executionMaxPerTx(token.address)).to.be.bignumber.equal('100')
-    // })
-
-    // it('should initialize fees', async () => {
-    //   const HOME_TO_FOREIGN_FEE = await contract.HOME_TO_FOREIGN_FEE()
-    //   const FOREIGN_TO_HOME_FEE = await contract.FOREIGN_TO_HOME_FEE()
-    //   await contract.setFee(HOME_TO_FOREIGN_FEE, ZERO_ADDRESS, ether('0.01'))
-    //   await contract.setFee(FOREIGN_TO_HOME_FEE, ZERO_ADDRESS, ether('0.02'))
-
-    //   expect(await contract.getFee(HOME_TO_FOREIGN_FEE, ZERO_ADDRESS)).to.be.bignumber.equal(ether('0.01'))
-    //   expect(await contract.getFee(FOREIGN_TO_HOME_FEE, ZERO_ADDRESS)).to.be.bignumber.equal(ether('0.02'))
-    //   expect(await contract.getFee(HOME_TO_FOREIGN_FEE, token.address)).to.be.bignumber.equal(ZERO)
-    //   expect(await contract.getFee(FOREIGN_TO_HOME_FEE, token.address)).to.be.bignumber.equal(ZERO)
-
-    //   const homeToken = await bridgeToken(token)
-
-    //   expect(await contract.getFee(HOME_TO_FOREIGN_FEE, ZERO_ADDRESS)).to.be.bignumber.equal(ether('0.01'))
-    //   expect(await contract.getFee(FOREIGN_TO_HOME_FEE, ZERO_ADDRESS)).to.be.bignumber.equal(ether('0.02'))
-    //   expect(await contract.getFee(HOME_TO_FOREIGN_FEE, homeToken.address)).to.be.bignumber.equal(ether('0.01'))
-    //   expect(await contract.getFee(FOREIGN_TO_HOME_FEE, homeToken.address)).to.be.bignumber.equal(ether('0.02'))
-    // })
   })
+
   describe.skip('fixFailedMessage', () => {
     let bridgeContract
     let contract
