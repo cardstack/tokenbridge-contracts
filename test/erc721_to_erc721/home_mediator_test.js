@@ -16,28 +16,12 @@ const {
   maxGasPerTx,
   tokenId,
   otherTokenId,
-  isReady,
-  cooldownIndex,
-  nextActionAt,
-  siringWithId,
-  birthTime,
-  matronId,
-  sireId,
-  generation,
-  genes,
   exampleTxHash,
   chainId,
   tokenURI,
   otherTokenURI,
   failedMessageId
 } = require('./helpers')
-
-// address _tokenContractAddress,
-// string _name,
-// string _symbol,
-// address _recipient,
-// uint256 _tokenId,
-// string _tokenURI
 
 contract('HomeMediator', accounts => {
   const owner = accounts[0]
@@ -228,6 +212,9 @@ contract('HomeMediator', accounts => {
       expect(await homeToken.tokenURI(otherTokenId)).to.equal(otherTokenURI)
       expect(await contract.homeTokenAddress(tokenOnForeign.address)).to.be.equal(homeToken.address)
       expect(await contract.foreignTokenAddress(homeToken.address)).to.be.equal(tokenOnForeign.address)
+
+      // doesn't allow fixing a non-failed message
+      await expectRevert(contract.requestFailedMessageFix(exampleTxHash))
     })
 
     it('should register new token with empty name', async () => {

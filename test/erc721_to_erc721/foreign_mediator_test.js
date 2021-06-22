@@ -16,14 +16,13 @@ contract('ForeignMediator', accounts => {
   const owner = accounts[0]
   const user = accounts[1]
 
-  describe("Basic mediator", () => {
+  describe('Basic mediator', () => {
     beforeEach(async function() {
       this.bridge = await ForeignMediator.new()
       this.mediatorContractOnOtherSide = HomeMediator
       this.handleBridgedTokensTx = async function(user, tokenAddress, tokenId) {
         return this.bridge.contract.methods.handleBridgedTokens(user, tokenAddress, tokenId).encodeABI()
       }
-
     })
     shouldBehaveLikeBasicMediator(accounts)
   })
@@ -97,6 +96,9 @@ contract('ForeignMediator', accounts => {
       )
 
       expect(await bridgeContract.messageCallStatus(exampleTxHash)).to.be.equal(true)
+
+      // Should not be able to fix successful
+      await expectRevert(contract.requestFailedMessageFix(exampleTxHash))
 
       // Then
       expect(await token.totalSupply()).to.be.bignumber.equal('1')
