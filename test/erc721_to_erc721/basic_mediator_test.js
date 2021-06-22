@@ -113,7 +113,7 @@ function shouldBehaveLikeBasicMediator(accounts) {
         expect(patch).to.be.bignumber.gte('0')
       })
     })
-    describe.skip('requestFailedMessageFix', () => {
+    describe('requestFailedMessageFix', () => {
       let contract
       let mediatorContractOnOtherSide
       let data
@@ -128,11 +128,11 @@ function shouldBehaveLikeBasicMediator(accounts) {
 
         await contract.initialize(bridgeContract.address, mediatorContractOnOtherSide.address, maxGasPerTx, owner)
         try {
-          console.log("a");
+          console.log('a')
           await erc721token.mint(user, tokenId, { from: owner })
           data = await this.handleBridgedTokensTx(user, erc721token.address, tokenId)
         } catch (e) {
-          console.log("b");
+          console.log('b')
           data = await this.handleBridgedTokensTx(user, erc721token.address, tokenId)
           await erc721token.transferOwnership(contract.address, { from: owner })
         }
@@ -160,26 +160,28 @@ function shouldBehaveLikeBasicMediator(accounts) {
         expect(logs[0].args.encodedData.includes(dataHash.replace(/^0x/, ''))).to.be.equal(true)
       })
       it('should be a failed transaction', async () => {
-
         // Given
         // await erc721token.mint(user, tokenId, { from: owner })
         // await erc721token.transferOwnership(contract.address, { from: owner })
 
-
         // data = await this.handleBridgedTokensTx(user, erc721token.address, tokenId)
 
-        const tokenURI = await erc721token.tokenURI(tokenId);
-        console.log("tokenURI", tokenURI)
+        const tokenURI = await erc721token.tokenURI(tokenId)
+        console.log('tokenURI', tokenURI)
         // data = await contract.contract.methods.handleBridgedTokens(erc721token.address, erc721token.name(), erc721token.symbol(), user, tokenId, tokenURI).encodeABI()
 
-        console.log("here", erc721token.address, erc721token.name(), erc721token.symbol(), user, tokenId, tokenURI);
+        console.log('here', erc721token.address, erc721token.name(), erc721token.symbol(), user, tokenId, tokenURI)
 
+        let { logs } = await contract.handleBridgedTokens(
+          erc721token.address,
+          erc721token.name(),
+          erc721token.symbol(),
+          user,
+          tokenId,
+          tokenURI
+        )
 
-
-        let { logs } = await contract.handleBridgedTokens(erc721token.address, erc721token.name(), erc721token.symbol(), user, tokenId, tokenURI)
-
-        console.log("done", logs)
-
+        console.log('done', logs)
 
         // data = await this.handleBridgedTokensTx(user, erc721token.address, tokenId)
         // let {logs} = await bridgeContract.executeMessageCall(
@@ -190,7 +192,7 @@ function shouldBehaveLikeBasicMediator(accounts) {
         //   1000000
         // )
 
-        console.log(logs);
+        console.log(logs)
 
         expect(await bridgeContract.messageCallStatus(exampleTxHash)).to.be.equal(true)
 
