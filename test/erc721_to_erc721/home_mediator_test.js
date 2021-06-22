@@ -8,13 +8,14 @@ const AMBMock = artifacts.require('AMBMock.sol')
 const { expect } = require('chai')
 
 const { getEvents, expectEventInTransaction, expectRevert, strip0x } = require('../helpers/helpers')
-const { BN } = require('../setup')
+const { BN, ZERO_ADDRESS } = require('../setup')
 
 const { shouldBehaveLikeBasicMediator } = require('./basic_mediator_test')
 
 const {
   maxGasPerTx,
   tokenId,
+  otherTokenId,
   isReady,
   cooldownIndex,
   nextActionAt,
@@ -26,17 +27,39 @@ const {
   genes,
   exampleTxHash,
   chainId,
-  tokenURI
+  tokenURI,
+  otherTokenURI
 } = require('./helpers')
+
+// address _tokenContractAddress,
+// string _name,
+// string _symbol,
+// address _recipient,
+// uint256 _tokenId,
+// string _tokenURI
 
 contract('HomeMediator', accounts => {
   const owner = accounts[0]
   const user = accounts[1]
-  beforeEach(async function() {
-    this.bridge = await HomeMediator.new()
-    this.mediatorContractOnOtherSide = ForeignMediator
+
+  describe('Basic mediator', () => {
+    beforeEach(async function() {
+      this.bridge = await HomeMediator.new()
+      this.mediatorContractOnOtherSide = ForeignMediator
+      this.handleBridgedTokensTx = async function(user, tokenAddress, tokenId) {
+        const token = await ERC721BurnableMintable.at(tokenAddress)
+        console.log('tokenAddress', tokenAddress)
+        console.log('tokenId', tokenId)
+        const tokenURI = await token.tokenURI(tokenId)
+        console.log('tokenURI', tokenURI)
+        return this.bridge.contract.methods
+          .handleBridgedTokens(tokenAddress, token.name(), token.symbol(), user, tokenId, tokenURI)
+          .encodeABI()
+      }
+    })
+    shouldBehaveLikeBasicMediator(accounts)
   })
-  shouldBehaveLikeBasicMediator(accounts)
+
   describe('transferToken', () => {
     it('should transfer token to mediator, burn the token and emit event on amb bridge ', async () => {
       // Given
@@ -48,40 +71,31 @@ contract('HomeMediator', accounts => {
 
       await contract.initialize(bridgeContract.address, mediatorContractOnOtherSide.address, maxGasPerTx, owner)
 
-      await token.mint(
-        tokenId,
-        isReady,
-        cooldownIndex,
-        nextActionAt,
-        siringWithId,
-        birthTime,
-        matronId,
-        sireId,
-        generation,
-        genes,
-        user,
-        { from: owner }
-      )
+      await token.mint(user, tokenId, { from: owner })
 
-      await token.transferBridgeRole(contract.address, { from: owner })
+      await token.transferOwnership(contract.address, { from: owner })
 
       // When
       // should approve the transfer first
-      await expectRevert(contract.transferToken(user, tokenId, { from: user }))
+      await expectRevert(contract.transferToken(token.address, user, tokenId, { from: user }))
 
       await token.approve(contract.address, tokenId, { from: user })
 
-      const { tx } = await contract.transferToken(user, tokenId, { from: user })
+      const { tx } = await contract.transferToken(token.address, user, tokenId, { from: user })
 
       // Then
       await expectEventInTransaction(tx, ERC721BurnableMintable, 'Transfer', {
-        from: user,
-        to: contract.address,
-        tokenId: new BN(tokenId)
+        _from: user,
+        _to: contract.address,
+        _tokenId: new BN(tokenId)
       })
-      await expectEventInTransaction(tx, ERC721BurnableMintable, 'Death', {
-        kittyId: new BN(tokenId)
+
+      await expectEventInTransaction(tx, ERC721BurnableMintable, 'Transfer', {
+        _from: contract.address,
+        _to: ZERO_ADDRESS,
+        _tokenId: new BN(tokenId)
       })
+
       await expectEventInTransaction(tx, AMBMock, 'MockedEvent')
     })
   })
@@ -165,7 +179,6 @@ contract('HomeMediator', accounts => {
     let mediatorContractOnOtherSide
 
     beforeEach(async () => {
-      console.log('Start beforeEach')
       contract = await HomeMediator.new()
       bridgeContract = await AMBMock.new()
       bridgeContract.setMaxGasPerTx(maxGasPerTx)
@@ -194,10 +207,11 @@ contract('HomeMediator', accounts => {
       )
     })
 
-    async function bridgeToken(token) {
+    async function bridgeToken(token, tokenId, tokenURI) {
+      console.log('bridgeToken', token.address, tokenId, tokenURI)
       await token.mint(user, tokenId).should.be.fulfilled
-      await token.setTokenURI(tokenId, tokenURI)
-      await token.approve(mediatorContractOnOtherSide.address, tokenId, { from: user })
+      await token.setTokenURI(tokenId, tokenURI).should.be.fulfilled
+      await token.approve(mediatorContractOnOtherSide.address, tokenId, { from: user }).should.be.fulfilled
 
       expect(await token.tokenURI(tokenId)).to.be.equal(tokenURI)
 
@@ -220,21 +234,6 @@ contract('HomeMediator', accounts => {
       ).should.be.fulfilled
 
       expect(await bridgeContract.messageCallStatus(exampleTxHash)).to.be.equal(true)
-
-      const dbg = await getEvents(contract, { event: 'Debug' })
-      console.log(JSON.stringify(dbg, null, 2))
-
-      const events = await getEvents(contract, { event: 'NewTokenRegistered' })
-      expect(events.length).to.be.equal(1)
-      expect(events[0].returnValues.foreignToken).to.be.equal(token.address)
-      const homeToken = await ERC721BurnableMintable.at(events[0].returnValues.homeToken)
-
-      // nocommit
-      // const bridgeEvents = await getEvents(contract, { event: 'TokensBridgedToSafe' })
-      // expect(bridgeEvents.length).to.equal(1)
-      // const safeAddress = bridgeEvents[0].returnValues.safe
-      // expect(await homeToken.balanceOf(safeAddress)).to.be.bignumber.equal(bridgedValue)
-      return homeToken
     }
 
     // it('can be called only by mediator from the other side', async () => {
@@ -256,8 +255,13 @@ contract('HomeMediator', accounts => {
     //   expect(await ambBridgeContract.messageCallStatus(exampleMessageId)).to.be.equal(true)
     // })
 
-    it.only('should register new token in deployAndHandleBridgedTokens', async () => {
-      const homeToken = await bridgeToken(tokenOnForeign)
+    it('should register new token in deployAndHandleBridgedTokens, and reuse the deployed token contract for subsequent transfers', async () => {
+      await bridgeToken(tokenOnForeign, tokenId, tokenURI)
+
+      let events = await getEvents(contract, { event: 'NewTokenRegistered' })
+      expect(events.length).to.be.equal(1)
+      expect(events[0].returnValues.foreignToken).to.be.equal(tokenOnForeign.address)
+      const homeToken = await ERC721BurnableMintable.at(events[0].returnValues.homeToken)
 
       expect(await homeToken.name()).to.be.equal('Test on Foreign.CPXD')
       expect(await homeToken.symbol()).to.be.equal('TST')
@@ -267,6 +271,26 @@ contract('HomeMediator', accounts => {
       expect(await homeToken.balanceOf(user)).to.be.bignumber.equal('1')
       expect(await homeToken.ownerOf(tokenId)).to.equal(user)
       expect(await homeToken.tokenURI(tokenId)).to.equal(tokenURI)
+      expect(await contract.homeTokenAddress(tokenOnForeign.address)).to.be.equal(homeToken.address)
+      expect(await contract.foreignTokenAddress(homeToken.address)).to.be.equal(tokenOnForeign.address)
+
+      // briding same token contract again should not deploy again
+      await bridgeToken(tokenOnForeign, otherTokenId, otherTokenURI)
+
+      events = await getEvents(contract, { event: 'NewTokenRegistered' })
+      expect(events.length).to.be.equal(1)
+      expect(events[0].returnValues.foreignToken).to.be.equal(tokenOnForeign.address)
+
+      expect(await homeToken.name()).to.be.equal('Test on Foreign.CPXD')
+      expect(await homeToken.symbol()).to.be.equal('TST')
+      expect(await homeToken.version()).to.be.equal('1')
+      expect(await homeToken.owner()).to.be.equal(contract.address)
+      expect(await homeToken.totalSupply()).to.be.bignumber.equal('2')
+      expect(await homeToken.balanceOf(user)).to.be.bignumber.equal('2')
+      expect(await homeToken.ownerOf(tokenId)).to.equal(user)
+      expect(await homeToken.ownerOf(otherTokenId)).to.equal(user)
+      expect(await homeToken.tokenURI(tokenId)).to.equal(tokenURI)
+      expect(await homeToken.tokenURI(otherTokenId)).to.equal(otherTokenURI)
       expect(await contract.homeTokenAddress(tokenOnForeign.address)).to.be.equal(homeToken.address)
       expect(await contract.foreignTokenAddress(homeToken.address)).to.be.equal(tokenOnForeign.address)
     })
@@ -373,7 +397,7 @@ contract('HomeMediator', accounts => {
     //   expect(await contract.getFee(FOREIGN_TO_HOME_FEE, homeToken.address)).to.be.bignumber.equal(ether('0.02'))
     // })
   })
-  describe('fixFailedMessage', () => {
+  describe.skip('fixFailedMessage', () => {
     let bridgeContract
     let contract
     let mediatorContractOnOtherSide
@@ -389,21 +413,8 @@ contract('HomeMediator', accounts => {
 
       await contract.initialize(bridgeContract.address, mediatorContractOnOtherSide.address, maxGasPerTx, owner)
 
-      // User has a token
-      await token.mint(
-        tokenId,
-        isReady,
-        cooldownIndex,
-        nextActionAt,
-        siringWithId,
-        birthTime,
-        matronId,
-        sireId,
-        generation,
-        genes,
-        user,
-        { from: owner }
-      )
+      await token.mint(user, tokenId, { from: owner })
+
       await token.transferOwnership(contract.address, { from: owner })
 
       expect(await token.ownerOf(tokenId)).to.be.equal(user)

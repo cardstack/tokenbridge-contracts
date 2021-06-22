@@ -31,6 +31,7 @@ contract ForeignMediator is IForeignMediator, BasicMediator {
         setMessageTokenContract(_messageId, _tokenContract);
         setMessageTokenId(_messageId, _tokenId);
         setMessageRecipient(_messageId, _from);
+        // nocommit set token uri here
     }
 
     // token bridged from home network

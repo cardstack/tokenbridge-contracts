@@ -2,6 +2,7 @@ const { ether } = require('../helpers/helpers')
 
 const maxGasPerTx = ether('1')
 const tokenId = 456
+const otherTokenId = 789
 const isReady = true
 const cooldownIndex = 0
 const nextActionAt = 2
@@ -26,11 +27,13 @@ const metadata =
   '00005a56b294e64a52e421c928c63218845adac30406314c739c454bd2e731cb' // genes
 
 const tokenURI = 'https://example.com/token.json'
+const otherTokenURI = 'https://example.com/other-token.json'
 
 const chainId = 123
 module.exports = {
   maxGasPerTx,
   tokenId,
+  otherTokenId,
   isReady,
   cooldownIndex,
   nextActionAt,
@@ -43,7 +46,8 @@ module.exports = {
   metadata,
   exampleTxHash,
   chainId,
-  tokenURI
+  tokenURI,
+  otherTokenURI
 }
 
 // nocommit

@@ -10,6 +10,7 @@ import "../ERC721Proxy.sol";
 import "openzeppelin-solidity/contracts/AddressUtils.sol";
 
 interface TokenInterface {
+    // nocommit tidy this up, maybe remove and fix inheritance
     function totalSupply() public view returns (uint256 total);
     function balanceOf(address _owner) public view returns (uint256 balance);
     function ownerOf(uint256 _tokenId) external view returns (address owner);
@@ -18,6 +19,7 @@ interface TokenInterface {
     function transferFrom(address _from, address _to, uint256 _tokenId) external;
     function name() public view returns (string name);
     function symbol() public view returns (string symbol);
+    function tokenURI(uint256 _tokenId) public view returns (string);
 
     function mint(address _to, uint256 _tokenId) external;
     function burn(address _owner, uint256 _tokenId) external;
@@ -37,7 +39,7 @@ contract HomeMediator is BasicMediator, IHomeMediator {
         return super.initialize(_bridgeContract, _mediatorContract, _requestGasLimit, _owner);
     }
 
-    function passMessage(address _from, address _tokenContract, uint256 _tokenId, bytes _metadata) internal {
+    function passMessage(address _from, address _tokenContract, uint256 _tokenId, string _tokenURI) internal {
         bytes4 methodSelector = IForeignMediator(0).handleBridgedTokens.selector;
 
         bytes memory data = abi.encodeWithSelector(methodSelector, _from, _tokenContract, _tokenId);
@@ -51,17 +53,17 @@ contract HomeMediator is BasicMediator, IHomeMediator {
         setMessageTokenContract(_messageId, _tokenContract);
         setMessageTokenId(_messageId, _tokenId);
         setMessageRecipient(_messageId, _from);
-        // nocommit
-        // setMessageTokenURI(_messageId, _tokenURI);
+        setMessageTokenURI(_messageId, _tokenURI);
     }
 
     event NewTokenRegistered(address indexed foreignToken, address indexed homeToken);
 
+    // nocommit
     event Debug(string tag, string message);
 
     // token arrived from foreign network
     function handleBridgedTokens(
-        address _tokenContractAddress,
+        address _foreignTokenAddress,
         string _name,
         string _symbol,
         address _recipient,
@@ -70,6 +72,14 @@ contract HomeMediator is BasicMediator, IHomeMediator {
     ) external {
         require(msg.sender == address(bridgeContract()));
         require(bridgeContract().messageSender() == mediatorContractOnOtherSide());
+
+        address homeTokenAddress = this.homeTokenAddress(_foreignTokenAddress);
+
+        if (homeTokenAddress != address(0)) {
+            // a token from this contract has been bridged before
+            _mintToken(TokenInterface(homeTokenAddress), _recipient, _tokenId, _tokenURI);
+            return;
+        }
 
         string memory name = _name;
         string memory symbol = _symbol;
@@ -87,21 +97,13 @@ contract HomeMediator is BasicMediator, IHomeMediator {
 
         name = string(abi.encodePacked(name, ".CPXD"));
 
-        address homeToken = new ERC721Proxy(tokenImage(), name, symbol, bridgeContract().sourceChainId());
+        homeTokenAddress = new ERC721Proxy(tokenImage(), name, symbol, bridgeContract().sourceChainId());
 
-        TokenInterface deployedToken = TokenInterface(homeToken);
+        _setTokenAddressPair(_foreignTokenAddress, homeTokenAddress);
 
-        _setTokenAddressPair(_tokenContractAddress, homeToken);
+        emit NewTokenRegistered(_foreignTokenAddress, homeTokenAddress);
 
-        emit NewTokenRegistered(_tokenContractAddress, homeToken);
-
-        // TODO: check NFT support
-        // IBridgeUtils bridgeUtilsInstance = IBridgeUtils(bridgeUtils());
-        // bridgeUtilsInstance.addToken(homeToken);
-
-        // _handleBridgedTokens(ERC677(homeToken), _recipient, _value);
-
-        mintToken(deployedToken, _recipient, _tokenId, _tokenURI);
+        _mintToken(TokenInterface(homeTokenAddress), _recipient, _tokenId, _tokenURI);
     }
 
     /**
@@ -132,15 +134,19 @@ contract HomeMediator is BasicMediator, IHomeMediator {
         return addressStorage[keccak256(abi.encodePacked("fta", _homeToken))];
     }
 
-    function mintToken(TokenInterface _token, address _recipient, uint256 _tokenId, string _tokenURI) internal {
+    function _mintToken(TokenInterface _token, address _recipient, uint256 _tokenId, string _tokenURI) internal {
         _token.mint(_recipient, _tokenId);
         _token.setTokenURI(_tokenId, _tokenURI);
     }
 
     // received a token to burn and bridge back to the foreign network
     function bridgeSpecificActionsOnTokenTransfer(address _tokenContract, address _from, uint256 _tokenId) internal {
-        // bytes memory metadata = getMetadata(_tokenId);
-        // nocommit
+        TokenInterface token = TokenInterface(_tokenContract);
+        string memory tokenURI = token.tokenURI(_tokenId);
+        token.burn(this, _tokenId);
+        passMessage(_from, _tokenContract, _tokenId, tokenURI);
+        // function passMessage(address _from, address _tokenContract, uint256 _tokenId, bytes _metadata) internal {
+
         // ISimpleBridgeKitty(erc721token()).burn(_tokenId);
         // passMessage(_from, _tokenId, metadata);
     }

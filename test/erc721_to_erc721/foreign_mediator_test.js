@@ -15,11 +15,19 @@ const { maxGasPerTx, exampleTxHash, tokenId, chainId } = require('./helpers')
 contract('ForeignMediator', accounts => {
   const owner = accounts[0]
   const user = accounts[1]
-  beforeEach(async function() {
-    this.bridge = await ForeignMediator.new()
-    this.mediatorContractOnOtherSide = HomeMediator
+
+  describe("Basic mediator", () => {
+    beforeEach(async function() {
+      this.bridge = await ForeignMediator.new()
+      this.mediatorContractOnOtherSide = HomeMediator
+      this.handleBridgedTokensTx = async function(user, tokenAddress, tokenId) {
+        return this.bridge.contract.methods.handleBridgedTokens(user, tokenAddress, tokenId).encodeABI()
+      }
+
+    })
+    shouldBehaveLikeBasicMediator(accounts)
   })
-  shouldBehaveLikeBasicMediator(accounts)
+
   describe('transferToken', () => {
     it('should transfer tokens to mediator and emit event on amb bridge ', async () => {
       // Given
