@@ -157,7 +157,7 @@ contract HomeMediator is BasicMediator, IHomeMediator {
         uint256 _tokenId,
         bytes32 _messageId
     ) internal {
-        // nocommit
+        _mintToken(TokenInterface(_tokenContract), _recipient, _tokenId, messageTokenURI(_messageId));
         // bytes memory metadata = messageMetadata(_messageId);
         // mintToken(_recipient, _tokenId, metadata);
     }

@@ -251,130 +251,108 @@ contract('HomeMediator', accounts => {
       expect(await homeToken.name()).to.be.equal('Test on Foreign.CPXD')
       expect(await homeToken.symbol()).to.be.equal('Test on Foreign')
     })
-  })
 
-  describe.skip('fixFailedMessage', () => {
-    let bridgeContract
-    let contract
-    let mediatorContractOnOtherSide
-    let token
-    let transferMessageId
-    beforeEach(async () => {
-      bridgeContract = await AMBMock.new()
-      await bridgeContract.setMaxGasPerTx(maxGasPerTx)
-      token = await ERC721BurnableMintable.new('TEST', 'TST', chainId)
+    describe('fixFailedMessage', () => {
+      let homeToken
+      let transferMessageId
 
-      contract = await HomeMediator.new()
-      mediatorContractOnOtherSide = await ForeignMediator.new()
+      beforeEach(async () => {
+        homeToken = await ERC721BurnableMintable.new('TEST', 'TST', chainId)
+        await homeToken.mint(user, tokenId, { from: owner })
+        await homeToken.setTokenURI(tokenId, tokenURI).should.be.fulfilled
+        await homeToken.transferOwnership(contract.address, { from: owner })
+        expect(await homeToken.ownerOf(tokenId)).to.be.equal(user)
+        expect(await homeToken.totalSupply()).to.be.bignumber.equal('1')
+        // User transfer token to mediator, it burns the token and generate amb event
+        await homeToken.approve(contract.address, tokenId, { from: user })
+        const { tx } = await contract.transferToken(homeToken.address, user, tokenId, { from: user })
+        await expectRevert(homeToken.ownerOf(tokenId))
+        expect(await homeToken.totalSupply()).to.be.bignumber.equal('0')
 
-      await contract.initialize(bridgeContract.address, mediatorContractOnOtherSide.address, maxGasPerTx, owner)
+        const receipt = await web3.eth.getTransactionReceipt(tx)
+        const logs = AMBMock.decodeLogs(receipt.logs)
+        const data = `0x${logs[0].args.encodedData.substr(148, logs[0].args.encodedData.length - 148)}`
 
-      await token.mint(user, tokenId, { from: owner })
+        // Bridge calls mediator from other side
+        await bridgeContract.executeMessageCall(contract.address, mediatorContractOnOtherSide.address, data, tx, 100)
+        // Message failed
+        expect(await bridgeContract.messageCallStatus(tx)).to.be.equal(false)
 
-      await token.transferOwnership(contract.address, { from: owner })
+        const events = await getEvents(bridgeContract, { event: 'MockedEvent' })
+        expect(events.length).to.be.equal(1)
+        transferMessageId = events[0].returnValues.messageId
+      })
+      it('should fix burnt tokens', async () => {
+        // Given
+        expect(await contract.messageFixed(transferMessageId)).to.be.equal(false)
 
-      expect(await token.ownerOf(tokenId)).to.be.equal(user)
-      expect(await token.totalSupply()).to.be.bignumber.equal('1')
-      // User transfer token to mediator, it burns the token and generate amb event
-      await token.approve(contract.address, tokenId, { from: user })
-      const { tx } = await contract.transferToken(user, tokenId, { from: user })
-      await expectRevert(token.ownerOf(tokenId))
-      expect(await token.totalSupply()).to.be.bignumber.equal('0')
+        // When
+        const fixData = await contract.contract.methods.fixFailedMessage(transferMessageId).encodeABI()
 
-      const receipt = await web3.eth.getTransactionReceipt(tx)
-      const logs = AMBMock.decodeLogs(receipt.logs)
-      const data = `0x${logs[0].args.encodedData.substr(148, logs[0].args.encodedData.length - 148)}`
+        await bridgeContract.executeMessageCall(
+          contract.address,
+          mediatorContractOnOtherSide.address,
+          fixData,
+          exampleTxHash,
+          1000000
+        )
 
-      // Bridge calls mediator from other side
-      await bridgeContract.executeMessageCall(contract.address, mediatorContractOnOtherSide.address, data, tx, 100)
-      // Message failed
-      expect(await bridgeContract.messageCallStatus(tx)).to.be.equal(false)
+        // Then
+        expect(await contract.messageFixed(transferMessageId)).to.be.equal(true)
+        expect(await homeToken.ownerOf(tokenId)).to.be.equal(user)
+        expect(await homeToken.totalSupply()).to.be.bignumber.equal('1')
+        expect(await homeToken.tokenURI(tokenId)).to.be.equal(tokenURI)
 
-      const events = await getEvents(bridgeContract, { event: 'MockedEvent' })
-      expect(events.length).to.be.equal(1)
-      transferMessageId = events[0].returnValues.messageId
-    })
-    it('should fix burnt tokens', async () => {
-      // Given
-      expect(await contract.messageFixed(transferMessageId)).to.be.equal(false)
+        const otherTxHash = '0x35d3818e50234655f6aebb2a1cfbf30f59568d8a4ec72066fac5a25dbe7b8121'
+        // can only fix it one time
+        await bridgeContract.executeMessageCall(
+          contract.address,
+          mediatorContractOnOtherSide.address,
+          fixData,
+          otherTxHash,
+          1000000
+        )
+        expect(await bridgeContract.messageCallStatus(otherTxHash)).to.be.equal(false)
+        expect(await homeToken.totalSupply()).to.be.bignumber.equal('1')
 
-      // When
-      const fixData = await contract.contract.methods.fixFailedMessage(transferMessageId).encodeABI()
+        // Re send token to know that dataHash is different even if same tokenId and metadata is used
+        await homeToken.approve(contract.address, tokenId, { from: user })
+        const { tx } = await contract.transferToken(homeToken.address, user, tokenId, { from: user })
+        await expectRevert(homeToken.ownerOf(tokenId))
+        expect(await homeToken.totalSupply()).to.be.bignumber.equal('0')
 
-      await bridgeContract.executeMessageCall(
-        contract.address,
-        mediatorContractOnOtherSide.address,
-        fixData,
-        exampleTxHash,
-        1000000
-      )
+        const receipt = await web3.eth.getTransactionReceipt(tx)
+        const logs = AMBMock.decodeLogs(receipt.logs)
+        const data = `0x${logs[0].args.encodedData.substr(148, logs[0].args.encodedData.length - 148)}`
 
-      // Then
-      expect(await contract.messageFixed(transferMessageId)).to.be.equal(true)
-      expect(await token.ownerOf(tokenId)).to.be.equal(user)
-      expect(await token.totalSupply()).to.be.bignumber.equal('1')
-      const mintedKitty = await token.getKitty(tokenId)
+        // Bridge calls mediator from other side
+        await bridgeContract.executeMessageCall(contract.address, mediatorContractOnOtherSide.address, data, tx, 100)
+        // Message failed
+        expect(await bridgeContract.messageCallStatus(tx)).to.be.equal(false)
 
-      expect(mintedKitty.isGestating).to.be.equal(true)
-      expect(mintedKitty.isReady).to.be.equal(isReady)
-      expect(mintedKitty.cooldownIndex).to.be.bignumber.equal(new BN(cooldownIndex))
-      expect(mintedKitty.nextActionAt).to.be.bignumber.equal(new BN(nextActionAt))
-      expect(mintedKitty.siringWithId).to.be.bignumber.equal(new BN(siringWithId))
-      expect(mintedKitty.birthTime).to.be.bignumber.equal(new BN(birthTime))
-      expect(mintedKitty.matronId).to.be.bignumber.equal(new BN(matronId))
-      expect(mintedKitty.sireId).to.be.bignumber.equal(new BN(sireId))
-      expect(mintedKitty.generation).to.be.bignumber.equal(new BN(generation))
-      expect(mintedKitty.genes).to.be.bignumber.equal(new BN(genes))
+        const events = await getEvents(bridgeContract, { event: 'MockedEvent' })
+        expect(events.length).to.be.equal(2)
+        const newTransferMessageId = events[1].returnValues.messageId
 
-      const otherTxHash = '0x35d3818e50234655f6aebb2a1cfbf30f59568d8a4ec72066fac5a25dbe7b8121'
-      // can only fix it one time
-      await bridgeContract.executeMessageCall(
-        contract.address,
-        mediatorContractOnOtherSide.address,
-        fixData,
-        otherTxHash,
-        1000000
-      )
-      expect(await bridgeContract.messageCallStatus(otherTxHash)).to.be.equal(false)
-      expect(await token.totalSupply()).to.be.bignumber.equal('1')
+        expect(newTransferMessageId).not.to.be.equal(transferMessageId)
+      })
+      it('should be called by bridge', async () => {
+        await expectRevert(contract.fixFailedMessage(transferMessageId, { from: owner }))
+      })
+      it('message sender should be mediator from other side ', async () => {
+        // Given
+        expect(await contract.messageFixed(transferMessageId)).to.be.equal(false)
 
-      // Re send token to know that dataHash is different even if same tokenId and metadata is used
-      await token.approve(contract.address, tokenId, { from: user })
-      const { tx } = await contract.transferToken(user, tokenId, { from: user })
-      await expectRevert(token.ownerOf(tokenId))
-      expect(await token.totalSupply()).to.be.bignumber.equal('0')
+        // When
+        const fixData = await contract.contract.methods.fixFailedMessage(transferMessageId).encodeABI()
 
-      const receipt = await web3.eth.getTransactionReceipt(tx)
-      const logs = AMBMock.decodeLogs(receipt.logs)
-      const data = `0x${logs[0].args.encodedData.substr(148, logs[0].args.encodedData.length - 148)}`
+        await bridgeContract.executeMessageCall(contract.address, contract.address, fixData, exampleTxHash, 1000000)
 
-      // Bridge calls mediator from other side
-      await bridgeContract.executeMessageCall(contract.address, mediatorContractOnOtherSide.address, data, tx, 100)
-      // Message failed
-      expect(await bridgeContract.messageCallStatus(tx)).to.be.equal(false)
-
-      const events = await getEvents(bridgeContract, { event: 'MockedEvent' })
-      expect(events.length).to.be.equal(2)
-      const newTransferMessageId = events[1].returnValues.messageId
-
-      expect(newTransferMessageId).not.to.be.equal(transferMessageId)
-    })
-    it('should be called by bridge', async () => {
-      await expectRevert(contract.fixFailedMessage(transferMessageId, { from: owner }))
-    })
-    it('message sender should be mediator from other side ', async () => {
-      // Given
-      expect(await contract.messageFixed(transferMessageId)).to.be.equal(false)
-
-      // When
-      const fixData = await contract.contract.methods.fixFailedMessage(transferMessageId).encodeABI()
-
-      await bridgeContract.executeMessageCall(contract.address, contract.address, fixData, exampleTxHash, 1000000)
-
-      // Then
-      expect(await bridgeContract.messageCallStatus(exampleTxHash)).to.be.equal(false)
-      expect(await contract.messageFixed(transferMessageId)).to.be.equal(false)
-      expect(await token.totalSupply()).to.be.bignumber.equal('0')
+        // Then
+        expect(await bridgeContract.messageCallStatus(exampleTxHash)).to.be.equal(false)
+        expect(await contract.messageFixed(transferMessageId)).to.be.equal(false)
+        expect(await token.totalSupply()).to.be.bignumber.equal('0')
+      })
     })
   })
 
