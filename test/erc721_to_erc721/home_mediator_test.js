@@ -351,7 +351,7 @@ contract('HomeMediator', accounts => {
         // Then
         expect(await bridgeContract.messageCallStatus(exampleTxHash)).to.be.equal(false)
         expect(await contract.messageFixed(transferMessageId)).to.be.equal(false)
-        expect(await token.totalSupply()).to.be.bignumber.equal('0')
+        expect(await homeToken.totalSupply()).to.be.bignumber.equal('0')
       })
     })
   })
