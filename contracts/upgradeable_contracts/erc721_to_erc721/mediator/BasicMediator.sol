@@ -11,9 +11,6 @@ import "./ERC721Bridge.sol";
 contract BasicMediator is Initializable, BasicAMBMediator, ERC721Bridge, Upgradeable, Claimable {
     event FailedMessageFixed(bytes32 indexed messageId, address recipient, address tokenContract, uint256 tokenId);
 
-    // nocommit
-    // bytes4 internal constant GET_KITTY = 0xe98b7f4d; // getKitty(uint256)
-
     function initialize(address _bridgeContract, address _mediatorContract, uint256 _requestGasLimit, address _owner)
         public
         returns (bool)

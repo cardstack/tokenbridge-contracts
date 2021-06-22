@@ -13,7 +13,7 @@ contract BlockRewardWithoutSystem is BlockReward {
         _;
     }
 
-    constructor() BlockReward(address(0)) {}
+    constructor() public BlockReward(address(0)) {}
 
     function setBridgeContractAddress(address _addr) external {
         bridgeContractAddress = _addr;

@@ -11,7 +11,6 @@ interface IPermittableTokenVersion {
 * @dev Helps to reduces the size of the deployed bytecode for automatically created tokens, by using a proxy contract.
 */
 contract ERC721Proxy is Proxy {
-    // nocommit test all this
     // storage layout is copied from ERC721BurnableMintable.sol
 
     // SupportsInterfaceWithLookup

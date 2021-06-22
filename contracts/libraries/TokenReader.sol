@@ -56,7 +56,11 @@ library TokenReader {
         return _dynamicStringMethodCall(_token, encodedParams);
     }
 
-    function _readStringWithFallback(address _contract, bytes4 _selector1, bytes4 _selector2) returns (string) {
+    function _readStringWithFallback(address _contract, bytes4 _selector1, bytes4 _selector2)
+        internal
+        view
+        returns (string)
+    {
         string memory firstResult = _readStringFunctionThatMightNotExist(_contract, _selector1);
 
         if (bytes(firstResult).length > 0) {
@@ -66,7 +70,11 @@ library TokenReader {
         return _readStringFunctionThatMightNotExist(_contract, _selector2);
     }
 
-    function _readIntWithFallback(address _contract, bytes4 _selector1, bytes4 _selector2) returns (uint256) {
+    function _readIntWithFallback(address _contract, bytes4 _selector1, bytes4 _selector2)
+        internal
+        view
+        returns (uint256)
+    {
         uint256 firstResult = _readIntFunctionThatMightNotExist(_contract, _selector1);
 
         if (firstResult > 0) {
@@ -81,7 +89,7 @@ library TokenReader {
         return _dynamicStringMethodCall(_contract, encodedParams);
     }
 
-    function _dynamicStringMethodCall(address _contract, bytes encodedParams) returns (string) {
+    function _dynamicStringMethodCall(address _contract, bytes encodedParams) internal view returns (string) {
         uint256 ptr;
         uint256 size;
 
@@ -135,7 +143,7 @@ library TokenReader {
         return res;
     }
 
-    function _readIntFunctionThatMightNotExist(address _contract, bytes4 selector) returns (uint256) {
+    function _readIntFunctionThatMightNotExist(address _contract, bytes4 selector) internal view returns (uint256) {
         uint256 decimals;
         // bytes32 nameBytes = _encodeMethodSignature();
         assembly {

@@ -1,30 +1,12 @@
 pragma solidity 0.4.24;
 // nocommit rename
-// nocommit ISimpleBridgeKitty
 
 import "./BasicMediator.sol";
-import "../interfaces/ISimpleBridgeKitty.sol";
 import "../interfaces/IHomeMediator.sol";
 import "../interfaces/IForeignMediator.sol";
+import "../../../interfaces/ERC721.sol";
 import "../ERC721Proxy.sol";
 import "openzeppelin-solidity/contracts/AddressUtils.sol";
-
-interface TokenInterface {
-    // nocommit tidy this up, maybe remove and fix inheritance
-    function totalSupply() public view returns (uint256 total);
-    function balanceOf(address _owner) public view returns (uint256 balance);
-    function ownerOf(uint256 _tokenId) external view returns (address owner);
-    function approve(address _to, uint256 _tokenId) external;
-    function transfer(address _to, uint256 _tokenId) external;
-    function transferFrom(address _from, address _to, uint256 _tokenId) external;
-    function name() public view returns (string name);
-    function symbol() public view returns (string symbol);
-    function tokenURI(uint256 _tokenId) public view returns (string);
-
-    function mint(address _to, uint256 _tokenId) external;
-    function burn(address _owner, uint256 _tokenId) external;
-    function setTokenURI(uint256 _tokenId, string memory _newURI);
-}
 
 contract HomeMediator is BasicMediator, IHomeMediator {
     function initialize(
@@ -77,7 +59,7 @@ contract HomeMediator is BasicMediator, IHomeMediator {
 
         if (homeTokenAddress != address(0)) {
             // a token from this contract has been bridged before
-            _mintToken(TokenInterface(homeTokenAddress), _recipient, _tokenId, _tokenURI);
+            _mintToken(ERC721(homeTokenAddress), _recipient, _tokenId, _tokenURI);
             return;
         }
 
@@ -103,7 +85,7 @@ contract HomeMediator is BasicMediator, IHomeMediator {
 
         emit NewTokenRegistered(_foreignTokenAddress, homeTokenAddress);
 
-        _mintToken(TokenInterface(homeTokenAddress), _recipient, _tokenId, _tokenURI);
+        _mintToken(ERC721(homeTokenAddress), _recipient, _tokenId, _tokenURI);
     }
 
     /**
@@ -134,14 +116,14 @@ contract HomeMediator is BasicMediator, IHomeMediator {
         return addressStorage[keccak256(abi.encodePacked("fta", _homeToken))];
     }
 
-    function _mintToken(TokenInterface _token, address _recipient, uint256 _tokenId, string _tokenURI) internal {
+    function _mintToken(ERC721 _token, address _recipient, uint256 _tokenId, string _tokenURI) internal {
         _token.mint(_recipient, _tokenId);
         _token.setTokenURI(_tokenId, _tokenURI);
     }
 
     // received a token to burn and bridge back to the foreign network
     function bridgeSpecificActionsOnTokenTransfer(address _tokenContract, address _from, uint256 _tokenId) internal {
-        TokenInterface token = TokenInterface(_tokenContract);
+        ERC721 token = ERC721(_tokenContract);
         string memory tokenURI = token.tokenURI(_tokenId);
         token.burn(this, _tokenId);
         passMessage(_from, _tokenContract, _tokenId, tokenURI);
@@ -157,7 +139,7 @@ contract HomeMediator is BasicMediator, IHomeMediator {
         uint256 _tokenId,
         bytes32 _messageId
     ) internal {
-        _mintToken(TokenInterface(_tokenContract), _recipient, _tokenId, messageTokenURI(_messageId));
+        _mintToken(ERC721(_tokenContract), _recipient, _tokenId, messageTokenURI(_messageId));
         // bytes memory metadata = messageMetadata(_messageId);
         // mintToken(_recipient, _tokenId, metadata);
     }

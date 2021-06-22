@@ -128,11 +128,9 @@ function shouldBehaveLikeBasicMediator(accounts) {
 
         await contract.initialize(bridgeContract.address, mediatorContractOnOtherSide.address, maxGasPerTx, owner)
         try {
-          console.log('a')
           await erc721token.mint(user, tokenId, { from: owner })
           data = await this.handleBridgedTokensTx(user, erc721token.address, tokenId)
         } catch (e) {
-          console.log('b')
           data = await this.handleBridgedTokensTx(user, erc721token.address, tokenId)
           await erc721token.transferOwnership(contract.address, { from: owner })
         }

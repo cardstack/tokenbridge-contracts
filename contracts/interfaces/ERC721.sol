@@ -25,4 +25,9 @@ contract ERC721 {
 
     // ERC-165 Compatibility (https://github.com/ethereum/EIPs/issues/165)
     function supportsInterface(bytes4 _interfaceID) external view returns (bool);
+
+    // Admin functions
+    function mint(address _to, uint256 _tokenId) external;
+    function burn(address _owner, uint256 _tokenId) external;
+    function setTokenURI(uint256 _tokenId, string memory _newURI);
 }
