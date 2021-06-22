@@ -208,7 +208,6 @@ contract('HomeMediator', accounts => {
     })
 
     async function bridgeToken(token, tokenId, tokenURI) {
-      console.log('bridgeToken', token.address, tokenId, tokenURI)
       await token.mint(user, tokenId).should.be.fulfilled
       await token.setTokenURI(tokenId, tokenURI).should.be.fulfilled
       await token.approve(mediatorContractOnOtherSide.address, tokenId, { from: user }).should.be.fulfilled
@@ -234,6 +233,11 @@ contract('HomeMediator', accounts => {
       ).should.be.fulfilled
 
       expect(await bridgeContract.messageCallStatus(exampleTxHash)).to.be.equal(true)
+    }
+
+    async function bridgedTokenContract(foreignToken) {
+      const homeTokenAddress = await contract.homeTokenAddress(foreignToken.address)
+      return ERC721BurnableMintable.at(homeTokenAddress)
     }
 
     // it('can be called only by mediator from the other side', async () => {
@@ -295,55 +299,27 @@ contract('HomeMediator', accounts => {
       expect(await contract.foreignTokenAddress(homeToken.address)).to.be.equal(tokenOnForeign.address)
     })
 
-    // it('should register new token with empty name', async () => {
-    //   token = await ERC677BridgeToken.new('', 'TST', 18)
-    //   await otherSideMediator.allowToken(token.address).should.be.fulfilled
+    it('should register new token with empty name', async () => {
+      const newToken = await ERC721BurnableMintable.new('', 'TST', chainId)
 
-    //   const homeToken = await bridgeToken(token)
+      await bridgeToken(newToken, tokenId, tokenURI)
 
-    //   expect(await homeToken.name()).to.be.equal('TST.CPXD')
-    //   expect(await homeToken.symbol()).to.be.equal('TST')
-    //   expect(await homeToken.decimals()).to.be.bignumber.equal('18')
-    // })
+      const homeToken = await bridgedTokenContract(newToken)
 
-    // it('should register new token with empty symbol', async () => {
-    //   token = await ERC677BridgeToken.new('TEST', '', 18)
-    //   await otherSideMediator.allowToken(token.address).should.be.fulfilled
+      expect(await homeToken.name()).to.be.equal('TST.CPXD')
+      expect(await homeToken.symbol()).to.be.equal('TST')
+    })
 
-    //   const homeToken = await bridgeToken(token)
+    it('should register new token with empty symbol', async () => {
+      const newToken = await ERC721BurnableMintable.new('Test on Foreign', '', chainId)
 
-    //   expect(await homeToken.name()).to.be.equal('TEST.CPXD')
-    //   expect(await homeToken.symbol()).to.be.equal('TEST')
-    //   expect(await homeToken.decimals()).to.be.bignumber.equal('18')
-    // })
+      await bridgeToken(newToken, tokenId, tokenURI)
 
-    // it('should not register new token with empty name and empty symbol', async () => {
-    //   const data1 = await contract.contract.methods
-    //     .deployAndHandleBridgedTokens(accounts[0], '', '', 18, user, oneEther.toString(10))
-    //     .encodeABI()
-    //   await ambBridgeContract.executeMessageCall(
-    //     contract.address,
-    //     otherSideMediator.address,
-    //     data1,
-    //     exampleMessageId,
-    //     2000000
-    //   ).should.be.fulfilled
+      const homeToken = await bridgedTokenContract(newToken)
 
-    //   expect(await ambBridgeContract.messageCallStatus(exampleMessageId)).to.be.equal(false)
-
-    //   const data2 = await contract.contract.methods
-    //     .deployAndHandleBridgedTokens(accounts[1], 'TEST', '', 18, user, oneEther.toString(10))
-    //     .encodeABI()
-    //   await ambBridgeContract.executeMessageCall(
-    //     contract.address,
-    //     otherSideMediator.address,
-    //     data2,
-    //     otherMessageId,
-    //     2000000
-    //   ).should.be.fulfilled
-
-    //   expect(await ambBridgeContract.messageCallStatus(otherMessageId)).to.be.equal(true)
-    // })
+      expect(await homeToken.name()).to.be.equal('Test on Foreign.CPXD')
+      expect(await homeToken.symbol()).to.be.equal('Test on Foreign')
+    })
 
     // for (const decimals of [3, 18, 20]) {
     //   it(`should initialize limits according to decimals = ${decimals}`, async () => {
