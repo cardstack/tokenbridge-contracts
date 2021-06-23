@@ -1,5 +1,5 @@
-const HomeMediator = artifacts.require('HomeMediator.sol')
-const ForeignMediator = artifacts.require('ForeignMediator.sol')
+const HomeNftMediator = artifacts.require('HomeNftMediator.sol')
+const ForeignNftMediator = artifacts.require('ForeignNftMediator.sol')
 const ERC721BurnableMintable = artifacts.require('ERC721BurnableMintable.sol')
 const AMBMock = artifacts.require('AMBMock.sol')
 const UpdatedERC721ImageMock = artifacts.require('UpdatedERC721ImageMock.sol')
@@ -11,7 +11,7 @@ const { expect } = require('chai')
 const { getEvents, expectEventInTransaction, expectRevert, strip0x } = require('../helpers/helpers')
 const { BN, ZERO_ADDRESS } = require('../setup')
 
-const { shouldBehaveLikeBasicMediator } = require('./basic_mediator_test')
+const { shouldBehaveLikeBasicNftMediator } = require('./basic_mediator_test')
 
 const {
   maxGasPerTx,
@@ -24,14 +24,14 @@ const {
   failedMessageId
 } = require('./helpers')
 
-contract('HomeMediator', accounts => {
+contract('HomeNftMediator', accounts => {
   const owner = accounts[0]
   const user = accounts[1]
 
   describe('Basic mediator', () => {
     beforeEach(async function() {
-      this.bridge = await HomeMediator.new()
-      this.mediatorContractOnOtherSide = ForeignMediator
+      this.bridge = await HomeNftMediator.new()
+      this.mediatorContractOnOtherSide = ForeignNftMediator
       this.handleBridgedTokensTx = async function(user, tokenAddress, tokenId) {
         const token = await ERC721BurnableMintable.at(tokenAddress)
         const tokenURI = await token.tokenURI(tokenId)
@@ -40,17 +40,17 @@ contract('HomeMediator', accounts => {
           .encodeABI()
       }
     })
-    shouldBehaveLikeBasicMediator(accounts)
+    shouldBehaveLikeBasicNftMediator(accounts)
   })
 
   describe('transferToken', () => {
     it('should transfer token to mediator, burn the token and emit event on amb bridge ', async () => {
       // Given
-      const contract = await HomeMediator.new()
+      const contract = await HomeNftMediator.new()
       const bridgeContract = await AMBMock.new()
       await bridgeContract.setMaxGasPerTx(maxGasPerTx)
       const token = await ERC721BurnableMintable.new('TEST', 'TST', chainId)
-      const mediatorContractOnOtherSide = await ForeignMediator.new()
+      const mediatorContractOnOtherSide = await ForeignNftMediator.new()
 
       await contract.initialize(bridgeContract.address, mediatorContractOnOtherSide.address, maxGasPerTx, owner)
 
@@ -92,7 +92,7 @@ contract('HomeMediator', accounts => {
     let mediatorContractOnOtherSide
 
     beforeEach(async () => {
-      contract = await HomeMediator.new()
+      contract = await HomeNftMediator.new()
       bridgeContract = await AMBMock.new()
       bridgeContract.setMaxGasPerTx(maxGasPerTx)
 
@@ -102,7 +102,7 @@ contract('HomeMediator', accounts => {
       tokenOnForeign = await ERC721BurnableMintable.new('Test on Foreign', 'TST', chainId)
       tokenImage = await ERC721BurnableMintable.new('Token Image', 'IMG', chainId)
 
-      mediatorContractOnOtherSide = await ForeignMediator.new()
+      mediatorContractOnOtherSide = await ForeignNftMediator.new()
 
       await contract.initialize(
         bridgeContract.address,

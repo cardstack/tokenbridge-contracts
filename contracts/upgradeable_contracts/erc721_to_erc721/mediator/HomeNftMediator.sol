@@ -1,14 +1,14 @@
 pragma solidity 0.4.24;
 // nocommit rename
 
-import "./BasicMediator.sol";
-import "../interfaces/IHomeMediator.sol";
-import "../interfaces/IForeignMediator.sol";
+import "./BasicNftMediator.sol";
+import "../interfaces/IHomeNftMediator.sol";
+import "../interfaces/IForeignNftMediator.sol";
 import "../../../interfaces/ERC721.sol";
 import "../ERC721Proxy.sol";
 import "openzeppelin-solidity/contracts/AddressUtils.sol";
 
-contract HomeMediator is BasicMediator, IHomeMediator {
+contract HomeNftMediator is BasicNftMediator, IHomeNftMediator {
     function initialize(
         address _bridgeContract,
         address _mediatorContract,
@@ -22,7 +22,7 @@ contract HomeMediator is BasicMediator, IHomeMediator {
     }
 
     function passMessage(address _from, address _tokenContract, uint256 _tokenId, string _tokenURI) internal {
-        bytes4 methodSelector = IForeignMediator(0).handleBridgedTokens.selector;
+        bytes4 methodSelector = IForeignNftMediator(0).handleBridgedTokens.selector;
 
         bytes memory data = abi.encodeWithSelector(methodSelector, _from, _tokenContract, _tokenId);
 

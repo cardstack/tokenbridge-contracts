@@ -8,7 +8,7 @@ import "../../../upgradeable_contracts/BasicAMBMediator.sol";
 import "../../../libraries/Bytes.sol";
 import "./ERC721Bridge.sol";
 
-contract BasicMediator is Initializable, BasicAMBMediator, ERC721Bridge, Upgradeable, Claimable {
+contract BasicNftMediator is Initializable, BasicAMBMediator, ERC721Bridge, Upgradeable, Claimable {
     event FailedMessageFixed(bytes32 indexed messageId, address recipient, address tokenContract, uint256 tokenId);
 
     function initialize(address _bridgeContract, address _mediatorContract, uint256 _requestGasLimit, address _owner)

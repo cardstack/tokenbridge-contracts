@@ -1,19 +1,19 @@
 pragma solidity 0.4.24;
 // nocommit rename
 
-import "./BasicMediator.sol";
+import "./BasicNftMediator.sol";
 import "../../../libraries/TokenReader.sol";
 import "openzeppelin-solidity/contracts/AddressUtils.sol";
-import "../interfaces/IForeignMediator.sol";
-import "../interfaces/IHomeMediator.sol";
+import "../interfaces/IForeignNftMediator.sol";
+import "../interfaces/IHomeNftMediator.sol";
 
-contract ForeignMediator is IForeignMediator, BasicMediator {
+contract ForeignNftMediator is IForeignNftMediator, BasicNftMediator {
     function passMessage(address _tokenContract, address _from, uint256 _tokenId) internal {
         string memory tokenURI = TokenReader.readTokenURI(_tokenContract, _tokenId);
         string memory name = TokenReader.readName(_tokenContract);
         string memory symbol = TokenReader.readSymbol(_tokenContract);
 
-        bytes4 methodSelector = IHomeMediator(0).handleBridgedTokens.selector;
+        bytes4 methodSelector = IHomeNftMediator(0).handleBridgedTokens.selector;
         bytes memory data = abi.encodeWithSelector(
             methodSelector,
             _tokenContract,

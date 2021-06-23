@@ -53,7 +53,7 @@ contract ERC721Proxy is Proxy {
 
         name_ = _name;
         symbol_ = _symbol;
-        owner = msg.sender; // msg.sender == ERC721 HomeMediator
+        owner = msg.sender; // msg.sender == ERC721 HomeNftMediator
     }
 
     /**

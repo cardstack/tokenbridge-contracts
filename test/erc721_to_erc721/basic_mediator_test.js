@@ -9,8 +9,8 @@ const { ether, expectRevert } = require('../helpers/helpers')
 
 const { maxGasPerTx, tokenId, exampleMessageId, chainId } = require('./helpers')
 
-function shouldBehaveLikeBasicMediator(accounts) {
-  describe('shouldBehaveLikeBasicMediator', () => {
+function shouldBehaveLikeBasicNftMediator(accounts) {
+  describe('shouldBehaveLikeBasicNftMediator', () => {
     let bridgeContract
     let erc721token
     const owner = accounts[0]
@@ -215,5 +215,5 @@ function shouldBehaveLikeBasicMediator(accounts) {
 }
 
 module.exports = {
-  shouldBehaveLikeBasicMediator
+  shouldBehaveLikeBasicNftMediator
 }
