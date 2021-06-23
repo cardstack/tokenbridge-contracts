@@ -1656,6 +1656,7 @@ contract ERC721TokenProxy is Proxy {
         }
     }
 
+    nocommit
     /**
      * @dev Updates the implementation contract address.
      * Only the bridge and bridge owner can call this method.

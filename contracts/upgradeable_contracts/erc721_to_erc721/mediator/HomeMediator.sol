@@ -40,9 +40,6 @@ contract HomeMediator is BasicMediator, IHomeMediator {
 
     event NewTokenRegistered(address indexed foreignToken, address indexed homeToken);
 
-    // nocommit
-    event Debug(string tag, string message);
-
     // token arrived from foreign network
     function handleBridgedTokens(
         address _foreignTokenAddress,

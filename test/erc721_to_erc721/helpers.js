@@ -13,7 +13,7 @@ const sireId = 5
 const generation = 6
 const genes = '623494533466173608148163391622294272936404886827521876326676079749575115'
 const failedMessageId = '0x2ebc2ccc755acc8eaf9252e19573af708d644ab63a39619adb080a3500a4ff2e'
-const exampleTxHash = '0xf308b922ab9f8a7128d9d7bc9bce22cd88b2c05c8213f0e2d8104d78e0a9ecbb'
+const exampleMessageId = '0xf308b922ab9f8a7128d9d7bc9bce22cd88b2c05c8213f0e2d8104d78e0a9ecbb'
 const metadata =
   '0x' +
   '0000000000000000000000000000000000000000000000000000000000000001' + // isGestating
@@ -45,7 +45,7 @@ module.exports = {
   generation,
   genes,
   metadata,
-  exampleTxHash, // nocommit rename
+  exampleMessageId,
   chainId,
   tokenURI,
   otherTokenURI,

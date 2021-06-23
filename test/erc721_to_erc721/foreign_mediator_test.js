@@ -10,7 +10,7 @@ const { expectEventInTransaction, expectRevert, getEvents } = require('../helper
 
 const { shouldBehaveLikeBasicMediator } = require('./basic_mediator_test')
 
-const { maxGasPerTx, exampleTxHash, tokenId, chainId } = require('./helpers')
+const { maxGasPerTx, exampleMessageId, tokenId, chainId } = require('./helpers')
 
 contract('ForeignMediator', accounts => {
   const owner = accounts[0]
@@ -86,19 +86,19 @@ contract('ForeignMediator', accounts => {
       await bridgeContract.executeMessageCall(contract.address, owner, data, failedTxHash, 1000000)
       expect(await bridgeContract.messageCallStatus(failedTxHash)).to.be.equal(false)
 
-      expect(await bridgeContract.messageCallStatus(exampleTxHash)).to.be.equal(false)
+      expect(await bridgeContract.messageCallStatus(exampleMessageId)).to.be.equal(false)
       const { tx } = await bridgeContract.executeMessageCall(
         contract.address,
         mediatorContractOnOtherSide.address,
         data,
-        exampleTxHash,
+        exampleMessageId,
         1000000
       )
 
-      expect(await bridgeContract.messageCallStatus(exampleTxHash)).to.be.equal(true)
+      expect(await bridgeContract.messageCallStatus(exampleMessageId)).to.be.equal(true)
 
       // Should not be able to fix successful
-      await expectRevert(contract.requestFailedMessageFix(exampleTxHash))
+      await expectRevert(contract.requestFailedMessageFix(exampleMessageId))
 
       // Then
       expect(await token.totalSupply()).to.be.bignumber.equal('1')
@@ -164,7 +164,7 @@ contract('ForeignMediator', accounts => {
         contract.address,
         mediatorContractOnOtherSide.address,
         fixData,
-        exampleTxHash,
+        exampleMessageId,
         1000000
       )
 
@@ -216,10 +216,10 @@ contract('ForeignMediator', accounts => {
       // When
       const fixData = await contract.contract.methods.fixFailedMessage(transferMessageId).encodeABI()
 
-      await bridgeContract.executeMessageCall(contract.address, contract.address, fixData, exampleTxHash, 1000000)
+      await bridgeContract.executeMessageCall(contract.address, contract.address, fixData, exampleMessageId, 1000000)
 
       // Then
-      expect(await bridgeContract.messageCallStatus(exampleTxHash)).to.be.equal(false)
+      expect(await bridgeContract.messageCallStatus(exampleMessageId)).to.be.equal(false)
       expect(await contract.messageFixed(transferMessageId)).to.be.equal(false)
     })
   })

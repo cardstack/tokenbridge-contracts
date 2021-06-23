@@ -2,6 +2,7 @@ const HomeMediator = artifacts.require('HomeMediator.sol')
 const ForeignMediator = artifacts.require('ForeignMediator.sol')
 const ERC721BurnableMintable = artifacts.require('ERC721BurnableMintable.sol')
 const AMBMock = artifacts.require('AMBMock.sol')
+const UpdatedERC721ImageMock = artifacts.require('UpdatedERC721ImageMock.sol')
 
 // const { expectRevert, expectEvent, BN } = require('openzeppelin-test-helpers')
 
@@ -16,7 +17,7 @@ const {
   maxGasPerTx,
   tokenId,
   otherTokenId,
-  exampleTxHash,
+  exampleMessageId,
   chainId,
   tokenURI,
   otherTokenURI,
@@ -140,11 +141,11 @@ contract('HomeMediator', accounts => {
         contract.address,
         mediatorContractOnOtherSide.address,
         data,
-        exampleTxHash,
+        exampleMessageId,
         2000000
       ).should.be.fulfilled
 
-      expect(await bridgeContract.messageCallStatus(exampleTxHash)).to.be.equal(true)
+      expect(await bridgeContract.messageCallStatus(exampleMessageId)).to.be.equal(true)
     }
 
     async function bridgedTokenContract(foreignToken) {
@@ -168,10 +169,10 @@ contract('HomeMediator', accounts => {
         contract.address,
         mediatorContractOnOtherSide.address,
         data,
-        exampleTxHash,
+        exampleMessageId,
         1000000
       ).should.be.fulfilled
-      expect(await bridgeContract.messageCallStatus(exampleTxHash)).to.be.equal(true)
+      expect(await bridgeContract.messageCallStatus(exampleMessageId)).to.be.equal(true)
     })
 
     it('should register new token in deployAndHandleBridgedTokens, and reuse the deployed token contract for subsequent transfers', async () => {
@@ -214,7 +215,7 @@ contract('HomeMediator', accounts => {
       expect(await contract.foreignTokenAddress(homeToken.address)).to.be.equal(tokenOnForeign.address)
 
       // doesn't allow fixing a non-failed message
-      await expectRevert(contract.requestFailedMessageFix(exampleTxHash))
+      await expectRevert(contract.requestFailedMessageFix(exampleMessageId))
     })
 
     it('should register new token with empty name', async () => {
@@ -280,7 +281,7 @@ contract('HomeMediator', accounts => {
           contract.address,
           mediatorContractOnOtherSide.address,
           fixData,
-          exampleTxHash,
+          exampleMessageId,
           1000000
         )
 
@@ -333,15 +334,20 @@ contract('HomeMediator', accounts => {
         // When
         const fixData = await contract.contract.methods.fixFailedMessage(transferMessageId).encodeABI()
 
-        await bridgeContract.executeMessageCall(contract.address, contract.address, fixData, exampleTxHash, 1000000)
+        await bridgeContract.executeMessageCall(contract.address, contract.address, fixData, exampleMessageId, 1000000)
 
         // Then
-        expect(await bridgeContract.messageCallStatus(exampleTxHash)).to.be.equal(false)
+        expect(await bridgeContract.messageCallStatus(exampleMessageId)).to.be.equal(false)
         expect(await contract.messageFixed(transferMessageId)).to.be.equal(false)
         expect(await homeToken.totalSupply()).to.be.bignumber.equal('0')
       })
+
+      // nocommit test updating token image
+      // it.only('should allow updating tokenimage', async function() {
+      //   await bridgeToken(tokenOnForeign, tokenId, tokenURI)
+
+      //   let newTokenImage = await UpdatedERC721ImageMock.new('New Token Image', 'NEWIMG', chainId)
+      // })
     })
   })
-
-  // nocommit test updating token image
 })

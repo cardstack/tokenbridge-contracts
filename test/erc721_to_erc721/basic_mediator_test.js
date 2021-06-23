@@ -7,7 +7,7 @@ const { ZERO_ADDRESS } = require('../setup')
 
 const { ether, expectRevert } = require('../helpers/helpers')
 
-const { maxGasPerTx, tokenId, exampleTxHash, chainId } = require('./helpers')
+const { maxGasPerTx, tokenId, exampleMessageId, chainId } = require('./helpers')
 
 function shouldBehaveLikeBasicMediator(accounts) {
   describe('shouldBehaveLikeBasicMediator', () => {
@@ -141,15 +141,15 @@ function shouldBehaveLikeBasicMediator(accounts) {
           contract.address,
           mediatorContractOnOtherSide.address,
           data,
-          exampleTxHash,
+          exampleMessageId,
           100
         )
-        expect(await bridgeContract.messageCallStatus(exampleTxHash)).to.be.equal(false)
+        expect(await bridgeContract.messageCallStatus(exampleMessageId)).to.be.equal(false)
 
-        const dataHash = await bridgeContract.failedMessageDataHash(exampleTxHash)
+        const dataHash = await bridgeContract.failedMessageDataHash(exampleMessageId)
 
         // When
-        const { tx } = await contract.requestFailedMessageFix(exampleTxHash)
+        const { tx } = await contract.requestFailedMessageFix(exampleMessageId)
 
         // Then
         const receipt = await web3.eth.getTransactionReceipt(tx)
@@ -165,21 +165,21 @@ function shouldBehaveLikeBasicMediator(accounts) {
           bridgeContract.address,
           mediatorContractOnOtherSide.address,
           data,
-          exampleTxHash,
+          exampleMessageId,
           1000000
         )
-        expect(await bridgeContract.messageCallStatus(exampleTxHash)).to.be.equal(false)
+        expect(await bridgeContract.messageCallStatus(exampleMessageId)).to.be.equal(false)
 
         // When
-        await expectRevert(contract.requestFailedMessageFix(exampleTxHash))
+        await expectRevert(contract.requestFailedMessageFix(exampleMessageId))
       })
       it('message sender should be mediator from other side', async () => {
         // Given
-        await bridgeContract.executeMessageCall(contract.address, contract.address, data, exampleTxHash, 1000000)
-        expect(await bridgeContract.messageCallStatus(exampleTxHash)).to.be.equal(false)
+        await bridgeContract.executeMessageCall(contract.address, contract.address, data, exampleMessageId, 1000000)
+        expect(await bridgeContract.messageCallStatus(exampleMessageId)).to.be.equal(false)
 
         // When
-        await expectRevert(contract.requestFailedMessageFix(exampleTxHash))
+        await expectRevert(contract.requestFailedMessageFix(exampleMessageId))
       })
       it('should allow to request a fix multiple times', async () => {
         // Given
@@ -187,14 +187,14 @@ function shouldBehaveLikeBasicMediator(accounts) {
           contract.address,
           mediatorContractOnOtherSide.address,
           data,
-          exampleTxHash,
+          exampleMessageId,
           100
         )
-        expect(await bridgeContract.messageCallStatus(exampleTxHash)).to.be.equal(false)
+        expect(await bridgeContract.messageCallStatus(exampleMessageId)).to.be.equal(false)
 
-        const dataHash = await bridgeContract.failedMessageDataHash(exampleTxHash)
+        const dataHash = await bridgeContract.failedMessageDataHash(exampleMessageId)
 
-        const { tx } = await contract.requestFailedMessageFix(exampleTxHash)
+        const { tx } = await contract.requestFailedMessageFix(exampleMessageId)
 
         const receipt = await web3.eth.getTransactionReceipt(tx)
         const logs = AMBMock.decodeLogs(receipt.logs)
@@ -202,7 +202,7 @@ function shouldBehaveLikeBasicMediator(accounts) {
         expect(logs[0].args.encodedData.includes(dataHash.replace(/^0x/, ''))).to.be.equal(true)
 
         // When
-        const { tx: secondTx } = await contract.requestFailedMessageFix(exampleTxHash)
+        const { tx: secondTx } = await contract.requestFailedMessageFix(exampleMessageId)
 
         // Then
         const secondReceipt = await web3.eth.getTransactionReceipt(secondTx)
