@@ -1,5 +1,4 @@
 pragma solidity 0.4.24;
-// nocommit rename
 
 import "./BasicNftMediator.sol";
 import "../interfaces/IHomeNftMediator.sol";
@@ -124,10 +123,6 @@ contract HomeNftMediator is BasicNftMediator, IHomeNftMediator {
         string memory tokenURI = token.tokenURI(_tokenId);
         token.burn(this, _tokenId);
         passMessage(_from, _tokenContract, _tokenId, tokenURI);
-        // function passMessage(address _from, address _tokenContract, uint256 _tokenId, bytes _metadata) internal {
-
-        // ISimpleBridgeKitty(erc721token()).burn(_tokenId);
-        // passMessage(_from, _tokenId, metadata);
     }
 
     function executeActionOnFixedTokens(
@@ -137,8 +132,6 @@ contract HomeNftMediator is BasicNftMediator, IHomeNftMediator {
         bytes32 _messageId
     ) internal {
         _mintToken(ERC721(_tokenContract), _recipient, _tokenId, messageTokenURI(_messageId));
-        // bytes memory metadata = messageMetadata(_messageId);
-        // mintToken(_recipient, _tokenId, metadata);
     }
 
     function _setTokenImage(address _image) internal {

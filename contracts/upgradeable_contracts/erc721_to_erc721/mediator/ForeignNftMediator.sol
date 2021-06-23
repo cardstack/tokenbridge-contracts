@@ -1,6 +1,4 @@
 pragma solidity 0.4.24;
-// nocommit rename
-
 import "./BasicNftMediator.sol";
 import "../../../libraries/TokenReader.sol";
 import "openzeppelin-solidity/contracts/AddressUtils.sol";
