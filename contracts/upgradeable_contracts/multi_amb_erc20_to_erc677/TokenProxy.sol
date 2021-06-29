@@ -1,6 +1,7 @@
 pragma solidity 0.4.24;
 
 import "../../upgradeability/Proxy.sol";
+import "../../interfaces/IBridgeMediator.sol";
 
 interface IPermittableTokenVersion {
     function version() external pure returns (string);
@@ -40,11 +41,6 @@ contract TokenProxy is Proxy {
     {
         string memory version = IPermittableTokenVersion(_tokenImage).version();
 
-        assembly {
-            // EIP 1967
-            // bytes32(uint256(keccak256('eip1967.proxy.implementation')) - 1)
-            sstore(0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc, _tokenImage)
-        }
         name = _name;
         symbol = _symbol;
         decimals = _decimals;
@@ -66,8 +62,6 @@ contract TokenProxy is Proxy {
     * @return token image address.
     */
     function implementation() public view returns (address impl) {
-        assembly {
-            impl := sload(0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc)
-        }
+        return IBridgeMediator(owner).tokenImage();
     }
 }

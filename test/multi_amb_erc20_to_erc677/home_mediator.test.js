@@ -6,9 +6,11 @@ const ERC677BridgeToken = artifacts.require('ERC677BridgeToken.sol')
 const PermittableToken = artifacts.require('PermittableToken.sol')
 const Sacrifice = artifacts.require('Sacrifice.sol')
 const BridgeUtilsMock = artifacts.require('BridgeUtilsMock.sol')
+const UpdatedPermittableTokenMock = artifacts.require('UpdatedPermittableTokenMock.sol')
+const Proxy = artifacts.require('Proxy')
 
 const { expect } = require('chai')
-const { getEvents, expectEventInLogs, ether, strip0x } = require('../helpers/helpers')
+const { getEvents, expectEventInLogs, ether, strip0x, expectRevert } = require('../helpers/helpers')
 const { ZERO_ADDRESS, toBN } = require('../setup')
 
 const ZERO = toBN(0)
@@ -36,6 +38,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
   let currentDay
   let tokenImage
   let homeToken
+  let safeAddress
   const owner = accounts[0]
   const user = accounts[1]
   const user2 = accounts[2]
@@ -145,7 +148,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
 
     expect(bridgeEvents.length).to.equal(1)
 
-    const safeAddress = bridgeEvents[0].returnValues.safe
+    safeAddress = bridgeEvents[0].returnValues.safe
 
     expect(await homeToken.balanceOf(safeAddress)).to.be.bignumber.equal(bridgedValue)
     return homeToken
@@ -796,6 +799,31 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         expect(await homeToken.balanceOf(user)).to.be.bignumber.eq(ZERO)
         expect(await token.balanceOf(safeAddress)).to.be.bignumber.eq(ZERO)
         expect(await homeToken.balanceOf(safeAddress)).to.be.bignumber.eq(twoEthers)
+      })
+    })
+
+    describe('Update token image', () => {
+      it('should allow updating tokenimage', async function() {
+        const homeToken = await bridgeToken(token)
+
+        const homeTokenAsUpdated = await UpdatedPermittableTokenMock.at(homeToken.address)
+
+        expect(await homeToken.balanceOf(safeAddress)).to.be.bignumber.eq(oneEther)
+        await expectRevert(homeTokenAsUpdated.foo(user))
+
+        const newTokenImage = await UpdatedPermittableTokenMock.new('New Token Image', 'NEWIMG', 18, 1337)
+        expect(await contract.owner()).to.be.equal(owner)
+
+        // non owner cannot update token implementation
+        await expectRevert(contract.setTokenImage(newTokenImage.address, { from: user }))
+
+        await contract.setTokenImage(newTokenImage.address, { from: owner })
+        expect(await (await Proxy.at(homeToken.address)).implementation()).to.be.equal(newTokenImage.address)
+        expect(await (await Proxy.at(homeTokenAsUpdated.address)).implementation()).to.be.equal(newTokenImage.address)
+
+        expect(await homeToken.balanceOf(safeAddress)).to.be.bignumber.eq(oneEther)
+        expect(await homeTokenAsUpdated.balanceOf(safeAddress)).to.be.bignumber.eq(oneEther)
+        expect(await homeTokenAsUpdated.foo(safeAddress)).to.be.bignumber.eq(oneEther)
       })
     })
 

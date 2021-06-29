@@ -27,7 +27,7 @@ contract BasicMultiTokenBridge is EternalStorage, Ownable {
     * @return amount of tokens sent through the bridge to the other side.
     */
     function totalSpentPerDay(address _token, uint256 _day) public view returns (uint256) {
-        return uintStorage[keccak256(abi.encodePacked("totalSpentPerDay", _token, _day))];
+        return uintStorage[keccak256(abi.encodePacked("tSpD", _token, _day))];
     }
 
     /**
@@ -204,9 +204,7 @@ contract BasicMultiTokenBridge is EternalStorage, Ownable {
     * @param _value amount of bridge tokens.
     */
     function addTotalSpentPerDay(address _token, uint256 _day, uint256 _value) internal {
-        uintStorage[keccak256(abi.encodePacked("totalSpentPerDay", _token, _day))] = totalSpentPerDay(_token, _day).add(
-            _value
-        );
+        uintStorage[keccak256(abi.encodePacked("tSpD", _token, _day))] = totalSpentPerDay(_token, _day).add(_value);
     }
 
     /**
