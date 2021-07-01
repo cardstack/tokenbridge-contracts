@@ -7,7 +7,6 @@ const StakingTest = artifacts.require('Staking.sol')
 const HomeErcToErcBridge = artifacts.require('HomeBridgeErcToErcMock.sol')
 const ForeignNativeToErcBridge = artifacts.require('ForeignBridgeNativeToErcMock.sol')
 const BridgeValidators = artifacts.require('BridgeValidators.sol')
-const TokenProxy = artifacts.require('TokenProxy.sol')
 const PermittableTokenMock = artifacts.require('PermittableTokenMock.sol')
 const BridgeMediatorMock = artifacts.require('BridgeMediatorMock.sol')
 
