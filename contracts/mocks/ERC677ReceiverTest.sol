@@ -7,6 +7,7 @@ contract ERC677ReceiverTest is ERC677Receiver {
     uint256 public value;
     bytes public data;
     uint256 public someVar = 0;
+    address public tokenImage;
 
     function onTokenTransfer(address _from, uint256 _value, bytes _data) external returns (bool) {
         from = _from;
@@ -19,4 +20,9 @@ contract ERC677ReceiverTest is ERC677Receiver {
     function doSomething(uint256 _value) public {
         someVar = _value;
     }
+
+    function setTokenImage(address _tokenImage) {
+        tokenImage = _tokenImage;
+    }
+
 }

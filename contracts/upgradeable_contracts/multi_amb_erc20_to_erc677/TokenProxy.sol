@@ -62,6 +62,6 @@ contract TokenProxy is Proxy {
     * @return token image address.
     */
     function implementation() public view returns (address impl) {
-        return IBridgeMediator(owner).tokenImage();
+        return IBridgeMediator(bridgeContractAddr).tokenImage();
     }
 }

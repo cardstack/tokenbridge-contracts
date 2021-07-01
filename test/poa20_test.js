@@ -4,11 +4,12 @@ const POA20RewardableMock = artifacts.require('ERC677BridgeTokenRewardableMock')
 const ERC677ReceiverTest = artifacts.require('ERC677ReceiverTest.sol')
 const BlockRewardTest = artifacts.require('BlockRewardMock.sol')
 const StakingTest = artifacts.require('Staking.sol')
-const HomeErcToErcBridge = artifacts.require('HomeBridgeErcToErc.sol')
-const ForeignNativeToErcBridge = artifacts.require('ForeignBridgeNativeToErc.sol')
+const HomeErcToErcBridge = artifacts.require('HomeBridgeErcToErcMock.sol')
+const ForeignNativeToErcBridge = artifacts.require('ForeignBridgeNativeToErcMock.sol')
 const BridgeValidators = artifacts.require('BridgeValidators.sol')
 const TokenProxy = artifacts.require('TokenProxy.sol')
 const PermittableTokenMock = artifacts.require('PermittableTokenMock.sol')
+const BridgeMediatorMock = artifacts.require('BridgeMediatorMock.sol')
 
 const { expect } = require('chai')
 const ethUtil = require('ethereumjs-util')
@@ -26,8 +27,9 @@ const executionDailyLimit = oneEther
 const executionMaxPerTx = halfEther
 const ZERO = new BN(0)
 const decimalShiftZero = 0
+const MAX_INT = new BN('115792089237316195423570985008687907853269984665640564039457584007913129639935')
 
-function testERC677BridgeToken(accounts, rewardable, permittable, createToken) {
+function testERC677BridgeToken(accounts, rewardable, permittable, createToken, dynamicProxy) {
   let token
   const owner = accounts[0]
   const user = accounts[1]
@@ -35,6 +37,23 @@ function testERC677BridgeToken(accounts, rewardable, permittable, createToken) {
   async function addBridge(token, bridge, options = { from: owner }) {
     if (rewardable) {
       return token.addBridge(bridge, options)
+    }
+    if (dynamicProxy) {
+      expect(await token.owner()).to.be.equal(options.from)
+
+      const oldBridgeAddress = await token.bridgeContract()
+      const oldBridgeContract = await BridgeMediatorMock.at(oldBridgeAddress)
+      const oldImplementationAddress = await oldBridgeContract.tokenImage()
+
+      const bridgeContract = await HomeErcToErcBridge.at(bridge)
+      await bridgeContract.setTokenImage(oldImplementationAddress)
+      expect(await bridgeContract.tokenImage()).to.be.eq(oldImplementationAddress)
+
+      await token.setBridgeContract(bridge, options)
+
+      expect(await isBridge(token, bridge)).to.be.equal(true)
+
+      return expect(await token.owner()).to.be.equal(options.from)
     }
     return token.setBridgeContract(bridge, options)
   }
@@ -74,12 +93,11 @@ function testERC677BridgeToken(accounts, rewardable, permittable, createToken) {
       await addBridge(token, homeErcToErcContract.address).should.be.fulfilled
       expect(await isBridge(token, homeErcToErcContract.address)).to.be.equal(true)
     })
-
     it('only owner can set bridge contract', async () => {
       const homeErcToErcContract = await HomeErcToErcBridge.new()
       expect(await isBridge(token, homeErcToErcContract.address)).to.be.equal(false)
 
-      await addBridge(token, homeErcToErcContract.address, { from: user }).should.be.rejectedWith(ERROR_MSG)
+      await addBridge(token, homeErcToErcContract.address, { from: user }).should.be.rejected
       expect(await isBridge(token, homeErcToErcContract.address)).to.be.equal(false)
 
       await addBridge(token, homeErcToErcContract.address, { from: owner }).should.be.fulfilled
@@ -90,10 +108,10 @@ function testERC677BridgeToken(accounts, rewardable, permittable, createToken) {
       const invalidContractAddress = '0xaaB52d66283F7A1D5978bcFcB55721ACB467384b'
       expect(await isBridge(token, invalidContractAddress)).to.be.equal(false)
 
-      await addBridge(token, invalidContractAddress).should.be.rejectedWith(ERROR_MSG)
+      await addBridge(token, invalidContractAddress).should.be.rejected
       expect(await isBridge(token, invalidContractAddress)).to.be.equal(false)
 
-      await addBridge(token, ZERO_ADDRESS).should.be.rejectedWith(ERROR_MSG)
+      await addBridge(token, ZERO_ADDRESS).should.be.rejected
       expect(await isBridge(token, invalidContractAddress)).to.be.equal(false)
     })
   })
@@ -486,8 +504,9 @@ function testERC677BridgeToken(accounts, rewardable, permittable, createToken) {
     })
 
     it('sends tokens to bridge contract', async () => {
-      await addBridge(token, homeErcToErcContract.address).should.be.fulfilled
+      expect(await token.owner()).to.be.equal(owner)
       await token.mint(user, oneEther, { from: owner }).should.be.fulfilled
+      await addBridge(token, homeErcToErcContract.address).should.be.fulfilled
 
       const result = await token.transferAndCall(homeErcToErcContract.address, minPerTx, '0x', {
         from: user
@@ -497,7 +516,6 @@ function testERC677BridgeToken(accounts, rewardable, permittable, createToken) {
         to: homeErcToErcContract.address,
         value: minPerTx
       })
-
       await addBridge(token, foreignNativeToErcBridge.address).should.be.fulfilled
       const result2 = await token.transferAndCall(foreignNativeToErcBridge.address, minPerTx, '0x', { from: user })
         .should.be.fulfilled
@@ -553,7 +571,7 @@ function testERC677BridgeToken(accounts, rewardable, permittable, createToken) {
       expect(await tokenSecond.balanceOf(token.address)).to.be.bignumber.equal(ZERO)
       halfEther.should.be.bignumber.equal(await tokenSecond.balanceOf(accounts[3]))
     })
-    it('works with token that not return on transfer', async () => {
+    it('works with token that does not return on transfer', async () => {
       const owner = accounts[0]
       const halfEther = ether('0.5')
       const tokenMock = await NoReturnTransferTokenMock.new()
@@ -771,10 +789,9 @@ function testERC677BridgeToken(accounts, rewardable, permittable, createToken) {
           privateKey
         )
         await token.setNow(800).should.be.fulfilled
-        await token.permit(holder, spender, nonce, expiry, allowed, signature.v, signature.r, signature.s).should.be
-          .fulfilled
+        await token.permit(holder, spender, nonce, expiry, allowed, signature.v, signature.r, signature.s)
         ;(await token.expirations.call(holder, spender)).should.be.bignumber.equal(new BN(expiry))
-        const data = await token.contract.methods.approve(spender, -1).encodeABI()
+        const data = await token.contract.methods.approve(spender, MAX_INT).encodeABI()
         await web3.eth.sendTransaction({ from: holder, to: token.address, data, gas: 100000 }).should.be.fulfilled
         ;(await token.expirations.call(holder, spender)).should.be.bignumber.equal(ZERO)
       })
@@ -800,7 +817,7 @@ function testERC677BridgeToken(accounts, rewardable, permittable, createToken) {
         await token.permit(holder, spender, nonce, expiry, allowed, signature.v, signature.r, signature.s).should.be
           .fulfilled
         ;(await token.expirations.call(holder, spender)).should.be.bignumber.equal(new BN(expiry))
-        let data = await token.contract.methods.approve(spender, -2).encodeABI()
+        let data = await token.contract.methods.approve(spender, MAX_INT.add(new BN(-1))).encodeABI()
         await web3.eth.sendTransaction({ from: holder, to: token.address, data, gas: 100000 }).should.be.fulfilled
         ;(await token.expirations.call(holder, spender)).should.be.bignumber.equal(new BN(expiry))
         data = await token.contract.methods.increaseAllowance(spender, 1).encodeABI()
@@ -961,11 +978,16 @@ contract('ERC677BridgeTokenRewardable', accounts => {
 contract('TokenProxy', accounts => {
   const createToken = async args => {
     const impl = await PermittableTokenMock.new(...args)
-    const proxy = await TokenProxy.new(impl.address, ...args)
-    return PermittableTokenMock.at(proxy.address)
+    const mediator = await BridgeMediatorMock.new(impl.address)
+    const result = await mediator.deployProxy(...args)
+    const token = await PermittableTokenMock.at(result.logs[0].args.proxy)
+    await token.mockSetOwner(accounts[0])
+    expect(await token.owner()).to.be.eq(accounts[0])
+
+    return token
   }
 
-  testERC677BridgeToken(accounts, false, true, createToken)
+  testERC677BridgeToken(accounts, false, true, createToken, true)
 
   describe('constants', () => {
     let token

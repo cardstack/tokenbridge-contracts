@@ -20,4 +20,7 @@ contract PermittableTokenMock is PermittableToken {
         return _blockTimestamp != 0 ? _blockTimestamp : block.timestamp;
     }
 
+    function mockSetOwner(address _newOwner) public {
+        owner = _newOwner;
+    }
 }
