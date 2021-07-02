@@ -29,10 +29,14 @@ jobs:
         id: npm-cache
         with:
           path: node_modules
-          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+          key: v2-${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
       - run: npm install
         if: ${{ !steps.npm-cache.outputs.cache-hit }}
+        # Some tests are isolated by an env flag due to suspected ganache issue
       - run: npm run test
+      - run: npm run test
+        env:
+          REWARDABLE_INITIALIZE_TEST: true
   contract-size:
     runs-on: ubuntu-latest
     steps:
@@ -44,7 +48,7 @@ jobs:
         id: npm-cache
         with:
           path: node_modules
-          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+          key: v2-${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
       - run: npm install
         if: ${{ !steps.npm-cache.outputs.cache-hit }}
       - run: npm run contract-size
@@ -60,7 +64,7 @@ jobs:
         id: npm-cache
         with:
           path: node_modules
-          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+          key: v2-${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
       - run: npm install
         if: ${{ !steps.npm-cache.outputs.cache-hit }}
       - run: npm run test:gasreport:ci
@@ -78,7 +82,7 @@ jobs:
         id: npm-cache
         with:
           path: node_modules
-          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+          key: v2-${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
       - run: npm install
         if: ${{ !steps.npm-cache.outputs.cache-hit }}
       - run: npm run coverage
