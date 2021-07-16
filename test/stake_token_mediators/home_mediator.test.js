@@ -45,6 +45,22 @@ contract('HomeStakeTokenMediator', async accounts => {
   })
 
   describe('rewardableInitialize', async () => {
+    it('should not accept invalid blockReward', async () => {
+      // invalid block reward
+      await homeMediator.rewardableInitialize(
+        homeBridge.address,
+        foreignMediator.address,
+        token.address,
+        [dailyLimit, maxPerTx, minPerTx],
+        [executionDailyLimit, executionMaxPerTx],
+        maxGasPerTx,
+        decimalShiftZero,
+        owner,
+        foreignMediator.address,
+        homeFee
+      ).should.be.rejected
+    })
+
     it('should initialize', async () => {
       // For some reason these tests are flakey on CI without a slight delay between reads -
       // I believe this is a local truffle / ganache issue as they are just simple
@@ -144,22 +160,6 @@ contract('HomeStakeTokenMediator', async accounts => {
       expectEventInLogs(logs, 'ExecutionDailyLimitChanged', { newLimit: executionDailyLimit })
       expectEventInLogs(logs, 'DailyLimitChanged', { newLimit: dailyLimit })
       expectEventInLogs(logs, 'FeeUpdated', { fee: homeFee })
-    })
-
-    it('should not accept invalid blockReward', async () => {
-      // invalid block reward
-      await homeMediator.rewardableInitialize(
-        homeBridge.address,
-        foreignMediator.address,
-        token.address,
-        [dailyLimit, maxPerTx, minPerTx],
-        [executionDailyLimit, executionMaxPerTx],
-        maxGasPerTx,
-        decimalShiftZero,
-        owner,
-        foreignMediator.address,
-        homeFee
-      ).should.be.rejected
     })
   })
 
