@@ -62,45 +62,19 @@ contract('HomeStakeTokenMediator', async accounts => {
     })
 
     it('should initialize', async () => {
-      // For some reason these tests are flakey on CI without a slight delay between reads -
-      // I believe this is a local truffle / ganache issue as they are just simple
-      // contract fuction reads that stall with a timeout intermittently on CI
-
-      let i = 0
-
-      const d = async function() {
-        console.log('Delay', i)
-        await delay(20)
-        i += 1
-      }
-
-      await d()
       expect(await homeMediator.isInitialized()).to.be.equal(false)
-      await d()
       expect(await homeMediator.bridgeContract()).to.be.equal(ZERO_ADDRESS)
-      await d()
       expect(await homeMediator.mediatorContractOnOtherSide()).to.be.equal(ZERO_ADDRESS)
-      await d()
       expect(await homeMediator.erc677token()).to.be.equal(ZERO_ADDRESS)
-      await d()
       expect(await homeMediator.dailyLimit()).to.be.bignumber.equal(ZERO)
-      await d()
       expect(await homeMediator.maxPerTx()).to.be.bignumber.equal(ZERO)
-      await d()
       expect(await homeMediator.minPerTx()).to.be.bignumber.equal(ZERO)
-      await d()
       expect(await homeMediator.executionDailyLimit()).to.be.bignumber.equal(ZERO)
-      await d()
       expect(await homeMediator.executionMaxPerTx()).to.be.bignumber.equal(ZERO)
-      await d()
       expect(await homeMediator.requestGasLimit()).to.be.bignumber.equal(ZERO)
-      await d()
       expect(await homeMediator.owner()).to.be.equal(ZERO_ADDRESS)
-      await d()
       expect(await homeMediator.getFee()).to.be.bignumber.equal(ZERO)
-      await d()
       expect(await homeMediator.blockRewardContract()).to.be.equal(ZERO_ADDRESS)
-      await d()
 
       const { logs } = await homeMediator.rewardableInitialize(
         homeBridge.address,
@@ -129,33 +103,19 @@ contract('HomeStakeTokenMediator', async accounts => {
         homeFee
       ).should.be.rejected
 
-      await d()
       expect(await homeMediator.isInitialized()).to.be.equal(true)
-      await d()
       expect(await homeMediator.bridgeContract()).to.be.equal(homeBridge.address)
-      await d()
       expect(await homeMediator.mediatorContractOnOtherSide()).to.be.equal(foreignMediator.address)
-      await d()
       expect(await homeMediator.erc677token()).to.be.equal(token.address)
-      await d()
       expect(await homeMediator.dailyLimit()).to.be.bignumber.equal(dailyLimit)
-      await d()
       expect(await homeMediator.maxPerTx()).to.be.bignumber.equal(maxPerTx)
-      await d()
       expect(await homeMediator.minPerTx()).to.be.bignumber.equal(minPerTx)
-      await d()
       expect(await homeMediator.executionDailyLimit()).to.be.bignumber.equal(executionDailyLimit)
-      await d()
       expect(await homeMediator.executionMaxPerTx()).to.be.bignumber.equal(executionMaxPerTx)
-      await d()
       expect(await homeMediator.requestGasLimit()).to.be.bignumber.equal(maxGasPerTx)
-      await d()
       expect(await homeMediator.owner()).to.be.equal(owner)
-      await d()
       expect(await homeMediator.getFee()).to.be.bignumber.equal(homeFee)
-      await d()
       expect(await homeMediator.blockRewardContract()).to.be.equal(blockReward.address)
-      await d()
 
       expectEventInLogs(logs, 'ExecutionDailyLimitChanged', { newLimit: executionDailyLimit })
       expectEventInLogs(logs, 'DailyLimitChanged', { newLimit: dailyLimit })
