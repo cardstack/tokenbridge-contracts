@@ -32,9 +32,11 @@ jobs:
           key: v2-${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
       - run: npm install
         if: ${{ !steps.npm-cache.outputs.cache-hit }}
+        # Some tests are isolated by an env flag due to suspected ganache issue
+      - run: npm run test
       - run: npm run test
         env:
-          NODE_OPTIONS: --max_old_space_size=4096
+          REWARDABLE_INITIALIZE_TEST: true
   contract-size:
     runs-on: ubuntu-latest
     steps:
