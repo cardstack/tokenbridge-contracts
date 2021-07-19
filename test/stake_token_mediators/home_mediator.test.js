@@ -6,7 +6,7 @@ const BlockReward = artifacts.require('BlockRewardMock.sol')
 const MintHandlerMock = artifacts.require('MintHandlerMock.sol')
 
 const { expect } = require('chai')
-const { ether, expectEventInLogs, getEvents, delay } = require('../helpers/helpers')
+const { ether, expectEventInLogs, getEvents } = require('../helpers/helpers')
 const { toBN, ZERO_ADDRESS } = require('../setup')
 
 const ZERO = toBN(0)
