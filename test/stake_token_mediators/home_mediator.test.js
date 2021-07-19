@@ -61,7 +61,7 @@ contract('HomeStakeTokenMediator', async accounts => {
       ).should.be.rejected
     })
 
-    it('should initialize', async () => {
+    it('should check intialization params', async () => {
       expect(await homeMediator.isInitialized()).to.be.equal(false)
       expect(await homeMediator.bridgeContract()).to.be.equal(ZERO_ADDRESS)
       expect(await homeMediator.mediatorContractOnOtherSide()).to.be.equal(ZERO_ADDRESS)
@@ -75,7 +75,9 @@ contract('HomeStakeTokenMediator', async accounts => {
       expect(await homeMediator.owner()).to.be.equal(ZERO_ADDRESS)
       expect(await homeMediator.getFee()).to.be.bignumber.equal(ZERO)
       expect(await homeMediator.blockRewardContract()).to.be.equal(ZERO_ADDRESS)
+    })
 
+    it('should initialize', async () => {
       const { logs } = await homeMediator.rewardableInitialize(
         homeBridge.address,
         foreignMediator.address,
