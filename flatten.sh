@@ -72,6 +72,6 @@ ${FLATTENER} ${BRIDGE_CONTRACTS_DIR}/multi_amb_erc20_to_erc677/HomeMultiAMBErc20
 ${FLATTENER} ${BRIDGE_CONTRACTS_DIR}/multi_amb_erc20_to_erc677/ForeignMultiAMBErc20ToErc677.sol > flats/multi_amb_erc20_to_erc677/ForeignMultiAMBErc20ToErc677_flat.sol
 
 echo "Flattening contracts related to multi-erc721-to-erc721 on top of AMB bridge"
-${FLATTENER} ${BRIDGE_CONTRACTS_DIR}/erc721_to_erc721/mediator/HomeMediator.sol > flats/erc721_to_erc721/HomeMediator_flat.sol
-${FLATTENER} ${BRIDGE_CONTRACTS_DIR}/erc721_to_erc721/mediator/ForeignMediator.sol > flats/erc721_to_erc721/ForeignMediator_flat.sol
+${FLATTENER} ${BRIDGE_CONTRACTS_DIR}/erc721_to_erc721/mediator/HomeNftMediator.sol > flats/erc721_to_erc721/HomeNftMediator_flat.sol
+${FLATTENER} ${BRIDGE_CONTRACTS_DIR}/erc721_to_erc721/mediator/ForeignNftMediator.sol > flats/erc721_to_erc721/ForeignNftMediator_flat.sol
 ${FLATTENER} ${BRIDGE_CONTRACTS_DIR}/erc721_to_erc721/ERC721BurnableMintable.sol > flats/erc721_to_erc721/ERC721BurnableMintable.sol

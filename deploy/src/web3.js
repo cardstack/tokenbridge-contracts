@@ -20,13 +20,15 @@ const {
 
 const homeProvider = new TrezorWalletProvider(HOME_RPC_URL, {
   chainId: HOME_CHAIN_ID,
-  derivationPathPrefix: HOME_KEY_DERIVATION_PATH
+  derivationPathPrefix: HOME_KEY_DERIVATION_PATH,
+  numberOfAccounts: 3
 })
 const web3Home = new Web3(homeProvider)
 
 const foreignProvider = new TrezorWalletProvider(FOREIGN_RPC_URL, {
   chainId: FOREIGN_CHAIN_ID,
-  derivationPathPrefix: FOREIGN_KEY_DERIVATION_PATH
+  derivationPathPrefix: FOREIGN_KEY_DERIVATION_PATH,
+  numberOfAccounts: 3
 })
 const web3Foreign = new Web3(foreignProvider)
 

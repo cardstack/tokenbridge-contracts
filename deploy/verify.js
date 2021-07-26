@@ -1,4 +1,4 @@
-// const env = require('./src/loadEnv')
+const env = require('./src/loadEnv')
 const verifier = require('./src/utils/verifier')
 
 const { web3Home, web3Foreign } = require('./src/web3')
@@ -20,8 +20,8 @@ async function verifyHome(artifact, address) {
   await verifier({
     artifact,
     address,
-    apiUrl: process.env.HOME_EXPLORER_URL,
-    apiKey: process.env.HOME_EXPLORER_API_KEY
+    apiUrl: env.HOME_EXPLORER_URL,
+    apiKey: env.HOME_EXPLORER_API_KEY
   })
 }
 
@@ -29,8 +29,8 @@ async function verifyForeign(artifact, address) {
   await verifier({
     artifact,
     address,
-    apiUrl: process.env.FOREIGN_EXPLORER_URL,
-    apiKey: process.env.FOREIGN_EXPLORER_API_KEY
+    apiUrl: env.FOREIGN_EXPLORER_URL,
+    apiKey: env.FOREIGN_EXPLORER_API_KEY
   })
 }
 
