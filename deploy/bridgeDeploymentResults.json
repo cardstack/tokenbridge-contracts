@@ -1,12 +1,12 @@
 {
     "homeBridge": {
         "homeBridgeMediator": {
-            "address": "0x16a80598DD2f143CFBf091638CE3fB02c9135528"
+            "address": "0xd1e46b8a371AF04Ce74c993B325b844ef0f48b16"
         }
     },
     "foreignBridge": {
         "foreignBridgeMediator": {
-            "address": "0x366b4cc64D30849568af65522De3a68ea6CC78cE"
+            "address": "0x95d4FAe56F49c2FE6700A7135B6fb7a5aBA5a450"
         }
     }
 }
