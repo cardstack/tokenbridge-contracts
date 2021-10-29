@@ -825,6 +825,15 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         expect(await homeTokenAsUpdated.balanceOf(safeAddress)).to.be.bignumber.eq(oneEther)
         expect(await homeTokenAsUpdated.foo(safeAddress)).to.be.bignumber.eq(oneEther)
       })
+
+      it('should fix the name of an already deployed token', async function() {
+        const token = await PermittableToken.new('xDai.CPXD', 'DAI', 18, 1337)
+        expect(await token.name()).to.be.equal('xDai.CPXD')
+        expect(await token.symbol()).to.be.equal('DAI')
+        await token.migrateTokenMetadata()
+        expect(await token.name()).to.be.equal('xDai (CPXD)')
+        expect(await token.symbol()).to.be.equal('DAI.CPXD')
+      })
     })
 
     describe('relayTokens', () => {

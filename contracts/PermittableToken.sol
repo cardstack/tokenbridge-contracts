@@ -1,9 +1,10 @@
 pragma solidity 0.4.24;
 
 import "./ERC677BridgeToken.sol";
+import "./libraries/strings.sol";
 
 contract PermittableToken is ERC677BridgeToken {
-    string public constant version = "1";
+    string public constant version = "2";
 
     // EIP712 niceties
     bytes32 public DOMAIN_SEPARATOR;
@@ -12,6 +13,8 @@ contract PermittableToken is ERC677BridgeToken {
 
     mapping(address => uint256) public nonces;
     mapping(address => mapping(address => uint256)) public expirations;
+
+    using strings for *;
 
     constructor(string memory _name, string memory _symbol, uint8 _decimals, uint256 _chainId)
         public
@@ -162,5 +165,16 @@ contract PermittableToken is ERC677BridgeToken {
 
     function _now() internal view returns (uint256) {
         return block.timestamp;
+    }
+
+    function migrateTokenMetadata() public {
+        var nameSlice = name.toSlice();
+        var needle = ".CPXD".toSlice();
+
+        if (nameSlice.endsWith(needle)) {
+            var substring = nameSlice.until(needle);
+            name = string(abi.encodePacked(substring.toString(), " (CPXD)"));
+            symbol = string(abi.encodePacked(symbol, ".CPXD"));
+        }
     }
 }
