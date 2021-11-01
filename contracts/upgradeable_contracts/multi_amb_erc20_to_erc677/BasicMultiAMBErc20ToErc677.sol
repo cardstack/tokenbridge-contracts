@@ -18,7 +18,6 @@ contract BasicMultiAMBErc20ToErc677 is
     ReentrancyGuard,
     Upgradeable,
     Claimable,
-    VersionableBridge,
     MultiTokenBridgeMediator
 {
     /**
@@ -49,24 +48,6 @@ contract BasicMultiAMBErc20ToErc677 is
     */
     function relayTokens(ERC677 token, uint256 _value) external {
         _relayTokens(token, msg.sender, _value);
-    }
-
-    /**
-    * @dev Tells the bridge interface version that this contract supports.
-    * @return major value of the version
-    * @return minor value of the version
-    * @return patch value of the version
-    */
-    function getBridgeInterfacesVersion() external pure returns (uint64 major, uint64 minor, uint64 patch) {
-        return (1, 2, 0);
-    }
-
-    /**
-    * @dev Tells the bridge mode that this contract supports.
-    * @return _data 4 bytes representing the bridge mode
-    */
-    function getBridgeMode() external pure returns (bytes4 _data) {
-        return 0xb1516c26; // bytes4(keccak256(abi.encodePacked("multi-erc-to-erc-amb")))
     }
 
     /**

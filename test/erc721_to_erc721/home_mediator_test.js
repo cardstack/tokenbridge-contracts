@@ -182,8 +182,8 @@ contract('HomeNftMediator', accounts => {
       expect(events[0].returnValues.foreignToken).to.be.equal(tokenOnForeign.address)
       const homeToken = await ERC721BurnableMintable.at(events[0].returnValues.homeToken)
 
-      expect(await homeToken.name()).to.be.equal('Test on Foreign.CPXD')
-      expect(await homeToken.symbol()).to.be.equal('TST')
+      expect(await homeToken.name()).to.be.equal('Test on Foreign (CPXD)')
+      expect(await homeToken.symbol()).to.be.equal('TST.CPXD')
       expect(await homeToken.version()).to.be.equal('1')
       expect(await homeToken.owner()).to.be.equal(contract.address)
       expect(await homeToken.totalSupply()).to.be.bignumber.equal('1')
@@ -200,8 +200,8 @@ contract('HomeNftMediator', accounts => {
       expect(events.length).to.be.equal(1)
       expect(events[0].returnValues.foreignToken).to.be.equal(tokenOnForeign.address)
 
-      expect(await homeToken.name()).to.be.equal('Test on Foreign.CPXD')
-      expect(await homeToken.symbol()).to.be.equal('TST')
+      expect(await homeToken.name()).to.be.equal('Test on Foreign (CPXD)')
+      expect(await homeToken.symbol()).to.be.equal('TST.CPXD')
       expect(await homeToken.version()).to.be.equal('1')
       expect(await homeToken.owner()).to.be.equal(contract.address)
       expect(await homeToken.totalSupply()).to.be.bignumber.equal('2')
@@ -224,8 +224,8 @@ contract('HomeNftMediator', accounts => {
 
       const homeToken = await bridgedTokenContract(newToken)
 
-      expect(await homeToken.name()).to.be.equal('TST.CPXD')
-      expect(await homeToken.symbol()).to.be.equal('TST')
+      expect(await homeToken.name()).to.be.equal('TST (CPXD)')
+      expect(await homeToken.symbol()).to.be.equal('TST.CPXD')
     })
 
     it('should register new token with empty symbol', async () => {
@@ -235,8 +235,8 @@ contract('HomeNftMediator', accounts => {
 
       const homeToken = await bridgedTokenContract(newToken)
 
-      expect(await homeToken.name()).to.be.equal('Test on Foreign.CPXD')
-      expect(await homeToken.symbol()).to.be.equal('Test on Foreign')
+      expect(await homeToken.name()).to.be.equal('Test on Foreign (CPXD)')
+      expect(await homeToken.symbol()).to.be.equal('Test on Foreign.CPXD')
     })
 
     describe('fixFailedMessage', () => {
