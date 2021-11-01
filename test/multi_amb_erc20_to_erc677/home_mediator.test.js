@@ -350,18 +350,6 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
     })
   })
 
-  describe('getBridgeMode', () => {
-    it('should return mediator mode and interface', async function() {
-      const bridgeModeHash = '0xb1516c26' // 4 bytes of keccak256('multi-erc-to-erc-amb')
-      expect(await contract.getBridgeMode()).to.be.equal(bridgeModeHash)
-
-      const { major, minor, patch } = await contract.getBridgeInterfacesVersion()
-      major.should.be.bignumber.gte(ZERO)
-      minor.should.be.bignumber.gte(ZERO)
-      patch.should.be.bignumber.gte(ZERO)
-    })
-  })
-
   describe('claimTokens', () => {
     beforeEach(async () => {
       const storageProxy = await EternalStorageProxy.new()
@@ -457,8 +445,8 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
       it('should register new token in deployAndHandleBridgedTokens', async () => {
         const homeToken = await bridgeToken(token)
 
-        expect(await homeToken.name()).to.be.equal('TEST.CPXD')
-        expect(await homeToken.symbol()).to.be.equal('TST')
+        expect(await homeToken.name()).to.be.equal('TEST (CPXD)')
+        expect(await homeToken.symbol()).to.be.equal('TST.CPXD')
         expect(await homeToken.decimals()).to.be.bignumber.equal('18')
         expect(await homeToken.version()).to.be.equal('1')
         expect(await homeToken.owner()).to.be.equal(contract.address)
@@ -476,8 +464,8 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
 
         const homeToken = await bridgeToken(token)
 
-        expect(await homeToken.name()).to.be.equal('TST.CPXD')
-        expect(await homeToken.symbol()).to.be.equal('TST')
+        expect(await homeToken.name()).to.be.equal('TST (CPXD)')
+        expect(await homeToken.symbol()).to.be.equal('TST.CPXD')
         expect(await homeToken.decimals()).to.be.bignumber.equal('18')
       })
 
@@ -487,8 +475,8 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
 
         const homeToken = await bridgeToken(token)
 
-        expect(await homeToken.name()).to.be.equal('TEST.CPXD')
-        expect(await homeToken.symbol()).to.be.equal('TEST')
+        expect(await homeToken.name()).to.be.equal('TEST (CPXD)')
+        expect(await homeToken.symbol()).to.be.equal('TEST.CPXD')
         expect(await homeToken.decimals()).to.be.bignumber.equal('18')
       })
 
@@ -824,15 +812,6 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         expect(await homeToken.balanceOf(safeAddress)).to.be.bignumber.eq(oneEther)
         expect(await homeTokenAsUpdated.balanceOf(safeAddress)).to.be.bignumber.eq(oneEther)
         expect(await homeTokenAsUpdated.foo(safeAddress)).to.be.bignumber.eq(oneEther)
-      })
-
-      it('should fix the name of an already deployed token', async function() {
-        const token = await PermittableToken.new('xDai.CPXD', 'DAI', 18, 1337)
-        expect(await token.name()).to.be.equal('xDai.CPXD')
-        expect(await token.symbol()).to.be.equal('DAI')
-        await token.migrateTokenMetadata()
-        expect(await token.name()).to.be.equal('xDai (CPXD)')
-        expect(await token.symbol()).to.be.equal('DAI.CPXD')
       })
     })
 

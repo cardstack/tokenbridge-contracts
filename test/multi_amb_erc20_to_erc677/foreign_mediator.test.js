@@ -186,18 +186,6 @@ contract('ForeignMultiAMBErc20ToErc677', async accounts => {
     })
   })
 
-  describe('getBridgeMode', () => {
-    it('should return mediator mode and interface', async function() {
-      const bridgeModeHash = '0xb1516c26' // 4 bytes of keccak256('multi-erc-to-erc-amb')
-      expect(await contract.getBridgeMode()).to.be.equal(bridgeModeHash)
-
-      const { major, minor, patch } = await contract.getBridgeInterfacesVersion()
-      major.should.be.bignumber.gte(ZERO)
-      minor.should.be.bignumber.gte(ZERO)
-      patch.should.be.bignumber.gte(ZERO)
-    })
-  })
-
   describe('claimTokens', () => {
     beforeEach(async () => {
       const storageProxy = await EternalStorageProxy.new()
