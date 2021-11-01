@@ -64,7 +64,7 @@ contract HomeNftMediator is BasicNftMediator, IHomeNftMediator {
 
         if (bytes(name).length == 0 && bytes(symbol).length == 0) {
             name = "<Unknown ERC721 Token>";
-            symbol = "UNKNOWN.CPXD";
+            symbol = "UNKNOWN";
         }
         if (bytes(name).length == 0) {
             name = symbol;
@@ -73,7 +73,8 @@ contract HomeNftMediator is BasicNftMediator, IHomeNftMediator {
             symbol = name;
         }
 
-        name = string(abi.encodePacked(name, ".CPXD"));
+        name = string(abi.encodePacked(name, " (CPXD)"));
+        symbol = string(abi.encodePacked(symbol, ".CPXD"));
 
         homeTokenAddress = new ERC721Proxy(name, symbol, bridgeContract().sourceChainId());
 
