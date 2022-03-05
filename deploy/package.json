@@ -6,7 +6,7 @@
   "scripts": {
     "compile": "pkg deploy.js --out-path build/tmp_build",
     "lint": "eslint .",
-    "deploy": "if test \"$NOFLAT\" != \"true\" ; then cd ..; npm run flatten; cd deploy; fi && node deploy.js"
+    "deploy": "if test \"$NOFLAT\" != \"true\" ; then cd ..; yarn run flatten; cd deploy; fi && node deploy.js"
   },
   "author": "",
   "license": "ISC",
@@ -34,5 +34,8 @@
   },
   "engines": {
     "node": ">= 8.9"
+  },
+  "volta": {
+    "node": "16.13.1"
   }
 }
