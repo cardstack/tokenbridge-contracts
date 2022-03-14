@@ -1,14 +1,16 @@
 # How to Deploy POA Bridge Contracts
 
-In order to deploy bridge contracts you must run `npm install` to install all dependencies. For more information, see the [project README](../README.md).
+In order to deploy bridge contracts you must run `yarn install` to install all dependencies. For more information, see the [project README](../README.md).
 
 1. Compile the source contracts.
+
 ```
 cd ..
-npm run compile
+yarn run compile
 ```
 
 2. Create a `.env` file.
+
 ```
 cd deploy
 cp .env.example .env
@@ -20,7 +22,7 @@ cp .env.example .env
 
 5. Add funds to the deployment accounts in both the Home and Foreign networks.
 
-6. Run `npm run deploy`.
+6. Run `yarn run deploy`.
 
 ## `NATIVE-TO-ERC` Bridge Mode Configuration Example.
 
@@ -168,7 +170,6 @@ BLOCK_REWARD_ADDRESS=0x
 # The api key of the explorer api, if required, used to verify all the deployed contracts in Foreign network.
 #FOREIGN_EXPLORER_API_KEY=
 ```
-
 
 ## `ERC-TO-ERC` Bridge Mode Configuration Example.
 
@@ -732,7 +733,6 @@ FOREIGN_MEDIATOR_REQUEST_GAS_LIMIT=2000000
 # The api key of the explorer api, if required, used to verify all the deployed contracts in Foreign network.
 #FOREIGN_EXPLORER_API_KEY=
 ```
-
 
 ## `AMB-NATIVE-TO-ERC` Bridge Mode Configuration Example.
 

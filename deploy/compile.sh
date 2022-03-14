@@ -1,9 +1,9 @@
 #!/bin/bash
 rm -rf build/*
 mkdir -p build/tmp_build
-npm install
+yarn install
 cp node_modules/sha3/build/Release/sha3.node node_modules/scrypt/build/Release/scrypt.node node_modules/websocket/build/Release/bufferutil.node node_modules/websocket/build/Release/validation.node build/tmp_build/.
-npm run compile
+yarn run compile
 
 
 zip -rj build/mac.zip build/tmp_build/sha3.node build/tmp_build/scrypt.node build/tmp_build/validation.node build/tmp_build/bufferutil.node build/tmp_build/deploy-macos
