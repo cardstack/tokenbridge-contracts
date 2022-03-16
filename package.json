@@ -23,6 +23,7 @@
   "dependencies": {
     "@nomiclabs/hardhat-truffle5": "^2.0.5",
     "openzeppelin-solidity": "1.12.0",
+    "hardhat-contract-sizer": "^2.5.0",
     "web3": "^1.7.1"
   },
   "devDependencies": {
@@ -41,7 +42,6 @@
     "ethereumjs-util": "5.2.0",
     "ganache": "^7.0.3",
     "hardhat": "^2.9.1",
-    "hardhat-contract-sizer": "^2.5.0",
     "istanbul": "^0.4.5",
     "nodemon": "^1.17.3",
     "prettier": "^1.18.2",
