@@ -281,7 +281,9 @@ contract('HomeAMB', async accounts => {
       bridgeId = web3.utils.soliditySha3(paddedChainId + homeBridge.address.slice(2)).slice(10, 50)
     })
     it('call requireToPassMessage(address, bytes, uint256)', async () => {
-      const tx = await homeBridge.methods['requireToPassMessage(address,bytes,uint256)'](
+      const tx = await homeBridge.methods[
+        'requireToPassMessage(address,bytes,uint256)'
+      ](
         '0xf4BEF13F9f4f2B203FAF0C3cBbaAbe1afE056955',
         '0xb1591967aed668a4b27645ff40c444892d91bf5951b382995d4d4f6ee3a2ce03',
         1535604485,
@@ -308,7 +310,9 @@ contract('HomeAMB', async accounts => {
     })
     it('call requireToPassMessage(address, bytes, uint256) should fail', async () => {
       // Should fail because gas < minimumGasUsage
-      await homeBridge.methods['requireToPassMessage(address,bytes,uint256)'](
+      await homeBridge.methods[
+        'requireToPassMessage(address,bytes,uint256)'
+      ](
         '0xf4BEF13F9f4f2B203FAF0C3cBbaAbe1afE056955',
         '0xb1591967aed668a4b27645ff40c444892d91bf5951b382995d4d4f6ee3a2ce03',
         10,
@@ -316,7 +320,9 @@ contract('HomeAMB', async accounts => {
       ).should.be.rejectedWith(ERROR_MSG)
 
       // Should fail because gas > maxGasPerTx
-      await homeBridge.methods['requireToPassMessage(address,bytes,uint256)'](
+      await homeBridge.methods[
+        'requireToPassMessage(address,bytes,uint256)'
+      ](
         '0xf4BEF13F9f4f2B203FAF0C3cBbaAbe1afE056955',
         '0xb1591967aed668a4b27645ff40c444892d91bf5951b382995d4d4f6ee3a2ce03',
         twoEther,
@@ -327,7 +333,9 @@ contract('HomeAMB', async accounts => {
       expect(await homeBridge.maxGasPerTx()).to.be.bignumber.equal(ZERO)
 
       // Should fail because maxGasPerTx = 0 so gas > maxGasPerTx
-      await homeBridge.methods['requireToPassMessage(address,bytes,uint256)'](
+      await homeBridge.methods[
+        'requireToPassMessage(address,bytes,uint256)'
+      ](
         '0xf4BEF13F9f4f2B203FAF0C3cBbaAbe1afE056955',
         '0xb1591967aed668a4b27645ff40c444892d91bf5951b382995d4d4f6ee3a2ce03',
         oneEther,
@@ -337,7 +345,9 @@ contract('HomeAMB', async accounts => {
       await homeBridge.setMaxGasPerTx(oneEther).should.be.fulfilled
       expect(await homeBridge.maxGasPerTx()).to.be.bignumber.equal(oneEther)
 
-      await homeBridge.methods['requireToPassMessage(address,bytes,uint256)'](
+      await homeBridge.methods[
+        'requireToPassMessage(address,bytes,uint256)'
+      ](
         '0xf4BEF13F9f4f2B203FAF0C3cBbaAbe1afE056955',
         '0xb1591967aed668a4b27645ff40c444892d91bf5951b382995d4d4f6ee3a2ce03',
         oneEther,
@@ -869,18 +879,26 @@ contract('HomeAMB', async accounts => {
 
     it('should allow to set chain id', async () => {
       expect(await homeContract.sourceChainId()).to.be.bignumber.equal(HOME_CHAIN_ID.toString())
-      expect(await web3.eth.getStorageAt(homeContract.address, srcChainIdLengthStorageKey)).to.be.equal('0x02')
+      expect(await web3.eth.getStorageAt(homeContract.address, srcChainIdLengthStorageKey)).to.be.equal(
+        '0x0000000000000000000000000000000000000000000000000000000000000002'
+      )
       expect(await homeContract.destinationChainId()).to.be.bignumber.equal(FOREIGN_CHAIN_ID.toString())
-      expect(await web3.eth.getStorageAt(homeContract.address, dstChainIdLengthStorageKey)).to.be.equal('0x04')
+      expect(await web3.eth.getStorageAt(homeContract.address, dstChainIdLengthStorageKey)).to.be.equal(
+        '0x0000000000000000000000000000000000000000000000000000000000000004'
+      )
 
       const newSrcChainId = '0x11000000000000'
       const newDstChainId = '0x22000000000000000000000000'
       await homeContract.setChainIds(newSrcChainId, newDstChainId, { from: owner }).should.be.fulfilled
 
       expect((await homeContract.sourceChainId()).toString(16)).to.be.equal(newSrcChainId.slice(2))
-      expect(await web3.eth.getStorageAt(homeContract.address, srcChainIdLengthStorageKey)).to.be.equal('0x07')
+      expect(await web3.eth.getStorageAt(homeContract.address, srcChainIdLengthStorageKey)).to.be.equal(
+        '0x0000000000000000000000000000000000000000000000000000000000000007'
+      )
       expect((await homeContract.destinationChainId()).toString(16)).to.be.equal(newDstChainId.slice(2))
-      expect(await web3.eth.getStorageAt(homeContract.address, dstChainIdLengthStorageKey)).to.be.equal('0x0d')
+      expect(await web3.eth.getStorageAt(homeContract.address, dstChainIdLengthStorageKey)).to.be.equal(
+        '0x000000000000000000000000000000000000000000000000000000000000000d'
+      )
     })
 
     it('should not allow to set invalid chain ids', async () => {

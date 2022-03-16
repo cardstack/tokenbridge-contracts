@@ -1037,7 +1037,7 @@ contract('ForeignBridge_ERC20_to_Native', async accounts => {
         .relayTokens(recipient, value, {
           from: user
         })
-        .should.be.rejectedWith(ERROR_MSG)
+        .should.be.rejectedWith('Dai/insufficient-allowance')
 
       await token.approve(foreignBridge.address, value, { from: user }).should.be.fulfilled
 

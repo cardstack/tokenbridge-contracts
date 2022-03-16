@@ -883,7 +883,7 @@ contract('HomeBridge', async accounts => {
       const signature = await sign(authoritiesThreeAccs[0], message)
       const { logs } = await homeBridgeWithTwoSigs.submitSignature(signature, message, {
         from: authorities[0]
-      }).should.be.fulfilled
+      })
       logs[0].event.should.be.equal('SignedForUserRequest')
       const msgHashFromLog = logs[0].args.messageHash
       const signatureFromContract = await homeBridgeWithTwoSigs.signature(msgHashFromLog, 0)

@@ -10,8 +10,8 @@ should()
 
 exports.BN = BN
 exports.toBN = web3.utils.toBN
-exports.ERROR_MSG = 'exited with an error (status 0)'
-exports.ERROR_MSG_OPCODE = 'VM Exception while processing transaction: invalid opcode'
+exports.ERROR_MSG = 'Transaction reverted without a reason string'
+exports.ERROR_MSG_OPCODE = 'Transaction reverted without a reason string'
 exports.ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 exports.F_ADDRESS = '0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF'
 exports.INVALID_ARGUMENTS = 'Invalid number of arguments to Solidity function'

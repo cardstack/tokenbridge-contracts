@@ -1,5 +1,6 @@
 node_modules
-build
+artifacts
+cache
 flats
 .node*
 .idea
