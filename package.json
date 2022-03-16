@@ -18,7 +18,7 @@
     "coverage": "echo 'TODO' && exit 1"
   },
   "author": "POA network",
-  "license": "GPLv3",
+  "license": "GPL-3.0-only",
   "dependencies": {
     "@0x/sol-coverage": "^4.0.10",
     "@0x/sol-trace": "^3.0.10",
