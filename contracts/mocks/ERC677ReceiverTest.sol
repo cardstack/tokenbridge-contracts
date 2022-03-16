@@ -21,7 +21,7 @@ contract ERC677ReceiverTest is ERC677Receiver {
         someVar = _value;
     }
 
-    function setTokenImage(address _tokenImage) {
+    function setTokenImage(address _tokenImage) public {
         tokenImage = _tokenImage;
     }
 

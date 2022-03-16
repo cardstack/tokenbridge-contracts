@@ -25,6 +25,7 @@ contract ERC677BridgeTokenRewardableMock is ERC677BridgeTokenRewardable {
     }
 
     function _now() internal view returns (uint256) {
+        // solhint-disable-next-line not-rely-on-time
         return _blockTimestamp != 0 ? _blockTimestamp : block.timestamp;
     }
 

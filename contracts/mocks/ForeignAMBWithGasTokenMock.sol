@@ -7,7 +7,7 @@ import "../upgradeable_contracts/arbitrary_message/ForeignAMBWithGasToken.sol";
 * @dev Wrapper on ForeignAMB contract, which supports minting gas tokens while passing messages
 */
 contract ForeignAMBWithGasTokenMock is ForeignAMBWithGasToken {
-    address gasTokenAddress;
+    address public gasTokenAddress;
 
     function gasToken() public view returns (IGasToken) {
         // Address generated in unit test, also hardcoded in GasTokenMock
@@ -19,6 +19,6 @@ contract ForeignAMBWithGasTokenMock is ForeignAMBWithGasToken {
     }
 
     function setGasToken(address _gasTokenAddress) external {
-      gasTokenAddress = _gasTokenAddress;
+        gasTokenAddress = _gasTokenAddress;
     }
 }

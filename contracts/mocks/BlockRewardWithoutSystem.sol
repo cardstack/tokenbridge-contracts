@@ -13,6 +13,7 @@ contract BlockRewardWithoutSystem is BlockReward {
         _;
     }
 
+    // solhint-disable-next-line no-empty-blocks
     constructor() public BlockReward(address(0)) {}
 
     function setBridgeContractAddress(address _addr) external {

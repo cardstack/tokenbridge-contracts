@@ -40,7 +40,7 @@ contract BlockReward is EternalStorage {
         _;
     }
 
-    constructor(address _initialAllowedBridge) {
+    constructor(address _initialAllowedBridge) public {
         initialAllowedBridge = _initialAllowedBridge;
     }
 

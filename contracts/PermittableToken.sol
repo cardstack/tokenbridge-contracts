@@ -3,11 +3,14 @@ pragma solidity 0.4.24;
 import "./ERC677BridgeToken.sol";
 
 contract PermittableToken is ERC677BridgeToken {
+    // solhint-disable-next-line const-name-snakecase
     string public constant version = "1";
 
     // EIP712 niceties
+    // solhint-disable-next-line var-name-mixedcase
     bytes32 public DOMAIN_SEPARATOR;
     // bytes32 public constant PERMIT_TYPEHASH = keccak256("Permit(address holder,address spender,uint256 nonce,uint256 expiry,bool allowed)");
+    // solhint-disable-next-line const-name-snakecase
     bytes32 public constant PERMIT_TYPEHASH = 0xea2aa0a1be11a07ed86d755c93467f4f82362b452371d1ba94d1715123511acb;
 
     mapping(address => uint256) public nonces;
@@ -58,10 +61,10 @@ contract PermittableToken is ERC677BridgeToken {
                 // function, don't adjust it. But the expiration date must be empty or in the future
                 require(expirations[_sender][msg.sender] == 0 || expirations[_sender][msg.sender] >= _now());
             }
-        } else {
-            // If `_sender` is `msg.sender`,
-            // the function works just like `transfer()`
-        }
+        } // else {
+        // If `_sender` is `msg.sender`,
+        // the function works just like `transfer()`
+        // }
 
         callAfterTransfer(_sender, _recipient, _amount);
         return true;
@@ -161,6 +164,7 @@ contract PermittableToken is ERC677BridgeToken {
     }
 
     function _now() internal view returns (uint256) {
+        // solhint-disable-next-line not-rely-on-time
         return block.timestamp;
     }
 }
