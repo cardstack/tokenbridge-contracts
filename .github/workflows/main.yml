@@ -14,7 +14,7 @@ jobs:
         id: npm-cache
         with:
           path: node_modules
-          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
       - run: yarn install
         if: ${{ !steps.npm-cache.outputs.cache-hit }}
       - run: yarn lint
@@ -29,14 +29,10 @@ jobs:
         id: npm-cache
         with:
           path: node_modules
-          key: v2-${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+          key: v2-${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
       - run: yarn install
         if: ${{ !steps.npm-cache.outputs.cache-hit }}
-        # Some tests are isolated by an env flag due to suspected ganache issue
       - run: yarn test
-      - run: yarn test
-        env:
-          REWARDABLE_INITIALIZE_TEST: true
   contract-size:
     runs-on: ubuntu-latest
     steps:
@@ -48,7 +44,7 @@ jobs:
         id: npm-cache
         with:
           path: node_modules
-          key: v2-${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+          key: v2-${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
       - run: yarn install
         if: ${{ !steps.npm-cache.outputs.cache-hit }}
       - run: yarn contract-size
@@ -64,7 +60,7 @@ jobs:
         id: npm-cache
         with:
           path: node_modules
-          key: v2-${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+          key: v2-${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
       - run: yarn install
         if: ${{ !steps.npm-cache.outputs.cache-hit }}
       - run: yarn test:gasreport:ci
@@ -82,7 +78,7 @@ jobs:
         id: npm-cache
         with:
           path: node_modules
-          key: v2-${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+          key: v2-${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
       - run: yarn install
         if: ${{ !steps.npm-cache.outputs.cache-hit }}
       - run: yarn coverage
