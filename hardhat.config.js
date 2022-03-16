@@ -1,4 +1,6 @@
 require('@nomiclabs/hardhat-truffle5')
+require('hardhat-contract-sizer')
+
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
