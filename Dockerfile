@@ -1,4 +1,4 @@
-FROM node:10 as contracts
+FROM node:16 as contracts
 
 WORKDIR /contracts
 
@@ -13,7 +13,7 @@ RUN yarn run compile
 COPY flatten.sh flatten.sh
 RUN bash flatten.sh
 
-FROM node:10
+FROM node:16
 
 WORKDIR /contracts
 COPY --from=contracts /contracts/build ./build

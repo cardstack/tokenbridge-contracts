@@ -4,7 +4,7 @@
   "description": "Bridge",
   "main": "index.js",
   "scripts": {
-    "test": "scripts/test.sh",
+    "test": "./node_modules/.bin/hardhat test",
     "test-fast": "scripts/test-fast.sh",
     "test:gasreport": "GASREPORT=true yarn run test",
     "test:gasreport:ci": "yarn run test:gasreport",
@@ -15,9 +15,7 @@
     "lint:js:fix": "eslint . --fix",
     "lint:sol": "solhint --max-warnings 0 \"contracts/**/*.sol\"",
     "lint:sol:prettier:fix": "prettier --write \"contracts/**/*.sol\"",
-    "watch-tests": "./node_modules/.bin/nodemon ./node_modules/.bin/truffle test --network test",
-    "coverage": "SOLIDITY_COVERAGE=true scripts/test.sh",
-    "contract-size": "truffle compile && truffle run contract-size --checkMaxSize"
+    "coverage": "echo 'TODO' && exit 1"
   },
   "author": "POA network",
   "license": "GPLv3",
@@ -49,8 +47,7 @@
     "prettier": "^1.18.2",
     "prettier-plugin-solidity": "^1.0.0-alpha.32",
     "solhint": "^2.2.0",
-    "solhint-plugin-prettier": "0.0.3",
-    "truffle-contract-size": "^2.0.1"
+    "solhint-plugin-prettier": "0.0.3"
   },
   "volta": {
     "node": "16.13.1"
