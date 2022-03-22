@@ -1,4 +1,5 @@
 pragma solidity 0.4.24;
+import "openzeppelin-solidity/contracts/AddressUtils.sol";
 
 /**
  * @title Proxy
@@ -19,7 +20,8 @@ contract Proxy {
     function() public payable {
         // solhint-disable-previous-line no-complex-fallback
         address _impl = implementation();
-        require(_impl != address(0));
+        require(AddressUtils.isContract(_impl));
+
         assembly {
             /*
                 0x40 is the "free memory slot", meaning a pointer to next slot of empty memory. mload(0x40)
