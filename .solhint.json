@@ -8,6 +8,7 @@
     "no-inline-assembly": "off",
     "multiple-sends": "off",
     "no-complex-fallback": "off",
-    "compiler-version": ["error", "0.4.24"]
+    "compiler-version": ["error", "0.4.24"],
+    "reason-string": "off"
   }
 }
