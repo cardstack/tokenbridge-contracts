@@ -12,7 +12,7 @@ contract BasicHomeAMB is BasicAMB, MessageDelivery {
     event CollectedSignatures(
         address authorityResponsibleForRelay,
         bytes32 messageHash,
-        uint256 NumberOfCollectedSignatures
+        uint256 numberOfCollectedSignatures
     );
 
     uint256 internal constant SEND_TO_MANUAL_LANE = 0xf0;

@@ -22,7 +22,7 @@ contract BasicHomeBridge is EternalStorage, Validatable, BasicBridge, BasicToken
     event CollectedSignatures(
         address authorityResponsibleForRelay,
         bytes32 messageHash,
-        uint256 NumberOfCollectedSignatures
+        uint256 numberOfCollectedSignatures
     );
 
     /**
