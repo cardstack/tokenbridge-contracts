@@ -14,7 +14,6 @@ function getContracts() {
     ForeignBridgeErc677ToErc677: require(`../../build/${buildPath}/ForeignBridgeErc677ToErc677.json`),
     HomeBridgeErcToErcPOSDAO: require(`../../build/${buildPath}/HomeBridgeErcToErcPOSDAO.json`),
     ERC677BridgeToken: require(`../../build/${buildPath}/ERC677BridgeToken.json`),
-    ERC677BridgeTokenRewardable: require(`../../build/${buildPath}/ERC677BridgeTokenRewardable.json`),
     ERC677BridgeTokenPermittable: require(`../../build/${buildPath}/PermittableToken.json`),
     ForeignBridgeErcToNative: require(`../../build/${buildPath}/ForeignBridgeErcToNative.json`),
     FeeManagerErcToNative: require(`../../build/${buildPath}/FeeManagerErcToNative.json`),

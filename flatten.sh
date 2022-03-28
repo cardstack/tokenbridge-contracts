@@ -23,7 +23,6 @@ VALIDATOR_CONTRACTS_DIR=contracts/upgradeable_contracts
 echo "Flattening common bridge contracts"
 ${FLATTENER} contracts/upgradeability/EternalStorageProxy.sol > flats/upgradeability/EternalStorageProxy_flat.sol
 ${FLATTENER} contracts/ERC677BridgeToken.sol > flats/ERC677BridgeToken_flat.sol
-${FLATTENER} contracts/ERC677BridgeTokenRewardable.sol > flats/ERC677BridgeTokenRewardable_flat.sol
 ${FLATTENER} contracts/PermittableToken.sol > flats/PermittableToken_flat.sol
 
 echo "Flattening bridge validators contracts"
