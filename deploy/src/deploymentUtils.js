@@ -22,51 +22,35 @@ const {
 } = require('./web3')
 const verifier = require('./utils/verifier')
 
-async function deployContract(contractJson, args, { from, network, nonce }) {
+async function deployContract(contractJson, args, { network, nonce }) {
   let web3
-  let url
   let gasPrice
   let apiUrl
   let apiKey
   let deploymentAccountAddress
   if (network === 'foreign') {
     web3 = web3Foreign
-    url = FOREIGN_RPC_URL
     gasPrice = FOREIGN_DEPLOYMENT_GAS_PRICE
     apiUrl = FOREIGN_EXPLORER_URL
     apiKey = FOREIGN_EXPLORER_API_KEY
     deploymentAccountAddress = FOREIGN_DEPLOYMENT_ACCOUNT_ADDRESS
   } else {
     web3 = web3Home
-    url = HOME_RPC_URL
     gasPrice = HOME_DEPLOYMENT_GAS_PRICE
     apiUrl = HOME_EXPLORER_URL
     apiKey = HOME_EXPLORER_API_KEY
     deploymentAccountAddress = HOME_DEPLOYMENT_ACCOUNT_ADDRESS
   }
-  const options = {
-    from
-  }
-  const instance = new web3.eth.Contract(contractJson.abi, options)
-  const result = await instance
-    .deploy({
-      data: contractJson.bytecode,
-      arguments: args
-    })
-    .encodeABI()
-  const tx = await sendRawTx({
-    data: result,
-    nonce: Web3Utils.toHex(nonce),
-    to: null,
+  const Contract = new web3.eth.Contract(contractJson.abi)
+
+  const instance = await Contract.deploy({
+    data: contractJson.bytecode,
+    arguments: args
+  }).send({
     from: deploymentAccountAddress,
-    url,
-    gasPrice
+    gasPrice,
+    nonce
   })
-  if (Web3Utils.hexToNumber(tx.status) !== 1 && !tx.contractAddress) {
-    throw new Error('Tx failed')
-  }
-  instance.options.address = tx.contractAddress
-  instance.deployedBlockNumber = tx.blockNumber
 
   if (apiUrl) {
     let constructorArguments

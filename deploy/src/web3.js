@@ -1,5 +1,6 @@
 const Web3 = require('web3')
 const TrezorWalletProvider = require('trezor-cli-wallet-provider')
+const HDWalletProvider = require('@truffle/hdwallet-provider')
 const env = require('./loadEnv')
 
 const {
@@ -18,19 +19,35 @@ const {
   FOREIGN_EXPLORER_API_KEY
 } = env
 
-const homeProvider = new TrezorWalletProvider(HOME_RPC_URL, {
-  chainId: HOME_CHAIN_ID,
-  derivationPathPrefix: HOME_KEY_DERIVATION_PATH,
-  numberOfAccounts: 3
-})
-const web3Home = new Web3(homeProvider)
+let homeProvider, foreignProvider
 
-const foreignProvider = new TrezorWalletProvider(FOREIGN_RPC_URL, {
-  chainId: FOREIGN_CHAIN_ID,
-  derivationPathPrefix: FOREIGN_KEY_DERIVATION_PATH,
-  numberOfAccounts: 3
-})
-const web3Foreign = new Web3(foreignProvider)
+if (process.env.HOME_DEPLOYMENT_ACCOUNT_PRIVATE_KEY) {
+  // Create web3.js middleware that signs transactions locally
+  homeProvider = new HDWalletProvider({
+    privateKeys: [process.env.HOME_DEPLOYMENT_ACCOUNT_PRIVATE_KEY],
+    providerOrUrl: HOME_RPC_URL
+  })
+} else {
+  homeProvider = new TrezorWalletProvider(HOME_RPC_URL, {
+    chainId: HOME_CHAIN_ID,
+    derivationPathPrefix: HOME_KEY_DERIVATION_PATH,
+    numberOfAccounts: 3
+  })
+}
+if (process.env.FOREIGN_DEPLOYMENT_ACCOUNT_PRIVATE_KEY) {
+  foreignProvider = new HDWalletProvider({
+    privateKeys: [process.env.FOREIGN_DEPLOYMENT_ACCOUNT_PRIVATE_KEY],
+    providerOrUrl: FOREIGN_RPC_URL
+  })
+} else {
+  foreignProvider = new TrezorWalletProvider(FOREIGN_RPC_URL, {
+    chainId: FOREIGN_CHAIN_ID,
+    derivationPathPrefix: FOREIGN_KEY_DERIVATION_PATH,
+    numberOfAccounts: 3
+  })
+}
+let web3Home = new Web3(homeProvider)
+let web3Foreign = new Web3(foreignProvider)
 
 const { HOME_DEPLOYMENT_GAS_PRICE, FOREIGN_DEPLOYMENT_GAS_PRICE } = env
 const GAS_LIMIT_EXTRA = env.DEPLOYMENT_GAS_LIMIT_EXTRA

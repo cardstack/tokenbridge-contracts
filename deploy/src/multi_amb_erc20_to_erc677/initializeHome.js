@@ -6,6 +6,8 @@ const {
 } = require('../loadContracts')
 const { sendRawTxHome, assertStateWithRetry, transferProxyOwnership } = require('../deploymentUtils')
 
+const { artifacts } = require('hardhat')
+
 const {
   HOME_DAILY_LIMIT,
   HOME_MAX_AMOUNT_PER_TX,

@@ -16,6 +16,11 @@ module.exports = {
       }
     }
   },
+  networks: {
+    localhost: {
+      url: 'http://localhost:8545'
+    }
+  },
   gasReporter: {
     enabled: !!process.env.GASREPORT
   }
