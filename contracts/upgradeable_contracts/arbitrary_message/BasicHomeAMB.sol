@@ -12,7 +12,9 @@ contract BasicHomeAMB is BasicAMB, MessageDelivery {
     event CollectedSignatures(
         address authorityResponsibleForRelay,
         bytes32 messageHash,
-        uint256 numberOfCollectedSignatures
+        // Allow NumberOfCollectedSignatures in mixed case to remain consistent with on-chain history
+        // solhint-disable var-name-mixedcase
+        uint256 NumberOfCollectedSignatures
     );
 
     uint256 internal constant SEND_TO_MANUAL_LANE = 0xf0;

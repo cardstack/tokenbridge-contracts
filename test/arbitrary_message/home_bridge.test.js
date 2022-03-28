@@ -728,7 +728,7 @@ contract('HomeAMB', async accounts => {
       logs[1].event.should.be.equal('CollectedSignatures')
       logs[1].args.authorityResponsibleForRelay.should.be.equal(authorities[0])
       logs[1].args.messageHash.should.be.equal(msgHash)
-      logs[1].args.numberOfCollectedSignatures.should.be.bignumber.equal(toBN(validatorsRequiredSignatures))
+      logs[1].args.NumberOfCollectedSignatures.should.be.bignumber.equal(toBN(validatorsRequiredSignatures))
 
       const hashMsg = web3.utils.soliditySha3(message)
       const hashSenderMsg = web3.utils.soliditySha3(authorities[0], hashMsg)
@@ -807,7 +807,7 @@ contract('HomeAMB', async accounts => {
       thirdSignature.logs[1].event.should.be.equal('CollectedSignatures')
       thirdSignature.logs[1].args.authorityResponsibleForRelay.should.be.equal(authoritiesFiveAccs[2])
       thirdSignature.logs[1].args.messageHash.should.be.equal(msgHash)
-      thirdSignature.logs[1].args.numberOfCollectedSignatures.should.be.bignumber.equal('3')
+      thirdSignature.logs[1].args.NumberOfCollectedSignatures.should.be.bignumber.equal('3')
     })
     it('should not allow to double submit', async () => {
       const user = accounts[8]
