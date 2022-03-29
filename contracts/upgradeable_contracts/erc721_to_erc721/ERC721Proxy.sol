@@ -41,6 +41,7 @@ contract ERC721Proxy is Proxy {
     * @param _chainId chain id for current network.
     */
     constructor(string memory _name, string memory _symbol, uint256 _chainId) public {
+        // solhint-disable-previous-line no-unused-vars
         name_ = _name;
         symbol_ = _symbol;
         owner = msg.sender; // msg.sender == ERC721 HomeNftMediator
