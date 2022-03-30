@@ -5,13 +5,12 @@ import "openzeppelin-solidity/contracts/token/ERC721/ERC721Token.sol";
 contract ERC721BurnableMintable is ERC721Token {
     // solhint-disable-next-line const-name-snakecase
     string public constant version = "1";
-    uint256 public chainId;
+    // solhint-disable-next-line const-name-snakecase
+    uint256 public ___deprecated___chainId;
     address public owner;
 
-    constructor(string memory _name, string memory _symbol, uint256 _chainId) public ERC721Token(_name, _symbol) {
-        require(_chainId != 0);
+    constructor(string memory _name, string memory _symbol) public ERC721Token(_name, _symbol) {
         owner = msg.sender;
-        chainId = chainId;
     }
 
     modifier onlyOwner() {

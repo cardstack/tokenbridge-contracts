@@ -10,7 +10,7 @@ const { expectEventInTransaction, expectRevert, getEvents } = require('../helper
 
 const { shouldBehaveLikeBasicNftMediator } = require('./basic_mediator_test')
 
-const { maxGasPerTx, exampleMessageId, tokenId, chainId } = require('./helpers')
+const { maxGasPerTx, exampleMessageId, tokenId } = require('./helpers')
 
 contract('ForeignNftMediator', accounts => {
   const owner = accounts[0]
@@ -33,7 +33,7 @@ contract('ForeignNftMediator', accounts => {
       const contract = await ForeignNftMediator.new()
       const bridgeContract = await AMBMock.new()
       await bridgeContract.setMaxGasPerTx(maxGasPerTx)
-      const token = await ERC721BurnableMintable.new('TEST', 'TST', chainId)
+      const token = await ERC721BurnableMintable.new('TEST', 'TST')
       const mediatorContractOnOtherSide = await HomeNftMediator.new()
 
       await contract.initialize(bridgeContract.address, mediatorContractOnOtherSide.address, maxGasPerTx, owner)
@@ -64,7 +64,7 @@ contract('ForeignNftMediator', accounts => {
       const contract = await ForeignNftMediator.new()
       const bridgeContract = await AMBMock.new()
       await bridgeContract.setMaxGasPerTx(maxGasPerTx)
-      const token = await ERC721BurnableMintable.new('TEST', 'TST', chainId)
+      const token = await ERC721BurnableMintable.new('TEST', 'TST')
       const mediatorContractOnOtherSide = await HomeNftMediator.new()
 
       await contract.initialize(bridgeContract.address, mediatorContractOnOtherSide.address, maxGasPerTx, owner)
@@ -121,7 +121,7 @@ contract('ForeignNftMediator', accounts => {
     beforeEach(async () => {
       bridgeContract = await AMBMock.new()
       await bridgeContract.setMaxGasPerTx(maxGasPerTx)
-      token = await ERC721BurnableMintable.new('TEST', 'TST', chainId)
+      token = await ERC721BurnableMintable.new('TEST', 'TST')
 
       contract = await ForeignNftMediator.new()
       mediatorContractOnOtherSide = await HomeNftMediator.new()

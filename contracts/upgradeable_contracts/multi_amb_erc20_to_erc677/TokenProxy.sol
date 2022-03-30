@@ -3,10 +3,6 @@ pragma solidity 0.4.24;
 import "../../upgradeability/Proxy.sol";
 import "../../interfaces/IBridgeMediator.sol";
 
-interface IPermittableTokenVersion {
-    function version() external pure returns (string);
-}
-
 /**
 * @title TokenProxy
 * @dev Helps to reduces the size of the deployed bytecode for automatically created tokens, by using a proxy contract.
@@ -40,22 +36,11 @@ contract TokenProxy is Proxy {
     constructor(address _tokenImage, string memory _name, string memory _symbol, uint8 _decimals, uint256 _chainId)
         public
     {
-        string memory version = IPermittableTokenVersion(_tokenImage).version();
-
         name = _name;
         symbol = _symbol;
         decimals = _decimals;
         owner = msg.sender; // msg.sender == HomeMultiAMBErc20ToErc677 mediator
         bridgeContractAddr = msg.sender;
-        DOMAIN_SEPARATOR = keccak256(
-            abi.encode(
-                keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
-                keccak256(bytes(_name)),
-                keccak256(bytes(version)),
-                _chainId,
-                address(this)
-            )
-        );
     }
 
     /**

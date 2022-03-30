@@ -31,16 +31,16 @@ contract ERC721Proxy is Proxy {
     mapping(uint256 => string) internal tokenURIs;
 
     //  ERC721BurnableMintable
-    uint256 public chainId;
+    // solhint-disable-next-line const-name-snakecase
+    uint256 public ___deprecated___chainId;
     address internal owner;
 
     /**
     * @dev Creates an upgradeable token proxy for PermitableToken.sol, initializes its eternalStorage.
     * @param _name token name.
     * @param _symbol token symbol.
-    * @param _chainId chain id for current network.
     */
-    constructor(string memory _name, string memory _symbol, uint256 _chainId) public {
+    constructor(string memory _name, string memory _symbol) public {
         name_ = _name;
         symbol_ = _symbol;
         owner = msg.sender; // msg.sender == ERC721 HomeNftMediator

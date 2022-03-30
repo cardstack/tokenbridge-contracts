@@ -9,13 +9,11 @@ const exampleMessageId = '0xf308b922ab9f8a7128d9d7bc9bce22cd88b2c05c8213f0e2d810
 const tokenURI = 'https://example.com/token.json'
 const otherTokenURI = 'https://example.com/other-token.json'
 
-const chainId = 123
 module.exports = {
   maxGasPerTx,
   tokenId,
   otherTokenId,
   exampleMessageId,
-  chainId,
   tokenURI,
   otherTokenURI,
   failedMessageId
