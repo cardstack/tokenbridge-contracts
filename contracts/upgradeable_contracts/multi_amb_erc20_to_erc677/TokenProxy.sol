@@ -31,11 +31,8 @@ contract TokenProxy is Proxy {
     * @param _name token name.
     * @param _symbol token symbol.
     * @param _decimals token decimals.
-    * @param _chainId chain id for current network.
     */
-    constructor(address _tokenImage, string memory _name, string memory _symbol, uint8 _decimals, uint256 _chainId)
-        public
-    {
+    constructor(address _tokenImage, string memory _name, string memory _symbol, uint8 _decimals) public {
         name = _name;
         symbol = _symbol;
         decimals = _decimals;
