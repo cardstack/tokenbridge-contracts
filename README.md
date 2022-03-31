@@ -1,6 +1,6 @@
 # Cardstack Tokenbridge
 
-Forked from [POA Bridge Smart Contracts](https://github.com/poanetwork/tokenbridge-contracts)
+Forked from [POA Bridge Smart Contracts](https://github.com/poanetwork/tokenbridge-contracts) at commit [835742](https://github.com/poanetwork/tokenbridge-contracts/commit/835742dfd8f1c869d4e7b61582155d250d6cf094)
 
 # Differences from upstream
 

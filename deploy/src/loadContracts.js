@@ -14,7 +14,6 @@ function getContracts() {
     ForeignBridgeErc677ToErc677: hre.artifacts.require('ForeignBridgeErc677ToErc677'),
     HomeBridgeErcToErcPOSDAO: hre.artifacts.require('HomeBridgeErcToErcPOSDAO'),
     ERC677BridgeToken: hre.artifacts.require('ERC677BridgeToken'),
-    ERC677BridgeTokenRewardable: hre.artifacts.require('ERC677BridgeTokenRewardable'),
     ERC677BridgeTokenPermittable: hre.artifacts.require('PermittableToken'),
     ForeignBridgeErcToNative: hre.artifacts.require('ForeignBridgeErcToNative'),
     FeeManagerErcToNative: hre.artifacts.require('FeeManagerErcToNative'),
