@@ -3024,9 +3024,9 @@ minimatch@^3.0.4:
     brace-expansion "^1.1.7"
 
 minimist@^1.2.5:
-  version "1.2.5"
-  resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.5.tgz#67d66014b66a6a8aaa0c083c5fd58df4e4e97602"
-  integrity sha512-FM9nNUYrRBAELZQT3xeZQ7fmMOBg6nWNmJKTcgsJeaLstP/UODVpGsr5OhXhhXg6f+qtJ8uiZ+PUxkDWcgIXLw==
+  version "1.2.6"
+  resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.6.tgz#8637a5b759ea0d6e98702cfb3a9283323c93af44"
+  integrity sha512-Jsjnk4bw3YJqYzbdyBiNsPWHPfO++UGG749Cxs6peCu5Xg4nrena6OVxOYxrQTqww0Jmwt+Ref8rggumkTLz9Q==
 
 minipass@^2.6.0, minipass@^2.9.0:
   version "2.9.0"
@@ -4467,8 +4467,9 @@ web3-net@1.7.1:
     web3-core-method "1.7.1"
     web3-utils "1.7.1"
 
-"web3-provider-engine@github:habdelra/web3-provider-engine":
+web3-provider-engine@habdelra/web3-provider-engine:
   version "16.0.1"
+  uid d9e5d9545c1af75124ca027bce5aaa84a3c4fda4
   resolved "https://codeload.github.com/habdelra/web3-provider-engine/tar.gz/d9e5d9545c1af75124ca027bce5aaa84a3c4fda4"
   dependencies:
     async "^2.5.0"
