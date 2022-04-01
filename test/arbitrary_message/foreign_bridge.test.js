@@ -304,7 +304,9 @@ contract('ForeignAMB', async accounts => {
       bridgeId = web3.utils.soliditySha3(paddedChainId + foreignBridge.address.slice(2)).slice(10, 50)
     })
     it('call requireToPassMessage(address, bytes, uint256)', async () => {
-      const tx = await foreignBridge.methods['requireToPassMessage(address,bytes,uint256)'](
+      const tx = await foreignBridge.methods[
+        'requireToPassMessage(address,bytes,uint256)'
+      ](
         '0xf4BEF13F9f4f2B203FAF0C3cBbaAbe1afE056955',
         '0xb1591967aed668a4b27645ff40c444892d91bf5951b382995d4d4f6ee3a2ce03',
         1535604485,
@@ -819,6 +821,7 @@ contract('ForeignAMB', async accounts => {
 
     describe('_collectGasTokens', async () => {
       beforeEach(async () => {
+        await foreignBridge.setGasToken(gasTokenContract.address)
         await foreignBridge.setGasTokenParameters(3, receiver)
         await gasTokenContract.freeUpTo('100', { from: receiver })
       })
@@ -828,7 +831,7 @@ contract('ForeignAMB', async accounts => {
         expect(await foreignBridge.gasTokenTargetMintValue()).to.be.bignumber.equal('3')
         expect(await gasTokenContract.allowance(owner, foreignBridge.address)).to.be.bignumber.equal(ZERO)
 
-        await foreignBridge.collectGasTokens().should.be.fulfilled
+        await foreignBridge.collectGasTokens()
 
         expect(await gasTokenContract.balanceOf(receiver)).to.be.bignumber.equal('3')
         expect(await foreignBridge.gasTokenTargetMintValue()).to.be.bignumber.equal('3')
@@ -928,7 +931,7 @@ contract('ForeignAMB', async accounts => {
         box = await Box.new()
         // Generate data for method we want to call on Box contract
         setValueData = await box.contract.methods.setValue(3).encodeABI()
-
+        await foreignBridge.setGasToken(gasTokenContract.address)
         await foreignBridge.setGasTokenParameters(5, receiver)
         await gasTokenContract.freeUpTo('100', { from: receiver })
       })
@@ -1004,18 +1007,26 @@ contract('ForeignAMB', async accounts => {
 
     it('should allow to set chain id', async () => {
       expect(await foreignContract.sourceChainId()).to.be.bignumber.equal(FOREIGN_CHAIN_ID.toString())
-      expect(await web3.eth.getStorageAt(foreignContract.address, srcChainIdLengthStorageKey)).to.be.equal('0x04')
+      expect(await web3.eth.getStorageAt(foreignContract.address, srcChainIdLengthStorageKey)).to.be.equal(
+        '0x0000000000000000000000000000000000000000000000000000000000000004'
+      )
       expect(await foreignContract.destinationChainId()).to.be.bignumber.equal(HOME_CHAIN_ID.toString())
-      expect(await web3.eth.getStorageAt(foreignContract.address, dstChainIdLengthStorageKey)).to.be.equal('0x02')
+      expect(await web3.eth.getStorageAt(foreignContract.address, dstChainIdLengthStorageKey)).to.be.equal(
+        '0x0000000000000000000000000000000000000000000000000000000000000002'
+      )
 
       const newSrcChainId = '0x11000000000000'
       const newDstChainId = '0x22000000000000000000000000'
       await foreignContract.setChainIds(newSrcChainId, newDstChainId, { from: owner }).should.be.fulfilled
 
       expect((await foreignContract.sourceChainId()).toString(16)).to.be.equal(newSrcChainId.slice(2))
-      expect(await web3.eth.getStorageAt(foreignContract.address, srcChainIdLengthStorageKey)).to.be.equal('0x07')
+      expect(await web3.eth.getStorageAt(foreignContract.address, srcChainIdLengthStorageKey)).to.be.equal(
+        '0x0000000000000000000000000000000000000000000000000000000000000007'
+      )
       expect((await foreignContract.destinationChainId()).toString(16)).to.be.equal(newDstChainId.slice(2))
-      expect(await web3.eth.getStorageAt(foreignContract.address, dstChainIdLengthStorageKey)).to.be.equal('0x0d')
+      expect(await web3.eth.getStorageAt(foreignContract.address, dstChainIdLengthStorageKey)).to.be.equal(
+        '0x000000000000000000000000000000000000000000000000000000000000000d'
+      )
     })
 
     it('should not allow to set invalid chain ids', async () => {

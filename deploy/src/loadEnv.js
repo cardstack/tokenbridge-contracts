@@ -1,7 +1,4 @@
 const path = require('path')
-require('dotenv').config({
-  path: path.join(__dirname, '..', '.env')
-})
 const { isAddress, toBN } = require('web3').utils
 const envalid = require('envalid')
 const { ZERO_ADDRESS } = require('./constants')
@@ -334,9 +331,7 @@ if (env.BRIDGE_MODE === 'NATIVE_TO_ERC') {
 
   if (env.HOME_REWARDABLE === 'BOTH_DIRECTIONS' && env.FOREIGN_REWARDABLE === 'ONE_DIRECTION') {
     throw new Error(
-      `Combination of HOME_REWARDABLE: ${env.HOME_REWARDABLE} and FOREIGN_REWARDABLE: ${
-        env.FOREIGN_REWARDABLE
-      } should be avoided on ${env.BRIDGE_MODE} bridge mode.`
+      `Combination of HOME_REWARDABLE: ${env.HOME_REWARDABLE} and FOREIGN_REWARDABLE: ${env.FOREIGN_REWARDABLE} should be avoided on ${env.BRIDGE_MODE} bridge mode.`
     )
   }
 }

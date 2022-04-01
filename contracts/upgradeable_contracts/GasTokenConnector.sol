@@ -55,7 +55,7 @@ contract GasTokenConnector is Ownable {
     /**
     * @return GST2 contract address in ethereum Mainnet
     */
-    function gasToken() public pure returns (IGasToken) {
+    function gasToken() public view returns (IGasToken) {
         return IGasToken(0x0000000000b3F879cb30FE243b4Dfee438691c04);
     }
 

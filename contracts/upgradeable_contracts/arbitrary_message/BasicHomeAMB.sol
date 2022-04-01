@@ -12,6 +12,8 @@ contract BasicHomeAMB is BasicAMB, MessageDelivery {
     event CollectedSignatures(
         address authorityResponsibleForRelay,
         bytes32 messageHash,
+        // Allow NumberOfCollectedSignatures in mixed case to remain consistent with on-chain history
+        // solhint-disable var-name-mixedcase
         uint256 NumberOfCollectedSignatures
     );
 

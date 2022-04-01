@@ -21,9 +21,9 @@ jobs:
         with:
           path: node_modules
           key: ${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
-      - run: npm install
+      - run: yarn install
         if: ${{ !steps.npm-cache.outputs.cache-hit }}
-      - run: npm run flatten
+      - run: yarn run flatten
       - run: zip flats $(find flats -name '*.sol')
       - uses: actions/upload-release-asset@v1.0.2
         env:

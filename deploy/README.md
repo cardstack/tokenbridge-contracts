@@ -1,31 +1,3 @@
-# How to Deploy POA Bridge Contracts
-
-In order to deploy bridge contracts you must run `npm install` to install all dependencies. For more information, see the [project README](../README.md).
-
-1. Compile the source contracts.
-```
-cd ..
-npm run compile
-```
-
-2. Create a `.env` file.
-```
-cd deploy
-cp .env.example .env
-```
-
-3. If necessary, deploy and configure a multi-sig wallet contract to manage the bridge contracts after deployment. We have not audited any wallets for security, but have used https://github.com/gnosis/MultiSigWallet/ with success.
-
-4. Adjust the parameters in the `.env` file depending on the desired bridge mode. See below for comments related to each parameter.
-
-5. Add funds to the deployment accounts in both the Home and Foreign networks.
-
-6. Run `npm run deploy`.
-
-## `NATIVE-TO-ERC` Bridge Mode Configuration Example.
-
-This example of an `.env` file for the `native-to-erc` bridge mode includes comments describing each parameter.
-
 ```bash
 
 
@@ -168,7 +140,6 @@ BLOCK_REWARD_ADDRESS=0x
 # The api key of the explorer api, if required, used to verify all the deployed contracts in Foreign network.
 #FOREIGN_EXPLORER_API_KEY=
 ```
-
 
 ## `ERC-TO-ERC` Bridge Mode Configuration Example.
 
@@ -732,7 +703,6 @@ FOREIGN_MEDIATOR_REQUEST_GAS_LIMIT=2000000
 # The api key of the explorer api, if required, used to verify all the deployed contracts in Foreign network.
 #FOREIGN_EXPLORER_API_KEY=
 ```
-
 
 ## `AMB-NATIVE-TO-ERC` Bridge Mode Configuration Example.
 
