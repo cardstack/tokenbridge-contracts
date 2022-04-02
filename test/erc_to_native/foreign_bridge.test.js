@@ -775,12 +775,12 @@ contract('ForeignBridge_ERC20_to_Native', async accounts => {
     for (const decimalShift of [2, -1]) {
       it(`Home to Foreign: withdraw with 1 signature with a decimalShift of ${decimalShift}`, async () => {
         // From a foreign a token erc token 16 decimals.
+        const owner = accounts[0]
         const token = await ERC677BridgeToken.new('Some ERC20', 'RSZT', 16)
         const valueOnForeign = toBN('1000')
         // Value is decimals shifted from foreign to home: Native on home = 16+2 shift = 18 decimals
         const valueOnHome = toBN(valueOnForeign * 10 ** decimalShift)
 
-        const owner = accounts[0]
         const foreignBridgeImpl = await ForeignBridgeErcToNativeMock.new()
         const storageProxy = await EternalStorageProxy.new().should.be.fulfilled
         await storageProxy.upgradeTo('1', foreignBridgeImpl.address).should.be.fulfilled

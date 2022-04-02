@@ -135,7 +135,7 @@ contract HomeMultiAMBErc20ToErc677 is
         }
         name = string(abi.encodePacked(name, " (CPXD)"));
         symbol = string(abi.encodePacked(symbol, ".CPXD"));
-        address homeToken = new TokenProxy(tokenImage(), name, symbol, _decimals, bridgeContract().sourceChainId());
+        address homeToken = new TokenProxy(tokenImage(), name, symbol, _decimals);
         _setTokenAddressPair(_token, homeToken);
         _initializeTokenBridgeLimits(homeToken, _decimals);
         _setFee(HOME_TO_FOREIGN_FEE, homeToken, getFee(HOME_TO_FOREIGN_FEE, address(0)));

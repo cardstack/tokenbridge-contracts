@@ -1674,8 +1674,8 @@ contract('HomeBridge_ERC20_to_ERC20', async accounts => {
       it(`Foreign to Home: test decimal shift ${decimalShift}, no impact on UserRequestForSignature value`, async () => {
         // Given
         const homeBridge = await HomeBridge.new()
-        token = await ERC677BridgeToken.new('Some ERC20', 'TEST', 16)
         const owner = accounts[0]
+        token = await ERC677BridgeToken.new('Some ERC20', 'TEST', 16)
         const user = accounts[4]
         await homeBridge.initialize(
           validatorContract.address,

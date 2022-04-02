@@ -76,7 +76,7 @@ contract HomeNftMediator is BasicNftMediator, IHomeNftMediator {
         name = string(abi.encodePacked(name, " (CPXD)"));
         symbol = string(abi.encodePacked(symbol, ".CPXD"));
 
-        homeTokenAddress = new ERC721Proxy(name, symbol, bridgeContract().sourceChainId());
+        homeTokenAddress = new ERC721Proxy(tokenImage(), name, symbol);
 
         _setTokenAddressPair(_foreignTokenAddress, homeTokenAddress);
 
