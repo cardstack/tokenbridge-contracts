@@ -1124,9 +1124,9 @@ ansi-mark@^1.0.0:
     super-split "^1.1.0"
 
 ansi-regex@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/ansi-regex/-/ansi-regex-3.0.0.tgz#ed0317c322064f79466c02966bddb605ab37d998"
-  integrity sha1-7QMXwyIGT3lGbAKWa922Bas32Zg=
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/ansi-regex/-/ansi-regex-3.0.1.tgz#123d6479e92ad45ad897d4054e3c7ca7db4944e1"
+  integrity sha512-+O9Jct8wf++lXxxFc4hc8LsjaSq0HFzzL7cVsw8pRDIPdjKD2mT4ytDZlLuSBZ4cLKZFXIrMGO7DbQCtMJJMKw==
 
 ansi-regex@^4.1.0:
   version "4.1.1"
@@ -8319,8 +8319,9 @@ web3-provider-engine@16.0.3:
     xhr "^2.2.0"
     xtend "^4.0.1"
 
-"web3-provider-engine@github:habdelra/web3-provider-engine":
+web3-provider-engine@habdelra/web3-provider-engine:
   version "16.0.1"
+  uid d9e5d9545c1af75124ca027bce5aaa84a3c4fda4
   resolved "https://codeload.github.com/habdelra/web3-provider-engine/tar.gz/d9e5d9545c1af75124ca027bce5aaa84a3c4fda4"
   dependencies:
     async "^2.5.0"
