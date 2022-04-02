@@ -16,6 +16,7 @@ contract PermittableToken is ERC677BridgeToken {
 
     // Note: bridged tokens are deployed with a TokenProxy and therefore this constructor is not relevant - the
     // intialize method is used instead, but this constructor is used in tests when using a non-proxied contract
+    // solhint-disable-next-line no-empty-blocks
     constructor(string _name, string _symbol, uint8 _decimals) public ERC677BridgeToken(_name, _symbol, _decimals) {}
 
     function transferOwnership(address) public onlyOwner {

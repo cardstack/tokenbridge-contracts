@@ -3,6 +3,7 @@ pragma solidity 0.4.24;
 import "openzeppelin-solidity/contracts/token/ERC721/ERC721Token.sol";
 
 contract ERC721BurnableMintable is ERC721Token {
+    // solhint-disable-next-line const-name-snakecase
     string public constant version = "1";
 
     constructor(string memory _name, string memory _symbol) public ERC721Token(_name, _symbol) {
