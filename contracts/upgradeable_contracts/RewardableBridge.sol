@@ -33,8 +33,7 @@ contract RewardableBridge is Ownable, FeeTypes {
         bytes memory callData = abi.encodeWithSelector(method);
 
         assembly {
-            let result := callcode(gas, feeManager, 0x0, add(callData, 0x20), mload(callData), 0, 32)
-
+            let result := delegatecall(gas, feeManager, add(callData, 0x20), mload(callData), 0, 32)
             if and(eq(returndatasize, 32), result) {
                 fee := mload(0)
             }
@@ -49,8 +48,7 @@ contract RewardableBridge is Ownable, FeeTypes {
         bytes memory callData = abi.encodeWithSelector(GET_FEE_MANAGER_MODE);
         address feeManager = feeManagerContract();
         assembly {
-            let result := callcode(gas, feeManager, 0x0, add(callData, 0x20), mload(callData), 0, 4)
-
+            let result := delegatecall(gas, feeManager, add(callData, 0x20), mload(callData), 0, 4)
             if and(eq(returndatasize, 32), result) {
                 mode := mload(0)
             }
@@ -103,6 +101,11 @@ contract RewardableBridge is Ownable, FeeTypes {
     {
         bytes memory callData = abi.encodeWithSelector(CALCULATE_FEE, _value, _recover, _feeType);
         assembly {
+            // Note: callcode is deprecated and has the wrong msg.sender - changing to delegatecall here
+            // reverts, but it's not essential because the CALCULATE_FEE function in BaseFeeManager
+            // does not use this value.
+            // If upgrading solidity to > 0.5, delegatecall returns a value without assembly so this
+            // construction is uncessessary
             let result := callcode(gas, _impl, 0x0, add(callData, 0x20), mload(callData), 0, 32)
 
             switch and(eq(returndatasize, 32), result)
