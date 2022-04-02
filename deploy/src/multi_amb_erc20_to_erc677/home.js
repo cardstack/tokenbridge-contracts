@@ -49,7 +49,7 @@ async function deployHome(implementationOnly) {
     console.log('\n[Home] Deploying new ERC677 token image')
     const chainId = await web3Home.eth.getChainId()
     assert.strictEqual(chainId > 0, true, 'Invalid chain ID')
-    const erc677token = await deployContract(ERC677BridgeTokenPermittable, ['', '', 0, chainId], {
+    const erc677token = await deployContract(ERC677BridgeTokenPermittable, ['', '', 0], {
       from: HOME_DEPLOYMENT_ACCOUNT_ADDRESS,
       nonce
     })
