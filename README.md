@@ -48,6 +48,26 @@ There is also an as yet undeployed ERC721 bridge that operates on the same princ
 See [contracts/upgradeable_contracts/multi_amb_erc20_to_erc677/callflows.md](callflows.md) for more in-depth dive into the
 bridging callflows
 
+# Overview of the different forms of proxy-implementation upgrade patterns
+
+This repo uses two proxy implementation patterns.
+
+The first pattern is a standard OwnedUpgradeabilityProxy, which is taken from OpenZepplin contracts and well
+documented in that library.
+
+The second pattern is used in the bridged token implementation. Because each new type of token bridged requires a new
+ERC677 contract to be deployed on L2, a single implementation contract is deployed on L2 in advance, and then when a new
+type of token is bridged, a proxy contract is deployed that uses that implementation contract to forward method calls to using
+delegatecall (see TokenProxy.sol).
+
+This contract is a subclass of the standard OpenZepplin Proxy contract. There is one unusual implementation detail of
+the proxy, and that is that the implementation address is dynamic. The implementation address is stored once,
+in the bridge mediator contract, and for every call the TokenProxy contract asks the bridge mediator what the
+current token implementation address is. The reason for this design decision is so that the token proxy
+implementation can be upgraded at any time atomically for all deployed token contracts with a single call
+to the bridge mediator, instead of requiring iterating through each bridged token type. This allows
+wholesale token implementation upgrades on L2 where necessary.
+
 # How to Deploy POA Bridge Contracts
 
 1. Create a `.env` file.
