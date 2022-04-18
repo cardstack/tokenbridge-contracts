@@ -1,4 +1,5 @@
 const ERC677BridgeToken = artifacts.require('ERC677BridgeToken.sol')
+const PermittableTokenMock = artifacts.require('PermittableTokenMock.sol')
 const ERC20Mock = artifacts.require('ERC20Mock.sol')
 const AMBMock = artifacts.require('AMBMock.sol')
 
@@ -623,10 +624,9 @@ function shouldBehaveLikeBasicAMBErc677ToErc677(otherSideMediatorContract, accou
     })
     it('should prevent emitting the event twice when ERC677 used by relayTokens and ERC677 is owned by token manager', async function() {
       // Given
-      const erc677Token = await ERC677BridgeToken.new('test', 'TST', 18)
+      const erc677Token = await PermittableTokenMock.new('test', 'TST', 18)
       await erc677Token.mint(user, twoEthers, { from: owner }).should.be.fulfilled
-      await erc677Token.setBridgeContract(contract.address, { from: owner }).should.be.fulfilled
-      await erc677Token.transferOwnership(contract.address, { from: owner }).should.be.fulfilled
+      await erc677Token.mockSetBridgeContract(contract.address, { from: owner })
 
       contract = this.bridge
 

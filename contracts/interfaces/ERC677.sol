@@ -5,9 +5,6 @@ contract ERC677 is ERC20 {
     event Transfer(address indexed from, address indexed to, uint256 value, bytes data);
 
     function transferAndCall(address, uint256, bytes) external returns (bool);
-
-    function increaseAllowance(address spender, uint256 addedValue) public returns (bool);
-    function decreaseAllowance(address spender, uint256 subtractedValue) public returns (bool);
 }
 
 contract LegacyERC20 {

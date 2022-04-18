@@ -7,7 +7,7 @@ const { ZERO_ADDRESS } = require('../setup')
 
 const { ether, expectRevert } = require('../helpers/helpers')
 
-const { maxGasPerTx, tokenId, exampleMessageId, chainId } = require('./helpers')
+const { maxGasPerTx, tokenId, exampleMessageId } = require('./helpers')
 
 function shouldBehaveLikeBasicNftMediator(accounts) {
   describe('shouldBehaveLikeBasicNftMediator', () => {
@@ -18,7 +18,7 @@ function shouldBehaveLikeBasicNftMediator(accounts) {
       beforeEach(async () => {
         bridgeContract = await AMBMock.new()
         await bridgeContract.setMaxGasPerTx(maxGasPerTx)
-        erc721token = await ERC721BurnableMintable.new('TEST', 'TST', 123)
+        erc721token = await ERC721BurnableMintable.new('TEST', 'TST')
       })
       it('should initialize', async function() {
         const contract = this.bridge
@@ -121,7 +121,7 @@ function shouldBehaveLikeBasicNftMediator(accounts) {
       beforeEach(async function() {
         bridgeContract = await AMBMock.new()
         await bridgeContract.setMaxGasPerTx(maxGasPerTx)
-        erc721token = await ERC721BurnableMintable.new('TEST', 'TST', chainId)
+        erc721token = await ERC721BurnableMintable.new('TEST', 'TST')
 
         contract = this.bridge
         mediatorContractOnOtherSide = await this.mediatorContractOnOtherSide.new()

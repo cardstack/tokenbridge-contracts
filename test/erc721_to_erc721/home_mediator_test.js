@@ -17,7 +17,6 @@ const {
   tokenId,
   otherTokenId,
   exampleMessageId,
-  chainId,
   tokenURI,
   otherTokenURI,
   failedMessageId
@@ -48,7 +47,7 @@ contract('HomeNftMediator', accounts => {
       const contract = await HomeNftMediator.new()
       const bridgeContract = await AMBMock.new()
       await bridgeContract.setMaxGasPerTx(maxGasPerTx)
-      const token = await ERC721BurnableMintable.new('TEST', 'TST', chainId)
+      const token = await ERC721BurnableMintable.new('TEST', 'TST')
       const mediatorContractOnOtherSide = await ForeignNftMediator.new()
 
       await contract.initialize(bridgeContract.address, mediatorContractOnOtherSide.address, maxGasPerTx, owner)
@@ -98,8 +97,8 @@ contract('HomeNftMediator', accounts => {
       otherSideAMBBridgeContract = await AMBMock.new()
       otherSideAMBBridgeContract.setMaxGasPerTx(maxGasPerTx)
 
-      tokenOnForeign = await ERC721BurnableMintable.new('Test on Foreign', 'TST', chainId)
-      tokenImage = await ERC721BurnableMintable.new('Token Image', 'IMG', chainId)
+      tokenOnForeign = await ERC721BurnableMintable.new('Test on Foreign', 'TST')
+      tokenImage = await ERC721BurnableMintable.new('Token Image', 'IMG')
 
       mediatorContractOnOtherSide = await ForeignNftMediator.new()
 
@@ -218,7 +217,7 @@ contract('HomeNftMediator', accounts => {
     })
 
     it('should register new token with empty name', async () => {
-      const newToken = await ERC721BurnableMintable.new('', 'TST', chainId)
+      const newToken = await ERC721BurnableMintable.new('', 'TST')
 
       await bridgeToken(newToken, tokenId, tokenURI)
 
@@ -229,7 +228,7 @@ contract('HomeNftMediator', accounts => {
     })
 
     it('should register new token with empty symbol', async () => {
-      const newToken = await ERC721BurnableMintable.new('Test on Foreign', '', chainId)
+      const newToken = await ERC721BurnableMintable.new('Test on Foreign', '')
 
       await bridgeToken(newToken, tokenId, tokenURI)
 
@@ -244,7 +243,7 @@ contract('HomeNftMediator', accounts => {
       let transferMessageId
 
       beforeEach(async () => {
-        homeToken = await ERC721BurnableMintable.new('TEST', 'TST', chainId)
+        homeToken = await ERC721BurnableMintable.new('TEST', 'TST')
         await homeToken.mint(user, tokenId, { from: owner })
         await homeToken.setTokenURI(tokenId, tokenURI).should.be.fulfilled
         await homeToken.transferOwnership(contract.address, { from: owner })
@@ -350,7 +349,7 @@ contract('HomeNftMediator', accounts => {
 
         await expectRevert(homeTokenAsUpdated.foo(tokenId))
 
-        const newTokenImage = await UpdatedERC721ImageMock.new('New Token Image', 'NEWIMG', chainId)
+        const newTokenImage = await UpdatedERC721ImageMock.new('New Token Image', 'NEWIMG')
         expect(await contract.owner()).to.be.equal(owner)
 
         // non owner cannot update token implementation

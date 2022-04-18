@@ -2,67 +2,46 @@ pragma solidity 0.4.24;
 
 import "../../upgradeability/Proxy.sol";
 import "../../interfaces/IBridgeMediator.sol";
-
-interface IPermittableTokenVersion {
-    function version() external pure returns (string);
-}
-
 /**
 * @title TokenProxy
 * @dev Helps to reduces the size of the deployed bytecode for automatically created tokens, by using a proxy contract.
 */
+
 contract TokenProxy is Proxy {
-    // storage layout is copied from PermittableToken.sol
-    string internal name;
-    string internal symbol;
-    uint8 internal decimals;
-    mapping(address => uint256) internal balances;
-    uint256 internal totalSupply;
-    mapping(address => mapping(address => uint256)) internal allowed;
-    address internal owner;
-    bool internal mintingFinished;
-    address internal bridgeContractAddr;
-    // string public constant version = "1";
-    // solhint-disable-next-line var-name-mixedcase
-    bytes32 internal DOMAIN_SEPARATOR;
-    // bytes32 public constant PERMIT_TYPEHASH = 0xea2aa0a1be11a07ed86d755c93467f4f82362b452371d1ba94d1715123511acb;
-    mapping(address => uint256) internal nonces;
-    mapping(address => mapping(address => uint256)) internal expirations;
+    bytes4 internal constant INITIALIZE = 0x1624f6c6; // bytes4(keccak256("initialize(string,string,uint8)"))
 
     /**
-    * @dev Creates a non-upgradeable token proxy for PermitableToken.sol, initializes its eternalStorage.
-    * @param _tokenImage address of the token image used for mirroring all functions.
+    * @dev Creates an upgradeable token proxy for PermittableToken.sol, initializes its storage by using delegatecall
     * @param _name token name.
     * @param _symbol token symbol.
-    * @param _decimals token decimals.
-    * @param _chainId chain id for current network.
     */
-    constructor(address _tokenImage, string memory _name, string memory _symbol, uint8 _decimals, uint256 _chainId)
-        public
-    {
-        string memory version = IPermittableTokenVersion(_tokenImage).version();
-
-        name = _name;
-        symbol = _symbol;
-        decimals = _decimals;
-        owner = msg.sender; // msg.sender == HomeMultiAMBErc20ToErc677 mediator
-        bridgeContractAddr = msg.sender;
-        DOMAIN_SEPARATOR = keccak256(
-            abi.encode(
-                keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
-                keccak256(bytes(_name)),
-                keccak256(bytes(version)),
-                _chainId,
-                address(this)
-            )
-        );
+    constructor(address _tokenImage, string _name, string _symbol, uint8 _decimals) public {
+        bool result = _tokenImage.delegatecall(abi.encodeWithSelector(INITIALIZE, _name, _symbol, _decimals));
+        require(result, "failed to initialize token storage");
     }
 
     /**
     * @dev Retrieves the implementation contract address, mirrored token image.
     * @return token image address.
     */
-    function implementation() public view returns (address impl) {
-        return IBridgeMediator(bridgeContractAddr).tokenImage();
+    function implementation() public view returns (address) {
+        return IBridgeMediator(bridgeContractAddr()).tokenImage();
     }
+
+    function bridgeContractAddr() public view returns (address _bridgeContractAddr) {
+        // The bridge contract is stored at address slot 7. It needs to be read from the storage because it's initialized
+        // by the initialize function using delegatecall in the constructor.
+
+        // It has to be stored in slot 7 to maintain compatibility with legacy bridged tokens on-chain.
+        // Ideally it would be stored at a slot like keccak256("bridgeContractAddr"), which could
+        // still work for newly deployed proxies but would leave the possibility of old proxies
+        // getting out of sync, so this compromise was chosen to minimise complexity and keep the
+        // bridge contract address stored in a single known slot.
+
+        // The population of slot 7 is tested explicitly in bridged_tokens.test.js
+        assembly {
+            _bridgeContractAddr := sload(0x07)
+        }
+    }
+
 }

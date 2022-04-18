@@ -63,7 +63,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
       owner
     )
     token = await ERC677BridgeToken.new('TEST', 'TST', 18)
-    tokenImage = await PermittableToken.new('TEST', 'TST', 18, 1337)
+    tokenImage = await PermittableToken.new('TEST', 'TST', 18)
     currentDay = await contract.getCurrentDay()
 
     await otherSideMediator.allowToken(token.address).should.be.fulfilled
@@ -448,9 +448,9 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         expect(await homeToken.name()).to.be.equal('TEST (CPXD)')
         expect(await homeToken.symbol()).to.be.equal('TST.CPXD')
         expect(await homeToken.decimals()).to.be.bignumber.equal('18')
-        expect(await homeToken.version()).to.be.equal('1')
+        expect(await homeToken.version()).to.be.equal('2')
         expect(await homeToken.owner()).to.be.equal(contract.address)
-        expect(await homeToken.bridgeContract()).to.be.equal(contract.address)
+        expect(await homeToken.bridgeContractAddr()).to.be.equal(contract.address)
         expect(await homeToken.totalSupply()).to.be.bignumber.equal(value)
         expect(await homeToken.balanceOf(user)).to.be.bignumber.equal(ZERO)
         expect(await homeToken.balanceOf(expectedSafeForUser)).to.be.bignumber.equal(value)
@@ -799,7 +799,7 @@ contract('HomeMultiAMBErc20ToErc677', async accounts => {
         expect(await homeToken.balanceOf(safeAddress)).to.be.bignumber.eq(oneEther)
         await expectRevert(homeTokenAsUpdated.foo(user))
 
-        const newTokenImage = await UpdatedPermittableTokenMock.new('New Token Image', 'NEWIMG', 18, 1337)
+        const newTokenImage = await UpdatedPermittableTokenMock.new('New Token Image', 'NEWIMG', 18)
         expect(await contract.owner()).to.be.equal(owner)
 
         // non owner cannot update token implementation
