@@ -37,6 +37,12 @@ contract RewardableHomeBridgeErcToNative is RewardableBridge {
         bytes memory callData = abi.encodeWithSelector(GET_AMOUNT_TO_BURN, _value);
         address feeManager = feeManagerContract();
         assembly {
+            // Note: callcode is deprecated and has the wrong msg.sender - changing to delegatecall here
+            // reverts, but it's not essential because the getAmountToBurn function in BaseFeeManager
+            // does not use this value. Furthermore this bridge mode is not deployed or used in the
+            // cardstack bridge at all, and is only used in the test suite
+            // If upgrading solidity to > 0.5, delegatecall returns a value without assembly so this
+            // construction is uncessessary
             let result := callcode(gas, feeManager, 0x0, add(callData, 0x20), mload(callData), 0, 32)
 
             switch and(eq(returndatasize, 32), result)

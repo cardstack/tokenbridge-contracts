@@ -42,7 +42,7 @@ contract HomeBridgeErcToErcPOSDAO is HomeBridgeErcToErc {
         bytes memory callData = abi.encodeWithSelector(BLOCK_REWARD_CONTRACT_SELECTOR);
 
         assembly {
-            let result := callcode(gas, feeManager, 0x0, add(callData, 0x20), mload(callData), 0, 32)
+            let result := delegatecall(gas, feeManager, add(callData, 0x20), mload(callData), 0, 32)
 
             if and(eq(returndatasize, 32), result) {
                 blockReward := mload(0)
