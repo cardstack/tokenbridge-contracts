@@ -5,6 +5,7 @@ import "openzeppelin-solidity/contracts/token/ERC20/MintableToken.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/DetailedERC20.sol";
 import "openzeppelin-solidity/contracts/AddressUtils.sol";
 import "./interfaces/IBurnableMintableERC677Token.sol";
+import "./interfaces/ERC677Receiver.sol";
 import "./upgradeable_contracts/Claimable.sol";
 
 /**
@@ -12,8 +13,6 @@ import "./upgradeable_contracts/Claimable.sol";
 * @dev The basic implementation of a bridgeable ERC677-compatible token
 */
 contract ERC677BridgeToken is IBurnableMintableERC677Token, DetailedERC20, BurnableToken, MintableToken, Claimable {
-    bytes4 internal constant ON_TOKEN_TRANSFER = 0xa4c0ed36; // onTokenTransfer(address,uint256,bytes)
-
     address public bridgeContractAddr;
 
     // solhint-disable-next-line const-name-snakecase
@@ -96,7 +95,8 @@ contract ERC677BridgeToken is IBurnableMintableERC677Token, DetailedERC20, Burna
      * @param _data set of extra bytes that can be passed to the recipient
      */
     function executeTokenTransferCallback(address _contract, address _from, uint256 _value, bytes _data) private {
-        require(_contract.call(abi.encodeWithSelector(ON_TOKEN_TRANSFER, _from, _value, _data)));
+        require(ERC677Receiver(_contract).onTokenTransfer(_from, _value, _data));
+
     }
 
     // We don't really need this as there is already a "version" constant but implementing it lets blockscout detect
