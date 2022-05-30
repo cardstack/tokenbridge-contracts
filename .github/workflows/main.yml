@@ -33,6 +33,23 @@ jobs:
       - run: yarn install
         if: ${{ !steps.npm-cache.outputs.cache-hit }}
       - run: yarn test:gasreport
+  analyze:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+    - uses: actions/checkout@v3
+    - uses: crytic/slither-action@v0.1.1
+      continue-on-error: true
+      id: slither
+      with:
+        target: 'contracts/'
+        node-version: 16
+        sarif: results.sarif
+    - uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: ${{ steps.slither.outputs.sarif }}
   deploy-smoketest:
     runs-on: ubuntu-latest
     steps:
