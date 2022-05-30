@@ -40,11 +40,22 @@ jobs:
       security-events: write
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 16
+      - uses: actions/cache@v2
+        id: npm-cache
+        with:
+          path: node_modules
+          key: v2-${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
+      - run: yarn install
+        if: ${{ !steps.npm-cache.outputs.cache-hit }}
+      - run: yarn run compile
       - uses: crytic/slither-action@v0.1.1
         continue-on-error: true
         id: slither
         with:
-          node-version: 16
+          ignore-compile: true
           sarif: results.sarif
       - uses: github/codeql-action/upload-sarif@v2
         with:
