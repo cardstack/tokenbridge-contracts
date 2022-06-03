@@ -17,6 +17,8 @@
 /* solhint-disable */
 pragma solidity 0.4.24;
 
+import "../libraries/SafeERC20.sol";
+
 contract VatLike {
     function hope(address) external;
 }
@@ -167,7 +169,7 @@ contract ChaiMock {
         balanceOf[dst] = add(balanceOf[dst], pie);
         totalSupply = add(totalSupply, pie);
 
-        daiToken.transferFrom(msg.sender, address(this), wad);
+        SafeERC20.safeTransferFrom(daiToken, msg.sender, address(this), wad);
         daiJoin.join(address(this), wad);
         pot.join(pie);
         emit Transfer(address(0), dst, pie);

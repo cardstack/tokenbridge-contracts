@@ -1,5 +1,7 @@
 pragma solidity 0.4.24;
 
+import "../libraries/SafeERC20.sol";
+
 contract GemLike {
     function mint(address, uint256) external returns (bool);
     function transferFrom(address, address, uint256) external returns (bool);
@@ -19,7 +21,7 @@ contract ChaiMock2 {
 
     // wad is denominated in dai
     function join(address, uint256 wad) external {
-        daiToken.transferFrom(msg.sender, address(this), wad);
+        SafeERC20.safeTransferFrom(daiToken, msg.sender, address(this), wad);
         daiBalance += wad;
     }
 

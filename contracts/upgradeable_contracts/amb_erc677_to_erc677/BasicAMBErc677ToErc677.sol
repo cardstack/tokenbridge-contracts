@@ -25,6 +25,8 @@ contract BasicAMBErc677ToErc677 is
     BaseERC677Bridge,
     TokenBridgeMediator
 {
+    using SafeERC20 for ERC677;
+
     function initialize(
         address _bridgeContract,
         address _mediatorContract,
@@ -79,7 +81,7 @@ contract BasicAMBErc677ToErc677 is
         addTotalSpentPerDay(getCurrentDay(), _value);
 
         setLock(true);
-        token.transferFrom(msg.sender, to, _value);
+        token.safeTransferFrom(msg.sender, to, _value);
         setLock(false);
         bridgeSpecificActionsOnTokenTransfer(token, msg.sender, _value, abi.encodePacked(_receiver));
     }
