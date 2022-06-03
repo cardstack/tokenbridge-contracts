@@ -5,6 +5,7 @@ import "../BaseRewardAddressList.sol";
 import "../Ownable.sol";
 import "../../interfaces/ERC677.sol";
 import "../../interfaces/IBurnableMintableERC677Token.sol";
+import "../../libraries/SafeERC20.sol";
 
 /**
 * @title HomeFeeManagerMultiAMBErc20ToErc677
@@ -13,6 +14,7 @@ import "../../interfaces/IBurnableMintableERC677Token.sol";
 */
 contract HomeFeeManagerMultiAMBErc20ToErc677 is BaseRewardAddressList, Ownable, BasicMultiTokenBridge {
     using SafeMath for uint256;
+    using SafeERC20 for ERC677;
 
     event FeeUpdated(bytes32 feeType, address indexed token, uint256 fee);
     event FeeDistributed(uint256 fee, address indexed token, bytes32 indexed messageId);
@@ -143,7 +145,7 @@ contract HomeFeeManagerMultiAMBErc20ToErc677 is BaseRewardAddressList, Ownable, 
             }
 
             if (_feeType == HOME_TO_FOREIGN_FEE) {
-                ERC677(_token).transfer(nextAddr, feeToDistribute);
+                ERC677(_token).safeTransfer(nextAddr, feeToDistribute);
             } else {
                 IBurnableMintableERC677Token(_token).mint(nextAddr, feeToDistribute);
             }

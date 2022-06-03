@@ -5,6 +5,7 @@ import "openzeppelin-solidity/contracts/AddressUtils.sol";
 import "./BasicForeignBridge.sol";
 
 contract ERC20Bridge is BasicForeignBridge {
+    using SafeERC20 for ERC20;
     bytes32 internal constant ERC20_TOKEN = 0x15d63b18dbc21bf4438b7972d80076747e1d93c4f87552fe498c90cbde51665e; // keccak256(abi.encodePacked("erc20token"))
 
     function erc20token() public view returns (ERC20) {
@@ -23,7 +24,7 @@ contract ERC20Bridge is BasicForeignBridge {
         require(withinLimit(_amount));
         addTotalSpentPerDay(getCurrentDay(), _amount);
 
-        erc20token().transferFrom(msg.sender, address(this), _amount);
+        erc20token().safeTransferFrom(msg.sender, address(this), _amount);
         emit UserRequestForAffirmation(_receiver, _amount);
     }
 }

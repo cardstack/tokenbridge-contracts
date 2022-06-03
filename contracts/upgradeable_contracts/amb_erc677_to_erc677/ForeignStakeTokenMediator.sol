@@ -59,9 +59,9 @@ contract ForeignStakeTokenMediator is BasicStakeTokenMediator {
             token.mint(_recipient, _value);
         } else if (balance < _value) {
             token.mint(address(this), _value - balance);
-            token.transfer(_recipient, _value);
+            SafeERC20.safeTransfer(token, _recipient, _value);
         } else {
-            token.transfer(_recipient, _value);
+            SafeERC20.safeTransfer(token, _recipient, _value);
         }
     }
 

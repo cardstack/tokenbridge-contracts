@@ -17,6 +17,8 @@ contract HomeMultiAMBErc20ToErc677 is
     HomeFeeManagerMultiAMBErc20ToErc677,
     MultiTokenForwardingRules
 {
+    using SafeERC20 for ERC677;
+
     bytes32 internal constant TOKEN_IMAGE_CONTRACT = 0x20b8ca26cc94f39fab299954184cf3a9bd04f69543e4f454fab299f015b8130f; // keccak256(abi.encodePacked("tokenImageContract"))
     bytes32 internal constant BRIDGE_UTILS_CONTRACT = 0x174a58966ad4181674ba19a3131ba82f8683cbe56350f1172634244845855e9b; // keccak256(abi.encodePacked("bridgeUtilsContract"))
 
@@ -203,7 +205,7 @@ contract HomeMultiAMBErc20ToErc677 is
         addTotalSpentPerDay(token, getCurrentDay(), _value);
 
         setLock(true);
-        token.transferFrom(msg.sender, to, _value);
+        token.safeTransferFrom(msg.sender, to, _value);
         setLock(false);
         bridgeSpecificActionsOnTokenTransfer(token, msg.sender, _value, abi.encodePacked(_receiver));
     }

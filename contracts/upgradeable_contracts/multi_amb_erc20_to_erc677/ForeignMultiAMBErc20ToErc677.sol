@@ -103,7 +103,7 @@ contract ForeignMultiAMBErc20ToErc677 is BasicMultiAMBErc20ToErc677 {
 
         uint256 balanceBefore = token.balanceOf(address(this));
         setLock(true);
-        token.transferFrom(msg.sender, address(this), _value);
+        token.safeTransferFrom(msg.sender, address(this), _value);
         setLock(false);
         uint256 balanceDiff = token.balanceOf(address(this)).sub(balanceBefore);
         require(balanceDiff <= _value);

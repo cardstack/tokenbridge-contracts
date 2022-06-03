@@ -6,6 +6,8 @@ import "../OtherSideBridgeStorage.sol";
 import "../ChaiConnector.sol";
 
 contract ForeignBridgeErcToNative is BasicForeignBridge, ERC20Bridge, OtherSideBridgeStorage, ChaiConnector {
+    using SafeERC20 for ERC20;
+
     function initialize(
         address _validatorContract,
         address _erc20token,
@@ -92,7 +94,7 @@ contract ForeignBridgeErcToNative is BasicForeignBridge, ERC20Bridge, OtherSideB
 
         addTotalSpentPerDay(getCurrentDay(), _amount);
 
-        erc20token().transferFrom(msg.sender, address(this), _amount);
+        erc20token().safeTransferFrom(msg.sender, address(this), _amount);
         emit UserRequestForAffirmation(_receiver, _amount);
 
         if (isDaiNeedsToBeInvested()) {

@@ -43,7 +43,7 @@ contract ForeignAMBErc677ToErc677 is BasicAMBErc677ToErc677, MediatorBalanceStor
         addTotalSpentPerDay(getCurrentDay(), _value);
 
         setLock(true);
-        token.safeTransferFrom(msg.sender, _value);
+        token.safeTransferFrom(msg.sender, address(this), _value);
         setLock(false);
         bridgeSpecificActionsOnTokenTransfer(token, msg.sender, _value, abi.encodePacked(_receiver));
     }

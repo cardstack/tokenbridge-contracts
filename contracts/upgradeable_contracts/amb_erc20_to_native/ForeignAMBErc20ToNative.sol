@@ -77,7 +77,7 @@ contract ForeignAMBErc20ToNative is BasicAMBErc20ToNative, ReentrancyGuard, Base
         _setMediatorBalance(mediatorBalance().add(_value));
 
         setLock(true);
-        token.safeTransferFrom(msg.sender, _value);
+        token.safeTransferFrom(msg.sender, address(this), _value);
         setLock(false);
         bridgeSpecificActionsOnTokenTransfer(token, msg.sender, _value, abi.encodePacked(_receiver));
     }
