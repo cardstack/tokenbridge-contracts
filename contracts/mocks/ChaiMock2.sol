@@ -1,5 +1,7 @@
 pragma solidity 0.4.24;
 
+import "../libraries/SafeERC20.sol";
+
 contract GemLike {
     function mint(address, uint256) external returns (bool);
     function transferFrom(address, address, uint256) external returns (bool);
@@ -11,6 +13,8 @@ contract GemLike {
  * this mock represents a simplified version of Chai, which does not require other MakerDAO contracts to be deployed in e2e tests
  */
 contract ChaiMock2 {
+    using SafeERC20 for GemLike;
+
     event Transfer(address indexed src, address indexed dst, uint256 wad);
 
     GemLike public daiToken;
@@ -19,7 +23,7 @@ contract ChaiMock2 {
 
     // wad is denominated in dai
     function join(address, uint256 wad) external {
-        daiToken.transferFrom(msg.sender, address(this), wad);
+        daiToken.safeTransferFrom(msg.sender, address(this), wad);
         daiBalance += wad;
     }
 

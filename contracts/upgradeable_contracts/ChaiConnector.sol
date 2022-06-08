@@ -13,6 +13,7 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 */
 contract ChaiConnector is Ownable, ERC20Bridge, TokenSwapper {
     using SafeMath for uint256;
+    using SafeERC20 for IChai;
 
     // emitted when specified value of Chai tokens is transfered to interest receiver
     event PaidInterest(address to, uint256 value);
@@ -181,7 +182,7 @@ contract ChaiConnector is Ownable, ERC20Bridge, TokenSwapper {
         uint256 interest = chaiBalance().sub(investedAmountInChai());
         // interest is paid in Chai, paying interest directly in Dai can cause an unwanter Transfer event
         // see a comment in setInterestReceiver describing why we cannot pay interest to the bridge directly
-        chaiToken().transfer(receiver, interest);
+        chaiToken().safeTransfer(receiver, interest);
 
         receiver.call(abi.encodeWithSelector(ON_TOKEN_TRANSFER, address(this), interest, ""));
 

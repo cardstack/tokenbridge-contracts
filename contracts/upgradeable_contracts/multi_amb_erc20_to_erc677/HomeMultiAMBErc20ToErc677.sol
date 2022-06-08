@@ -203,7 +203,7 @@ contract HomeMultiAMBErc20ToErc677 is
         addTotalSpentPerDay(token, getCurrentDay(), _value);
 
         setLock(true);
-        token.transferFrom(msg.sender, to, _value);
+        token.safeTransferFrom(msg.sender, to, _value);
         setLock(false);
         bridgeSpecificActionsOnTokenTransfer(token, msg.sender, _value, abi.encodePacked(_receiver));
     }
