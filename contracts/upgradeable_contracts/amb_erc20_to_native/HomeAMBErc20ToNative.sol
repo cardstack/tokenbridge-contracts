@@ -10,7 +10,12 @@ import "../ReentrancyGuard.sol";
 * @dev Home mediator implementation for erc20-to-native bridge intended to work on top of AMB bridge.
 * It is design to be used as implementation contract of EternalStorageProxy contract.
 */
-contract HomeAMBErc20ToNative is BasicAMBErc20ToNative, BlockRewardBridge, HomeFeeManagerAMBErc20ToNative, ReentrancyGuard {
+contract HomeAMBErc20ToNative is
+    BasicAMBErc20ToNative,
+    BlockRewardBridge,
+    HomeFeeManagerAMBErc20ToNative,
+    ReentrancyGuard
+{
     bytes32 internal constant TOTAL_BURNT_COINS = 0x17f187b2e5d1f8770602b32c1159b85c9600859277fae1eaa9982e9bcf63384c; // keccak256(abi.encodePacked("totalBurntCoins"))
 
     /**
@@ -161,7 +166,7 @@ contract HomeAMBErc20ToNative is BasicAMBErc20ToNative, BlockRewardBridge, HomeF
             emit FeeDistributed(fee, _messageId);
             valueToTransfer = valueToTransfer.sub(fee);
         }
-        
+
         passMessage(msg.sender, _receiver, valueToTransfer);
         setLock(false);
         _burnCoins(valueToTransfer);
