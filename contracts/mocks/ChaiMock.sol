@@ -17,6 +17,8 @@
 /* solhint-disable */
 pragma solidity 0.4.24;
 
+import "../libraries/SafeERC20.sol";
+
 contract VatLike {
     function hope(address) external;
 }
@@ -40,6 +42,8 @@ contract GemLike {
 }
 
 contract ChaiMock {
+    using SafeERC20 for GemLike;
+
     // --- Data ---
     VatLike public vat = VatLike(0x35D1b3F3D7966A1DFe207aa4514C12a259A0492B);
     PotLike public pot = PotLike(0x197E90f9FAD81970bA7976f33CbD77088E5D7cf7);
@@ -167,7 +171,7 @@ contract ChaiMock {
         balanceOf[dst] = add(balanceOf[dst], pie);
         totalSupply = add(totalSupply, pie);
 
-        daiToken.transferFrom(msg.sender, address(this), wad);
+        daiToken.safeTransferFrom(msg.sender, address(this), wad);
         daiJoin.join(address(this), wad);
         pot.join(pie);
         emit Transfer(address(0), dst, pie);

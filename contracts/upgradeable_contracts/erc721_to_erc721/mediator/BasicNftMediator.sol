@@ -7,8 +7,12 @@ import "../../../upgradeable_contracts/BasicAMBMediator.sol";
 
 import "../../../libraries/Bytes.sol";
 import "./ERC721Bridge.sol";
+import "../../../interfaces/ERC721.sol";
+import "../../../libraries/SafeERC721.sol";
 
 contract BasicNftMediator is Initializable, BasicAMBMediator, ERC721Bridge, Upgradeable, Claimable {
+    using SafeERC721 for ERC721;
+
     event FailedMessageFixed(bytes32 indexed messageId, address recipient, address tokenContract, uint256 tokenId);
 
     function initialize(address _bridgeContract, address _mediatorContract, uint256 _requestGasLimit, address _owner)
@@ -37,7 +41,7 @@ contract BasicNftMediator is Initializable, BasicAMBMediator, ERC721Bridge, Upgr
     function transferToken(address _tokenContract, address _from, uint256 _tokenId) external {
         ERC721 token = erc721token(_tokenContract);
         address to = address(this);
-        token.transferFrom(_from, to, _tokenId);
+        token.safeTransferFrom(_from, to, _tokenId);
         bridgeSpecificActionsOnTokenTransfer(_tokenContract, _from, _tokenId);
     }
 

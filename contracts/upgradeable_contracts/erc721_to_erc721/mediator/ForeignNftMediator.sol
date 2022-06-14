@@ -6,6 +6,8 @@ import "../interfaces/IForeignNftMediator.sol";
 import "../interfaces/IHomeNftMediator.sol";
 
 contract ForeignNftMediator is IForeignNftMediator, BasicNftMediator {
+    using SafeERC721 for ERC721;
+
     function passMessage(address _tokenContract, address _from, uint256 _tokenId) internal {
         string memory tokenURI = TokenReader.readTokenURI(_tokenContract, _tokenId);
         string memory name = TokenReader.readName(_tokenContract);
@@ -37,7 +39,7 @@ contract ForeignNftMediator is IForeignNftMediator, BasicNftMediator {
         require(AddressUtils.isContract(_tokenContract));
         require(msg.sender == address(bridgeContract()));
         require(bridgeContract().messageSender() == mediatorContractOnOtherSide());
-        erc721token(_tokenContract).transferFrom(this, _recipient, _tokenId);
+        erc721token(_tokenContract).safeTransferFrom(this, _recipient, _tokenId);
     }
 
     // received token to bridge to home network
@@ -57,6 +59,6 @@ contract ForeignNftMediator is IForeignNftMediator, BasicNftMediator {
         uint256 _tokenId,
         bytes32 /* _messageId */
     ) internal {
-        erc721token(_tokenContract).transferFrom(this, _recipient, _tokenId);
+        erc721token(_tokenContract).safeTransferFrom(this, _recipient, _tokenId);
     }
 }

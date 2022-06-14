@@ -9,6 +9,8 @@ import "../../interfaces/IBurnableMintableERC677Token.sol";
 * It is designed to be used as an implementation contract of EternalStorageProxy contract.
 */
 contract ForeignStakeTokenMediator is BasicStakeTokenMediator {
+    using SafeERC20 for IBurnableMintableERC677Token;
+
     /**
      * @dev Executes action on the request to withdraw tokens relayed from the other network
      * @param _recipient address of tokens receiver
@@ -59,9 +61,9 @@ contract ForeignStakeTokenMediator is BasicStakeTokenMediator {
             token.mint(_recipient, _value);
         } else if (balance < _value) {
             token.mint(address(this), _value - balance);
-            token.transfer(_recipient, _value);
+            token.safeTransfer(_recipient, _value);
         } else {
-            token.transfer(_recipient, _value);
+            token.safeTransfer(_recipient, _value);
         }
     }
 

@@ -3,13 +3,19 @@ pragma solidity 0.4.24;
 import "./BasicAMBErc20ToNative.sol";
 import "./HomeFeeManagerAMBErc20ToNative.sol";
 import "../BlockRewardBridge.sol";
+import "../ReentrancyGuard.sol";
 
 /**
 * @title HomeAMBErc20ToNative
 * @dev Home mediator implementation for erc20-to-native bridge intended to work on top of AMB bridge.
 * It is design to be used as implementation contract of EternalStorageProxy contract.
 */
-contract HomeAMBErc20ToNative is BasicAMBErc20ToNative, BlockRewardBridge, HomeFeeManagerAMBErc20ToNative {
+contract HomeAMBErc20ToNative is
+    BasicAMBErc20ToNative,
+    BlockRewardBridge,
+    HomeFeeManagerAMBErc20ToNative,
+    ReentrancyGuard
+{
     bytes32 internal constant TOTAL_BURNT_COINS = 0x17f187b2e5d1f8770602b32c1159b85c9600859277fae1eaa9982e9bcf63384c; // keccak256(abi.encodePacked("totalBurntCoins"))
 
     /**
@@ -141,9 +147,11 @@ contract HomeAMBErc20ToNative is BasicAMBErc20ToNative, BlockRewardBridge, HomeF
     */
     function nativeTransfer(address _receiver) internal {
         // this check also validates that msg.value is positive, since minPerTx() > 0
+        require(!lock());
         require(withinLimit(msg.value));
 
         IBlockReward blockReward = blockRewardContract();
+        setLock(true);
         uint256 totalMinted = blockReward.mintedTotallyByBridge(address(this));
         uint256 totalBurnt = totalBurntCoins();
         require(msg.value <= totalMinted.sub(totalBurnt));
@@ -160,6 +168,7 @@ contract HomeAMBErc20ToNative is BasicAMBErc20ToNative, BlockRewardBridge, HomeF
         }
 
         passMessage(msg.sender, _receiver, valueToTransfer);
+        setLock(false);
         _burnCoins(valueToTransfer);
     }
 
