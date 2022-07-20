@@ -20,6 +20,12 @@ module.exports = {
   networks: {
     localhost: {
       url: 'http://localhost:8545'
+    },
+    kovan: {
+      url: process.env.KOVAN_RPC_URL
+    },
+    sokol: {
+      url: process.env.SOKOL_RPC_URL
     }
   },
   gasReporter: {
@@ -27,7 +33,7 @@ module.exports = {
   },
   etherscan: {
     apiKey: {
-      kovan: 'This just has to be any non-empty string',
+      kovan: process.env.FOREIGN_EXPLORER_API_KEY,
       sokol: 'This just has to be any non-empty string'
     }
   }
