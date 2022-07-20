@@ -23,6 +23,7 @@
   "license": "GPL-3.0-only",
   "dependencies": {
     "@nomiclabs/hardhat-truffle5": "^2.0.5",
+    "@nomiclabs/hardhat-etherscan": "^3.1.0",
     "@truffle/hdwallet-provider": "^2.0.4",
     "hardhat-contract-sizer": "^2.5.0",
     "hardhat-gas-reporter": "^1.0.8",

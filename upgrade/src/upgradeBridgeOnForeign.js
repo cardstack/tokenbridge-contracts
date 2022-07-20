@@ -1,7 +1,8 @@
 require('dotenv').config()
 const Web3 = require('web3')
 const TrezorWalletProvider = require('trezor-cli-wallet-provider')
-const proxyAbi = require('../../build/contracts/EternalStorageProxy').abi
+const proxyAbi = require('../../artifacts/contracts/upgradeability/EternalStorageProxy.sol/EternalStorageProxy.json')
+  .abi
 
 const {
   FOREIGN_RPC_URL,
@@ -17,7 +18,8 @@ const {
 
 const foreignProvider = new TrezorWalletProvider(FOREIGN_RPC_URL, {
   chainId: FOREIGN_CHAIN_ID,
-  derivationPathPrefix: FOREIGN_KEY_DERIVATION_PATH
+  derivationPathPrefix: FOREIGN_KEY_DERIVATION_PATH,
+  numberOfAccounts: 5
 })
 const web3 = new Web3(foreignProvider)
 
@@ -36,7 +38,7 @@ const upgradeBridgeOnForeign = async () => {
       )
     }
 
-    console.log(`Attempting upgrade to ${FOREIGN_NEW_VERSION}`)
+    console.log(`Attempting upgrade to ${FOREIGN_NEW_VERSION} (${NEW_FOREIGN_BRIDGE_MEDIATOR_IMPLEMENTATION})`)
     console.log('Sending upgrade transaction from', FOREIGN_DEPLOYMENT_ACCOUNT_ADDRESS)
 
     const upgradeCall = proxy.methods.upgradeTo(FOREIGN_NEW_VERSION, NEW_FOREIGN_BRIDGE_MEDIATOR_IMPLEMENTATION)

@@ -1,7 +1,8 @@
 require('dotenv').config()
 const Web3 = require('web3')
 const TrezorWalletProvider = require('trezor-cli-wallet-provider')
-const proxyAbi = require('../../build/contracts/EternalStorageProxy').abi
+const proxyAbi = require('../../artifacts/contracts/upgradeability/EternalStorageProxy.sol/EternalStorageProxy.json')
+  .abi
 
 const {
   HOME_RPC_URL,
@@ -17,7 +18,8 @@ const {
 
 const homeProvider = new TrezorWalletProvider(HOME_RPC_URL, {
   chainId: HOME_CHAIN_ID,
-  derivationPathPrefix: HOME_KEY_DERIVATION_PATH
+  derivationPathPrefix: HOME_KEY_DERIVATION_PATH,
+  numberOfAccounts: 5
 })
 const web3 = new Web3(homeProvider)
 
@@ -36,7 +38,7 @@ const upgradeBridgeOnHome = async () => {
       )
     }
 
-    console.log(`Attempting upgrade to ${HOME_NEW_VERSION}`)
+    console.log(`Attempting upgrade to ${HOME_NEW_VERSION} (${NEW_HOME_BRIDGE_MEDIATOR_IMPLEMENTATION})`)
     console.log('Sending upgrade transaction from', HOME_DEPLOYMENT_ACCOUNT_ADDRESS)
 
     const upgradeCall = proxy.methods.upgradeTo(HOME_NEW_VERSION, NEW_HOME_BRIDGE_MEDIATOR_IMPLEMENTATION)

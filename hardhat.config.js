@@ -2,6 +2,7 @@ require('@nomiclabs/hardhat-truffle5')
 require('hardhat-contract-sizer')
 require('hardhat-gas-reporter')
 require('solidity-coverage')
+require('@nomiclabs/hardhat-etherscan')
 
 /**
  * @type import('hardhat/config').HardhatUserConfig
@@ -23,5 +24,11 @@ module.exports = {
   },
   gasReporter: {
     enabled: !!process.env.GASREPORT
+  },
+  etherscan: {
+    apiKey: {
+      kovan: 'This just has to be any non-empty string',
+      sokol: 'This just has to be any non-empty string'
+    }
   }
 }

@@ -8,23 +8,31 @@ const {
   homeContracts: { ERC677BridgeTokenPermittable, HomeMultiAMBErc20ToErc677 }
 } = require('./src/loadContracts')
 
-const { HOME_DEPLOYMENT_ACCOUNT_ADDRESS, HOME_MEDIATOR_ADDRESS, HOME_TOKENS_TO_UPGRADE } = env
+const { HOME_DEPLOYMENT_ACCOUNT_ADDRESS } = env
+
+const {
+  homeBridge: {
+    homeBridgeMediator: { address: homeProxyAddress }
+  },
+  foreignBridge: {
+    foreignBridgeMediator: { address: foreignProxyAddress }
+  }
+} = require('./bridgeDeploymentResults.json')
 
 async function upgradePermittableTokenImage() {
   console.log('\n[Home] Deploying new ERC677 token image from ', HOME_DEPLOYMENT_ACCOUNT_ADDRESS)
-
-  const homeMediator = new web3Home.eth.Contract(HomeMultiAMBErc20ToErc677.abi, HOME_MEDIATOR_ADDRESS)
-
-  assert.strictEqual(
-    await homeMediator.methods.owner().call(),
-    HOME_DEPLOYMENT_ACCOUNT_ADDRESS,
-    'This operation must be peformed by the owner of the home mediator'
-  )
-
+  console.log(`  Home mediator: ${homeProxyAddress}`)
   let nonce = await web3Home.eth.getTransactionCount(HOME_DEPLOYMENT_ACCOUNT_ADDRESS)
+  console.log(`  Nonce: ${nonce}`)
 
   const chainId = await web3Home.eth.getChainId()
+  console.log(`  chainId: ${chainId}`)
   assert.strictEqual(chainId > 0, true, 'Invalid chain ID')
+
+  const homeMediator = new web3Home.eth.Contract(HomeMultiAMBErc20ToErc677.abi, homeProxyAddress)
+
+  const owner = await homeMediator.methods.owner().call()
+
   const erc677token = await deployContract(ERC677BridgeTokenPermittable, ['', '', 0, chainId], {
     from: HOME_DEPLOYMENT_ACCOUNT_ADDRESS,
     nonce

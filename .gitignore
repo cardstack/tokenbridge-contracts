@@ -10,7 +10,9 @@ coverage
 deploy/*.config
 deploy/*.env*
 !deploy/.env.example
+!deploy/.env.kovan-sokol
+!deploy/.env.mainnet-xdai
 upgrade/*.env*
 !upgrade/.env.example
 coverage.json
-
+.env
