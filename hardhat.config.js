@@ -22,10 +22,10 @@ module.exports = {
       url: 'http://localhost:8545'
     },
     kovan: {
-      url: process.env.KOVAN_RPC_URL
+      url: process.env.KOVAN_RPC_URL || 'https://kovan.infura.io'
     },
     sokol: {
-      url: process.env.SOKOL_RPC_URL
+      url: process.env.SOKOL_RPC_URL || 'https://sokol.poa.network/'
     }
   },
   gasReporter: {
