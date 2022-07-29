@@ -13,9 +13,6 @@ const { HOME_DEPLOYMENT_ACCOUNT_ADDRESS } = env
 const {
   homeBridge: {
     homeBridgeMediator: { address: homeProxyAddress }
-  },
-  foreignBridge: {
-    foreignBridgeMediator: { address: foreignProxyAddress }
   }
 } = require('./bridgeDeploymentResults.json')
 
@@ -25,15 +22,7 @@ async function upgradePermittableTokenImage() {
   let nonce = await web3Home.eth.getTransactionCount(HOME_DEPLOYMENT_ACCOUNT_ADDRESS)
   console.log(`  Nonce: ${nonce}`)
 
-  const chainId = await web3Home.eth.getChainId()
-  console.log(`  chainId: ${chainId}`)
-  assert.strictEqual(chainId > 0, true, 'Invalid chain ID')
-
-  const homeMediator = new web3Home.eth.Contract(HomeMultiAMBErc20ToErc677.abi, homeProxyAddress)
-
-  const owner = await homeMediator.methods.owner().call()
-
-  const erc677token = await deployContract(ERC677BridgeTokenPermittable, ['', '', 0, chainId], {
+  const erc677token = await deployContract(ERC677BridgeTokenPermittable, ['', '', 0], {
     from: HOME_DEPLOYMENT_ACCOUNT_ADDRESS,
     nonce
   })
@@ -45,28 +34,12 @@ async function upgradePermittableTokenImage() {
   nonce++
 
   console.log('[Home] Setting the token image to the implementation')
+  const homeMediator = new web3Home.eth.Contract(HomeMultiAMBErc20ToErc677.abi, homeProxyAddress)
 
   await homeMediator.methods.setTokenImage(homeTokenImage).send({
     from: HOME_DEPLOYMENT_ACCOUNT_ADDRESS,
     nonce
   })
-
-  nonce++
-
-  const homeTokenList = HOME_TOKENS_TO_UPGRADE.split(',').map(a => a.trim())
-  // eslint-disable-next-line no-restricted-syntax
-  for (const homeTokenAddress of homeTokenList) {
-    console.log('[Home] upgrading metadata of token ', homeTokenAddress)
-    const token = new web3Home.eth.Contract(ERC677BridgeTokenPermittable.abi, homeTokenAddress)
-    const migrateData = await token.methods
-      .migrateTokenMetadata()
-      .send({ from: HOME_DEPLOYMENT_ACCOUNT_ADDRESS, nonce })
-
-    console.log('New symbol', await token.methods.symbol().call())
-    console.log('New name', await token.methods.name().call())
-
-    nonce++
-  }
 
   console.log('success')
 }
