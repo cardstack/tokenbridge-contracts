@@ -3,6 +3,7 @@ require('hardhat-contract-sizer')
 require('hardhat-gas-reporter')
 require('solidity-coverage')
 require('@nomiclabs/hardhat-etherscan')
+require('hardhat-tracer')
 
 /**
  * @type import('hardhat/config').HardhatUserConfig
