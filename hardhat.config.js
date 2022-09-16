@@ -2,6 +2,8 @@ require('@nomiclabs/hardhat-truffle5')
 require('hardhat-contract-sizer')
 require('hardhat-gas-reporter')
 require('solidity-coverage')
+require('@nomiclabs/hardhat-etherscan')
+require('hardhat-tracer')
 
 /**
  * @type import('hardhat/config').HardhatUserConfig
@@ -19,9 +21,21 @@ module.exports = {
   networks: {
     localhost: {
       url: 'http://localhost:8545'
+    },
+    kovan: {
+      url: process.env.KOVAN_RPC_URL || 'https://kovan.infura.io'
+    },
+    sokol: {
+      url: process.env.SOKOL_RPC_URL || 'https://sokol.poa.network/'
     }
   },
   gasReporter: {
     enabled: !!process.env.GASREPORT
+  },
+  etherscan: {
+    apiKey: {
+      kovan: process.env.FOREIGN_EXPLORER_API_KEY,
+      sokol: 'This just has to be any non-empty string'
+    }
   }
 }

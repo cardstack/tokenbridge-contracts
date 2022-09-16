@@ -8,24 +8,21 @@ const {
   homeContracts: { ERC677BridgeTokenPermittable, HomeMultiAMBErc20ToErc677 }
 } = require('./src/loadContracts')
 
-const { HOME_DEPLOYMENT_ACCOUNT_ADDRESS, HOME_MEDIATOR_ADDRESS, HOME_TOKENS_TO_UPGRADE } = env
+const { HOME_DEPLOYMENT_ACCOUNT_ADDRESS } = env
+
+const {
+  homeBridge: {
+    homeBridgeMediator: { address: homeProxyAddress }
+  }
+} = require('./bridgeDeploymentResults.json')
 
 async function upgradePermittableTokenImage() {
   console.log('\n[Home] Deploying new ERC677 token image from ', HOME_DEPLOYMENT_ACCOUNT_ADDRESS)
-
-  const homeMediator = new web3Home.eth.Contract(HomeMultiAMBErc20ToErc677.abi, HOME_MEDIATOR_ADDRESS)
-
-  assert.strictEqual(
-    await homeMediator.methods.owner().call(),
-    HOME_DEPLOYMENT_ACCOUNT_ADDRESS,
-    'This operation must be peformed by the owner of the home mediator'
-  )
-
+  console.log(`  Home mediator: ${homeProxyAddress}`)
   let nonce = await web3Home.eth.getTransactionCount(HOME_DEPLOYMENT_ACCOUNT_ADDRESS)
+  console.log(`  Nonce: ${nonce}`)
 
-  const chainId = await web3Home.eth.getChainId()
-  assert.strictEqual(chainId > 0, true, 'Invalid chain ID')
-  const erc677token = await deployContract(ERC677BridgeTokenPermittable, ['', '', 0, chainId], {
+  const erc677token = await deployContract(ERC677BridgeTokenPermittable, ['', '', 0], {
     from: HOME_DEPLOYMENT_ACCOUNT_ADDRESS,
     nonce
   })
@@ -37,28 +34,12 @@ async function upgradePermittableTokenImage() {
   nonce++
 
   console.log('[Home] Setting the token image to the implementation')
+  const homeMediator = new web3Home.eth.Contract(HomeMultiAMBErc20ToErc677.abi, homeProxyAddress)
 
   await homeMediator.methods.setTokenImage(homeTokenImage).send({
     from: HOME_DEPLOYMENT_ACCOUNT_ADDRESS,
     nonce
   })
-
-  nonce++
-
-  const homeTokenList = HOME_TOKENS_TO_UPGRADE.split(',').map(a => a.trim())
-  // eslint-disable-next-line no-restricted-syntax
-  for (const homeTokenAddress of homeTokenList) {
-    console.log('[Home] upgrading metadata of token ', homeTokenAddress)
-    const token = new web3Home.eth.Contract(ERC677BridgeTokenPermittable.abi, homeTokenAddress)
-    const migrateData = await token.methods
-      .migrateTokenMetadata()
-      .send({ from: HOME_DEPLOYMENT_ACCOUNT_ADDRESS, nonce })
-
-    console.log('New symbol', await token.methods.symbol().call())
-    console.log('New name', await token.methods.name().call())
-
-    nonce++
-  }
 
   console.log('success')
 }

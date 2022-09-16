@@ -52,14 +52,6 @@ async function deployContract(contractJson, args, { network, nonce }) {
     nonce
   })
 
-  if (apiUrl) {
-    let constructorArguments
-    if (args.length) {
-      constructorArguments = result.substring(contractJson.bytecode.length)
-    }
-    await verifier({ artifact: contractJson, constructorArguments, address: tx.contractAddress, apiUrl, apiKey })
-  }
-
   return instance
 }
 
@@ -117,7 +109,7 @@ async function sendRawTx({ data, nonce, to, from, url, gasPrice, value }) {
 
     const provider = getWeb3Provider(url)
 
-    console.log('Signing transaction…')
+    console.log('Signing transaction…', { rawTx })
 
     const signedTransaction = await provider.eth.signTransaction(rawTx)
     const txHash = await sendNodeRequest(url, 'eth_sendRawTransaction', signedTransaction.raw)
